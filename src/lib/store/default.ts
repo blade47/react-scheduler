@@ -117,7 +117,6 @@ export const defaultProps = (props: Scheduler): SchedulerProps => {
     translations,
     resourceFields,
     view,
-    agenda,
     selectedDate,
     ...otherProps
   } = props;
@@ -159,7 +158,10 @@ export const defaultProps = (props: Scheduler): SchedulerProps => {
     deletable: true,
     editable: true,
     draggable: true,
-    agenda,
+    enableAgenda: true,
+    enableTodayButton: true,
+    maxDate: undefined,
+    minDate: undefined,
     ...views,
     ...otherProps,
   };

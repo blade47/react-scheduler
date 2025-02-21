@@ -5,6 +5,7 @@ import { LocaleArrow } from '../common/LocaleArrow';
 import { DateCalendar } from '@mui/x-date-pickers';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
+import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
 
 interface WeekDateBtnProps {
   selectedDate: Date;
@@ -13,7 +14,7 @@ interface WeekDateBtnProps {
 }
 
 const WeekDateBtn = ({ selectedDate, onChange, weekProps }: WeekDateBtnProps) => {
-  const { navigationPickerProps } = useStore();
+  const { navigationPickerProps, minDate, maxDate } = useStore();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { weekStartOn } = weekProps;
 
@@ -34,19 +35,29 @@ const WeekDateBtn = ({ selectedDate, onChange, weekProps }: WeekDateBtnProps) =>
     handleClose();
   };
 
-  const handlePrev = () => {
-    const lastDayPrevWeek = weekStart.subtract(1, 'day');
-    onChange(lastDayPrevWeek.toDate());
+  const handleDateNavigation = (direction: 'prev' | 'next') => {
+    const newDate = getNewDate(selectedDayjs, direction, 'week');
+    if (isDateInRange(newDate, minDate, maxDate)) {
+      onChange(newDate.toDate());
+    }
   };
 
-  const handleNext = () => {
-    const firstDayNextWeek = weekEnd.add(1, 'day');
-    onChange(firstDayNextWeek.toDate());
+  const canGo = (direction: 'prev' | 'next') => {
+    const newDate = getNewDate(selectedDayjs, direction, 'week');
+    return isDateInRange(newDate, minDate, maxDate);
   };
+
+  const handlePrev = () => handleDateNavigation('prev');
+  const handleNext = () => handleDateNavigation('next');
 
   return (
     <>
-      <LocaleArrow type="prev" onClick={handlePrev} aria-label="previous week" />
+      <LocaleArrow
+        type="prev"
+        onClick={handlePrev}
+        aria-label="previous week"
+        disabled={!canGo('prev')}
+      />
       <Button style={{ padding: 4 }} onClick={handleOpen} aria-label="selected week">
         {`${weekStart.format('DD')} - ${weekEnd.format('DD MMM YYYY')}`}
       </Button>
@@ -61,13 +72,20 @@ const WeekDateBtn = ({ selectedDate, onChange, weekProps }: WeekDateBtnProps) =>
       >
         <DateCalendar
           {...navigationPickerProps}
+          minDate={minDate ? dayjs(minDate) : undefined}
+          maxDate={maxDate ? dayjs(maxDate) : undefined}
           openTo="day"
           views={['month', 'day']}
           value={selectedDayjs}
           onChange={handleChange}
         />
       </Popover>
-      <LocaleArrow type="next" onClick={handleNext} aria-label="next week" />
+      <LocaleArrow
+        type="next"
+        onClick={handleNext}
+        aria-label="next week"
+        disabled={!canGo('next')}
+      />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { dayjs } from '@/config/dayjs.ts';
+import { dayjs } from '@/config/dayjs';
 
 interface AuxProps {
   children: React.ReactNode;

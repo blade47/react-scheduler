@@ -1,5 +1,11 @@
 import { Paper, alpha, styled } from '@mui/material';
 
+const MODERN_STYLES = {
+  shadowLight: '0 2px 8px rgba(0, 0, 0, 0.08)',
+  shadowMedium: '0 4px 12px rgba(0, 0, 0, 0.12)',
+  transition: 'all 0.2s ease-in-out',
+};
+
 export const Wrapper = styled('div')<{ dialog: number }>(({ theme, dialog }) => ({
   position: 'relative',
   '& .rs__table_loading': {
@@ -10,7 +16,8 @@ export const Wrapper = styled('div')<{ dialog: number }>(({ theme, dialog }) => 
     bottom: 0,
     zIndex: 999999,
     '& .rs__table_loading_internal': {
-      background: dialog ? '' : alpha(theme.palette.background.paper, 0.4),
+      background: dialog ? '' : alpha(theme.palette.background.paper, 0.6),
+      backdropFilter: 'blur(4px)', // Modern blur effect
       height: '100%',
       '& > span': {
         display: 'flex',
@@ -38,7 +45,7 @@ export const Table = styled('div')<{ resource_count: number }>(({ resource_count
   },
 }));
 
-export const NavigationDiv = styled(Paper)<{ sticky?: string }>(({ sticky = '0' }) => ({
+export const NavigationDiv = styled(Paper)<{ sticky?: string }>(({ sticky = '0', theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -46,21 +53,24 @@ export const NavigationDiv = styled(Paper)<{ sticky?: string }>(({ sticky = '0' 
   top: sticky === '1' ? 0 : undefined,
   zIndex: sticky === '1' ? 999 : undefined,
   boxShadow: 'none',
-  padding: '2px 0',
+  padding: '8px 16px',
+  background: alpha(theme.palette.background.paper, 0.95),
+  backdropFilter: 'blur(8px)',
   '& > .rs__view_navigator': {
     display: 'flex',
     alignItems: 'center',
+    gap: '8px',
   },
 }));
 
 export const AgendaDiv = styled('div')(({ theme }) => ({
   borderStyle: 'solid',
-  borderColor: theme.palette.grey[300],
+  borderColor: theme.palette.divider,
   borderWidth: '1px 1px 0 0',
   '& > .rs__agenda_row': {
     display: 'flex',
     '& >.rs__agenda__cell': {
-      padding: 4,
+      padding: '8px 12px',
       width: '100%',
       maxWidth: 60,
       '& > .MuiTypography-root': {
@@ -68,16 +78,17 @@ export const AgendaDiv = styled('div')(({ theme }) => ({
         top: 0,
         '&.rs__hover__op': {
           cursor: 'pointer',
+          transition: MODERN_STYLES.transition,
           '&:hover': {
-            opacity: 0.7,
-            textDecoration: 'underline',
+            opacity: 0.8,
+            color: theme.palette.primary.main,
           },
         },
       },
     },
     '& .rs__cell': {
       borderStyle: 'solid',
-      borderColor: theme.palette.grey[300],
+      borderColor: theme.palette.divider,
       borderWidth: '0 0 1px 1px',
     },
     '& > .rs__agenda_items': {
@@ -93,17 +104,20 @@ export const TableGrid = styled('div')<{
   indent?: string;
 }>(({ days, sticky = '0', stickyNavigation, indent = '1', theme }) => ({
   display: 'grid',
-  gridTemplateColumns: +indent > 0 ? `10% repeat(${days}, 1fr)` : `repeat(${days}, 1fr)`,
+  gridTemplateColumns:
+    +indent > 0
+      ? `80px repeat(${days}, minmax(120px, 1fr))`
+      : `repeat(${days}, minmax(120px, 1fr))`,
   overflowX: 'auto',
   overflowY: 'hidden',
   position: sticky === '1' ? 'sticky' : 'relative',
   top: sticky === '1' ? (stickyNavigation ? 36 : 0) : undefined,
   zIndex: sticky === '1' ? 99 : undefined,
   [theme.breakpoints.down('sm')]: {
-    gridTemplateColumns: +indent > 0 ? `30px repeat(${days}, 1fr)` : '',
+    gridTemplateColumns: +indent > 0 ? `60px repeat(${days}, minmax(100px, 1fr))` : '',
   },
   borderStyle: 'solid',
-  borderColor: theme.palette.grey[300],
+  borderColor: theme.palette.divider,
   borderWidth: '0 0 0 1px',
   '&:first-of-type': {
     borderWidth: '1px 0 0 1px',
@@ -115,15 +129,19 @@ export const TableGrid = styled('div')<{
     background: theme.palette.background.paper,
     position: 'relative',
     borderStyle: 'solid',
-    borderColor: theme.palette.grey[300],
+    borderColor: theme.palette.divider,
     borderWidth: '0 1px 1px 0',
+    transition: MODERN_STYLES.transition,
     '&.rs__header': {
+      minHeight: '50px',
+      background: theme.palette.background.paper,
       '& > :first-of-type': {
-        padding: '2px 5px',
+        padding: '8px 12px',
+        whiteSpace: 'nowrap',
       },
     },
     '&.rs__header__center': {
-      padding: '6px 0px',
+      padding: '8px 12px',
     },
     '&.rs__time': {
       display: 'flex',
@@ -132,6 +150,8 @@ export const TableGrid = styled('div')<{
       position: 'sticky',
       left: 0,
       zIndex: 99,
+      minWidth: '60px',
+      color: theme.palette.text.secondary,
       [theme.breakpoints.down('sm')]: {
         writingMode: 'vertical-rl',
       },
@@ -141,8 +161,9 @@ export const TableGrid = styled('div')<{
       height: '100%',
       borderRadius: 0,
       cursor: 'pointer',
+      transition: MODERN_STYLES.transition,
       '&:hover': {
-        background: alpha(theme.palette.primary.main, 0.1),
+        background: alpha(theme.palette.primary.main, 0.08),
       },
     },
     '& .rs__event__item': {
@@ -160,61 +181,85 @@ export const TableGrid = styled('div')<{
     },
     '& .rs__hover__op': {
       cursor: 'pointer',
+      transition: MODERN_STYLES.transition,
       '&:hover': {
-        opacity: 0.7,
-        textDecoration: 'underline',
+        opacity: 0.8,
+        color: theme.palette.primary.main,
       },
-    },
-    '&:not(.rs__time)': {
-      minWidth: 65,
     },
   },
 }));
 
-export const EventItemPaper = styled(Paper)<{ disabled?: boolean }>(({ disabled }) => ({
-  width: '99.5%',
-  height: '100%',
+export const EventItemPaper = styled(Paper)<{ disabled?: boolean }>(({ disabled, theme }) => ({
+  width: 'calc(100% - 4px)',
+  height: 'calc(100% - 4px)',
+  margin: '2px',
   display: 'block',
   cursor: disabled ? 'not-allowed' : 'pointer',
   overflow: 'hidden',
+  borderRadius: '6px',
+  boxShadow: MODERN_STYLES.shadowLight,
+  transition: MODERN_STYLES.transition,
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  backgroundColor: alpha(theme.palette.primary.main, 0.08),
+
+  '&:hover': {
+    transform: disabled ? 'none' : 'translateY(-1px)',
+    boxShadow: disabled ? MODERN_STYLES.shadowLight : MODERN_STYLES.shadowMedium,
+    border: `1px solid ${alpha(theme.palette.primary.main, 0.4)}`,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+  },
+
   '& .MuiButtonBase-root': {
     width: '100%',
     height: '100%',
     display: 'block',
     textAlign: 'left',
+    padding: '4px 8px',
     '& > div': {
       height: '100%',
     },
   },
 }));
 
-export const PopperInner = styled('div')(({ theme }) => ({
+export const PopperInner = styled('div')(() => ({
   maxWidth: '100%',
   width: 400,
+  borderRadius: '8px',
+  boxShadow: MODERN_STYLES.shadowMedium,
   '& > div': {
-    padding: '5px 10px',
+    padding: '12px 16px',
     '& .rs__popper_actions': {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      '& .MuiIconButton-root': {
-        color: theme.palette.primary.contrastText,
-      },
+      gap: '8px',
     },
   },
 }));
 
 export const EventActions = styled('div')(({ theme }) => ({
-  display: 'inherit',
+  display: 'flex',
+  gap: '8px',
   '& .MuiIconButton-root': {
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.primary.main,
+    transition: MODERN_STYLES.transition,
   },
   '& .MuiButton-root': {
+    borderRadius: '6px',
+    transition: MODERN_STYLES.transition,
     '&.delete': {
       color: theme.palette.error.main,
+      '&:hover': {
+        background: alpha(theme.palette.error.main, 0.08),
+      },
     },
     '&.cancel': {
-      color: theme.palette.action.disabled,
+      color: theme.palette.text.secondary,
+      '&:hover': {
+        background: alpha(theme.palette.action.active, 0.08),
+      },
     },
   },
 }));
@@ -224,16 +269,18 @@ export const TimeIndicatorBar = styled('div')(({ theme }) => ({
   zIndex: 9,
   width: '100%',
   display: 'flex',
+  alignItems: 'center',
   '& > div:first-of-type': {
-    height: 12,
-    width: 12,
+    height: 10,
+    width: 10,
     borderRadius: '50%',
-    background: theme.palette.error.light,
-    marginLeft: -6,
-    marginTop: -5,
+    background: theme.palette.error.main,
+    boxShadow: `0 0 0 2px ${alpha(theme.palette.error.main, 0.2)}`,
+    marginLeft: -5,
   },
   '& > div:last-of-type': {
-    borderTop: `solid 2px ${theme.palette.error.light}`,
+    borderTop: `solid 2px ${theme.palette.error.main}`,
     width: '100%',
+    opacity: 0.7,
   },
 }));

@@ -38,6 +38,7 @@ const Navigation = () => {
     agenda,
     toggleAgenda,
     enableAgenda,
+    enableTodayButton,
   } = useStore();
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -111,9 +112,11 @@ const Navigation = () => {
           visibility: disableViewNavigator ? 'hidden' : 'visible',
         }}
       >
-        <Button onClick={handleTodayClick} aria-label={translations.navigation.today}>
-          {translations.navigation.today}
-        </Button>
+        {enableTodayButton && (
+          <Button onClick={handleTodayClick} aria-label={translations.navigation.today}>
+            {translations.navigation.today}
+          </Button>
+        )}
 
         {enableAgenda &&
           (isDesktop ? (

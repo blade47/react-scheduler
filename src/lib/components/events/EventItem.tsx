@@ -9,7 +9,7 @@ import useStore from '../../hooks/useStore';
 import useDragAttributes from '../../hooks/useDragAttributes';
 import EventItemPopover from './EventItemPopover';
 import useEventPermissions from '../../hooks/useEventPermissions';
-import { dayjs } from '@/config/dayjs.ts';
+import { dayjs } from '@/config/dayjs';
 
 interface EventItemProps {
   event: ProcessedEvent;

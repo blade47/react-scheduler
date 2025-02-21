@@ -57,7 +57,6 @@ const Day = () => {
   const selectedDayjs = dayjs(selectedDate);
 
   const START_TIME = selectedDayjs.hour(startHour).minute(0).second(0);
-
   const END_TIME = selectedDayjs.hour(endHour).minute(-step).second(0);
 
   const generateHoursArray = (start: Dayjs, end: Dayjs, stepMinutes: number): Date[] => {

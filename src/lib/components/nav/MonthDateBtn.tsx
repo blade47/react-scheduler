@@ -4,6 +4,7 @@ import { Button, Popover } from '@mui/material';
 import { LocaleArrow } from '../common/LocaleArrow';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
+import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
 
 interface MonthDateBtnProps {
   selectedDate: Date;
@@ -11,11 +12,10 @@ interface MonthDateBtnProps {
 }
 
 const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
-  const { navigationPickerProps } = useStore();
+  const { navigationPickerProps, minDate, maxDate } = useStore();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const selectedDayjs = dayjs(selectedDate);
-  const currentMonth = selectedDayjs.month();
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -30,19 +30,29 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
     handleClose();
   };
 
-  const handlePrev = () => {
-    const newDate = selectedDayjs.month(currentMonth - 1);
-    onChange(newDate.toDate());
+  const handleDateNavigation = (direction: 'prev' | 'next') => {
+    const newDate = getNewDate(selectedDayjs, direction, 'month');
+    if (isDateInRange(newDate, minDate, maxDate)) {
+      onChange(newDate.toDate());
+    }
   };
 
-  const handleNext = () => {
-    const newDate = selectedDayjs.month(currentMonth + 1);
-    onChange(newDate.toDate());
+  const canGo = (direction: 'prev' | 'next') => {
+    const newDate = getNewDate(selectedDayjs, direction, 'month');
+    return isDateInRange(newDate, minDate, maxDate);
   };
+
+  const handlePrev = () => handleDateNavigation('prev');
+  const handleNext = () => handleDateNavigation('next');
 
   return (
     <>
-      <LocaleArrow type="prev" onClick={handlePrev} aria-label="previous month" />
+      <LocaleArrow
+        type="prev"
+        onClick={handlePrev}
+        aria-label="previous month"
+        disabled={!canGo('prev')}
+      />
       <Button style={{ padding: 4 }} onClick={handleOpen} aria-label="selected month">
         {selectedDayjs.format('MMMM YYYY')}
       </Button>
@@ -57,13 +67,20 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
       >
         <DateCalendar
           {...navigationPickerProps}
+          minDate={minDate ? dayjs(minDate) : undefined}
+          maxDate={maxDate ? dayjs(maxDate) : undefined}
           openTo="month"
           views={['year', 'month']}
           value={selectedDayjs}
           onChange={handleChange}
         />
       </Popover>
-      <LocaleArrow type="next" onClick={handleNext} aria-label="next month" />
+      <LocaleArrow
+        type="next"
+        onClick={handleNext}
+        aria-label="next month"
+        disabled={!canGo('next')}
+      />
     </>
   );
 };

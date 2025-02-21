@@ -191,10 +191,14 @@ export interface RequiredSchedulerProps {
 
 export interface OptionalSchedulerProps {
   agenda?: boolean;
+  enableAgenda?: boolean;
+  enableTodayButton?: boolean;
   alwaysShowAgendaDays?: boolean;
   month: MonthProps | null;
   week: WeekProps | null;
   day: DayProps | null;
+  minDate: Date | null;
+  maxDate: Date | null;
   navigation?: boolean;
   disableViewNavigator?: boolean;
   navigationPickerProps?: Partial<
@@ -254,4 +258,4 @@ export interface SchedulerRef {
   scheduler: Store;
 }
 
-export type Scheduler = Partial<SchedulerProps>;
+export type Scheduler = Partial<Omit<SchedulerProps, 'agenda'>>;

@@ -2,6 +2,7 @@ import { dayjs } from '@/config/dayjs';
 import { View } from '../components/nav/Navigation';
 import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields, SchedulerProps } from '@/lib';
 import { StateEvent } from '../views/Editor';
+import { Dayjs } from 'dayjs';
 
 export const getAvailableViews = (state: SchedulerProps): View[] => {
   const views: View[] = [];
@@ -281,3 +282,18 @@ export const getHourFormat = (hourFormat: '12' | '24'): string => {
 export const isDateToday = (date: Date): boolean => {
   return dayjs(date).isSame(dayjs(), 'day');
 };
+
+export const isDateInRange = (
+  date: Dayjs,
+  minDate?: Date | null,
+  maxDate?: Date | null
+): boolean => {
+  if (minDate && date.isBefore(dayjs(minDate))) return false;
+  return !(maxDate && date.isAfter(dayjs(maxDate)));
+};
+
+export const getNewDate = (
+  date: Dayjs,
+  direction: 'prev' | 'next',
+  time: 'day' | 'week' | 'month' = 'day'
+): Dayjs => (direction === 'prev' ? date.subtract(1, time) : date.add(1, time));

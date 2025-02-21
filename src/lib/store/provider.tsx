@@ -5,7 +5,7 @@ import { StoreContext } from './context';
 import { Store, SelectedRange } from './types';
 import { arraytizeFieldVal, getAvailableViews } from '../helpers/generals';
 import { View } from '../components/nav/Navigation';
-import { dayjs } from '@/config/dayjs.ts';
+import { dayjs } from '@/config/dayjs';
 import { Scheduler, SchedulerStateBase } from '@/lib/types.ts';
 
 interface Props {
@@ -23,7 +23,6 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
       selectedEvent: undefined,
       selectedResource: undefined,
       currentDragged: undefined,
-      enableAgenda: true,
     } as SchedulerStateBase;
   });
 
