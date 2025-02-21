@@ -1,1 +1,10 @@
+# Ignore artifacts
 dist
+node_modules
+coverage
+.next
+build
+
+# Ignore files
+*.min.js
+*.d.ts

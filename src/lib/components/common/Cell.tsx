@@ -1,6 +1,7 @@
-import { Button } from "@mui/material";
-import { useCellAttributes } from "../../hooks/useCellAttributes";
-import { CellRenderedProps } from "../../types";
+import { Button } from '@mui/material';
+import { useCellAttributes } from '../../hooks/useCellAttributes';
+import { CellRenderedProps } from '@/lib';
+import { dayjs } from '@/config/dayjs';
 
 interface CellProps {
   day: Date;
@@ -23,7 +24,20 @@ const Cell = ({
   height,
   children,
 }: CellProps) => {
-  const props = useCellAttributes({ start, end, resourceKey, resourceVal });
+  const cellAttributes = useCellAttributes({
+    start,
+    end,
+    resourceKey,
+    resourceVal,
+  });
+
+  const formatDateRange = (): string => {
+    const startDayjs = dayjs(start);
+    const endDayjs = dayjs(end);
+    const format = 'dddd, MMMM D, YYYY h:mm:ss A z';
+
+    return `${startDayjs.format(format)} - ${endDayjs.format(format)}`;
+  };
 
   if (cellRenderer) {
     return cellRenderer({
@@ -31,19 +45,12 @@ const Cell = ({
       start,
       end,
       height,
-      ...props,
+      ...cellAttributes,
     });
   }
 
   return (
-    <Button
-      fullWidth
-      aria-label={`${start.toLocaleString("en", {
-        dateStyle: "full",
-        timeStyle: "long",
-      })} - ${end.toLocaleString("en", { dateStyle: "full", timeStyle: "long" })}`}
-      {...props}
-    >
+    <Button fullWidth aria-label={formatDateRange()} {...cellAttributes}>
       {children}
     </Button>
   );

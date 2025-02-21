@@ -1,15 +1,15 @@
-import { DialogProps, GridSize } from "@mui/material";
-import { DateCalendarProps } from "@mui/x-date-pickers";
-import { Locale } from "date-fns";
-import { DragEvent } from "react";
-import { SelectOption } from "./components/inputs/SelectInput";
-import { View } from "./components/nav/Navigation";
-import { Store } from "./store/types";
-import { DayProps } from "./views/Day";
-import { StateItem } from "./views/Editor";
-import { MonthProps } from "./views/Month";
-import { WeekProps } from "./views/Week";
-import type { RRule } from "rrule";
+import { DialogProps, GridSize } from '@mui/material';
+import { DateCalendarProps } from '@mui/x-date-pickers';
+import { DragEvent, ReactElement, ReactNode } from 'react';
+import { SelectOption } from './components/inputs/SelectInput';
+import { View } from './components/nav/Navigation';
+import { SelectedRange, Store } from './store/types';
+import { DayProps } from './views/Day';
+import { StateItem } from './views/Editor';
+import { MonthProps } from './views/Month';
+import { WeekProps } from './views/Week';
+import type { RRule } from 'rrule';
+import { Dayjs } from 'dayjs';
 
 export type DayHours =
   | 0
@@ -49,10 +49,11 @@ export interface CellRenderedProps {
   onDragLeave(e: DragEvent<HTMLButtonElement>): void;
   onDrop(e: DragEvent<HTMLButtonElement>): void;
 }
-interface CalendarEvent {
+
+export interface CalendarEvent {
   event_id: number | string;
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
   start: Date;
   end: Date;
   recurring?: RRule;
@@ -63,14 +64,14 @@ interface CalendarEvent {
   deletable?: boolean;
   draggable?: boolean;
   allDay?: boolean;
-  /**
-   * @default " "
-   * passed as a children to mui <Avatar /> component
-   */
-  agendaAvatar?: React.ReactElement | string;
+  agendaAvatar?: ReactElement | string;
 }
+
 export interface Translations {
-  navigation: Record<View, string> & { today: string; agenda: string };
+  navigation: Record<View, string> & {
+    today: string;
+    agenda: string;
+  };
   form: {
     addTitle: string;
     editTitle: string;
@@ -78,12 +79,13 @@ export interface Translations {
     delete: string;
     cancel: string;
   };
-  event: Record<string, string> & {
+  event: {
     title: string;
     subtitle: string;
     start: string;
     end: string;
     allDay: string;
+    [key: string]: string;
   };
   validation?: {
     required?: string;
@@ -97,77 +99,55 @@ export interface Translations {
   loading: string;
 }
 
-export type InputTypes = "input" | "date" | "select" | "hidden";
+export type InputTypes = 'input' | 'date' | 'select' | 'hidden';
 
-export interface EventRendererProps
-  extends Pick<
-    React.HTMLAttributes<HTMLElement>,
-    "draggable" | "onDragStart" | "onDragEnd" | "onDragOver" | "onDragEnter" | "onClick"
-  > {
+export interface EventRendererProps {
   event: ProcessedEvent;
+  draggable?: boolean;
+  onDragStart?: (e: DragEvent<HTMLElement>) => void;
+  onDragEnd?: (e: DragEvent<HTMLElement>) => void;
+  onDragOver?: (e: DragEvent<HTMLElement>) => void;
+  onDragEnter?: (e: DragEvent<HTMLElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 }
-export interface FieldInputProps {
-  /** Available to all InputTypes */
-  label?: string;
-  /** Available to all InputTypes */
-  placeholder?: string;
-  /** Available to all InputTypes
-   * @default false
-   */
-  required?: boolean;
-  /** Available to all InputTypes
-   * @default "outline"
-   */
-  variant?: "standard" | "filled" | "outlined";
-  /** Available to all InputTypes */
-  disabled?: boolean;
-  /** Available when @input="text" ONLY - Minimum length */
-  min?: number;
-  /** Available when @input="text" ONLY - Maximum length */
-  max?: number;
-  /** Available when @input="text" ONLY - Apply email Regex */
-  email?: boolean;
-  /** Available when @input="text" ONLY - Only numbers(int/float) allowed */
-  decimal?: boolean;
-  /** Available when @input="text" ONLY - Allow Multiline input. Use @rows property to set initial rows height */
-  multiline?: boolean;
-  /** Available when @input="text" ONLY - initial rows height*/
-  rows?: number;
-  /** Available when @input="date" ONLY
-   * @default "datetime"
-   */
-  type?: "date" | "datetime";
-  /** Available when @input="select" ONLY - Multi-Select input style.
-   * if you use "default" property with this, make sure your "default" property is an instance of Array
-   */
-  multiple?: "chips" | "default";
-  /** Available when @input="select" ONLY - display loading spinner instead of expand arrow */
-  loading?: boolean;
-  /** Available when @input="select" ONLY - Custom error message */
-  errMsg?: string;
 
-  /* Used for Grid alignment in a single row md | sm | xs */
+export interface FieldInputProps {
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  variant?: 'standard' | 'filled' | 'outlined';
+  disabled?: boolean;
+  min?: number;
+  max?: number;
+  email?: boolean;
+  decimal?: boolean;
+  multiline?: boolean;
+  rows?: number;
+  type?: 'date' | 'datetime';
+  multiple?: 'chips' | 'default';
+  loading?: boolean;
+  errMsg?: string;
   md?: GridSize;
-  /* Used for Grid alignment in a single row md | sm | xs */
   sm?: GridSize;
-  /* Used for Grid alignment in a single row md | sm | xs */
   xs?: GridSize;
 }
+
 export interface FieldProps {
   name: string;
   type: InputTypes;
-  /** Required for type="select" */
-  options?: Array<SelectOption>;
-  default?: string | number | Date | any;
+  options?: SelectOption[];
+  default?: unknown;
   config?: FieldInputProps;
 }
+
 export type ProcessedEvent = CalendarEvent & Record<string, any>;
-export type EventActions = "create" | "edit";
+export type EventActions = 'create' | 'edit';
 export type RemoteQuery = {
   start: Date;
   end: Date;
-  view: "day" | "week" | "month";
+  view: 'day' | 'week' | 'month';
 };
+
 export type DefaultResource = {
   assignee?: string | number;
   text?: string;
@@ -175,6 +155,7 @@ export type DefaultResource = {
   avatar?: string;
   color?: string;
 } & Record<string, any>;
+
 export type ResourceFields = {
   idField: string;
   textField: string;
@@ -191,152 +172,81 @@ export interface SchedulerHelpers {
   onConfirm(event: ProcessedEvent | ProcessedEvent[], action: EventActions): void;
   [resourceKey: string]: unknown;
 }
-export interface SchedulerProps {
-  /**Min height of table
-   * @default 600
-   */
+
+export interface RequiredSchedulerProps {
   height: number;
-  /** Initial view to load */
   view: View;
-  /**Activate Agenda view */
-  agenda?: boolean;
-  /** if true, day rows without event will be shown */
-  alwaysShowAgendaDays?: boolean;
-  /**Month view settings */
-  month: MonthProps | null;
-  /**Week view settings */
-  week: WeekProps | null;
-  /**Day view settings */
-  day: DayProps | null;
-  /**Initial date selected */
   selectedDate: Date;
-  /** Show/Hide date navigation */
+  events: ProcessedEvent[];
+  fields: FieldProps[];
+  resources: DefaultResource[];
+  resourceFields: ResourceFields;
+  resourceViewMode: 'default' | 'vertical' | 'tabs';
+  direction: 'rtl' | 'ltr';
+  dialogMaxWidth: DialogProps['maxWidth'];
+  locale: string;
+  translations: Translations;
+  hourFormat: '12' | '24';
+}
+
+export interface OptionalSchedulerProps {
+  agenda?: boolean;
+  alwaysShowAgendaDays?: boolean;
+  month: MonthProps | null;
+  week: WeekProps | null;
+  day: DayProps | null;
   navigation?: boolean;
-  /** Show/Hide view navigator */
   disableViewNavigator?: boolean;
-  /** */
   navigationPickerProps?: Partial<
     Omit<
-      DateCalendarProps<Date>,
-      "open" | "onClose" | "openTo" | "views" | "value" | "readOnly" | "onChange"
+      DateCalendarProps<Dayjs>,
+      'open' | 'onClose' | 'openTo' | 'views' | 'value' | 'readOnly' | 'onChange'
     >
   >;
-  /**Events to display */
-  events: ProcessedEvent[];
-  /** Custom event render method */
-  eventRenderer?: (props: EventRendererProps) => JSX.Element | null;
-  /**Async function to load remote data with current view data. */
+  eventRenderer?: (props: EventRendererProps) => ReactElement | null;
   getRemoteEvents?(params: RemoteQuery): Promise<ProcessedEvent[] | void>;
-  /**Custom additional fields with it's settings */
-  fields: FieldProps[];
-  /**Table loading state */
   loading?: boolean;
-  /** Custom loading component */
-  loadingComponent?: JSX.Element;
-  /**Async function triggered when add/edit event */
+  loadingComponent?: ReactElement;
   onConfirm?(event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent>;
-  /**Async function triggered when delete event */
   onDelete?(deletedId: string | number): Promise<string | number | void>;
-  /**Override editor modal */
-  customEditor?(scheduler: SchedulerHelpers): JSX.Element;
-  /** Custom viewer/popper component. If used, `viewerExtraComponent` & `viewerTitleComponent` will be ignored */
-  customViewer?(event: ProcessedEvent, close: () => void): JSX.Element;
-  /**Additional component in event viewer popper */
+  customEditor?(scheduler: SchedulerHelpers): ReactElement;
+  customViewer?(event: ProcessedEvent, close: () => void): ReactElement;
   viewerExtraComponent?:
-    | JSX.Element
-    | ((fields: FieldProps[], event: ProcessedEvent) => JSX.Element);
-  /**Override viewer title component */
-  viewerTitleComponent?(event: ProcessedEvent): JSX.Element;
-  /**Override viewer subtitle component */
-  viewerSubtitleComponent?(event: ProcessedEvent): JSX.Element;
-  /** if true, the viewer popover will be disabled globally */
+    | ReactElement
+    | ((fields: FieldProps[], event: ProcessedEvent) => ReactElement);
+  viewerTitleComponent?(event: ProcessedEvent): ReactElement;
+  viewerSubtitleComponent?(event: ProcessedEvent): ReactElement;
   disableViewer?: boolean;
-  /**Resources array to split event views with resources */
-  resources: DefaultResource[];
-  /**Map resources fields */
-  resourceFields: ResourceFields;
-  /**Override header component of resource */
-  resourceHeaderComponent?(resource: DefaultResource): JSX.Element;
-  /** Triggered when resource tabs changes */
+  resourceHeaderComponent?(resource: DefaultResource): ReactElement;
   onResourceChange?(resource: DefaultResource): void;
-  /**Resource header view mode
-   * @default "default"
-   */
-  resourceViewMode: "default" | "vertical" | "tabs";
-  /**Direction of table */
-  direction: "rtl" | "ltr";
-  /**Editor dialog maxWith
-   * @default "md"
-   */
-  dialogMaxWidth: DialogProps["maxWidth"];
-  /**
-   * date-fns Locale object
-   */
-  locale: Locale;
-  /**
-   * Localization
-   */
-  translations: Translations;
-  /**
-   * Hour Format
-   */
-  hourFormat: "12" | "24";
-  /**
-   * Time zone IANA ID: https://data.iana.org/time-zones/releases
-   */
   timeZone?: string;
-  /**
-   * Triggered when event is dropped on time slot.
-   */
   onEventDrop?(
     event: DragEvent<HTMLButtonElement>,
     droppedOn: Date,
     updatedEvent: ProcessedEvent,
     originalEvent: ProcessedEvent
   ): Promise<ProcessedEvent | void>;
-  /**
-   *
-   */
   onEventClick?(event: ProcessedEvent): void;
-  /**
-   * Triggered when an event item is being edited from the popover
-   */
   onEventEdit?(event: ProcessedEvent): void;
-  /**
-   * If event is deletable, applied to all events globally, overridden by event specific deletable prop
-   * @default true
-   */
   deletable?: boolean;
-  /**
-   * If calendar is editable, applied to all events/cells globally, overridden by event specific editable prop
-   * @default true
-   */
   editable?: boolean;
-  /**
-   * If event is draggable, applied to all events globally, overridden by event specific draggable prop
-   * @default true
-   */
   draggable?: boolean;
-  /**
-   * Triggered when the `selectedDate` prop changes by navigation date picker or `today` button.
-   */
   onSelectedDateChange?(date: Date): void;
-  /**
-   * Triggered when navigation view changes.
-   */
   onViewChange?(view: View, agenda?: boolean): void;
-  /**
-   * If true, the navigation controller bar will be sticky
-   */
   stickyNavigation?: boolean;
-  /**
-   * Overrides the default behavior of more events button
-   */
-  onClickMore?(date: Date, gotToDay: (date: Date) => void): void;
-  /**
-   *
-   */
+  onClickMore?(date: Date, goToDay: (date: Date) => void): void;
   onCellClick?(start: Date, end: Date, resourceKey?: string, resourceVal?: string | number): void;
+}
+
+export interface SchedulerProps extends RequiredSchedulerProps, OptionalSchedulerProps {}
+
+export interface SchedulerStateBase extends SchedulerProps {
+  dialog: boolean;
+  selectedRange?: SelectedRange;
+  selectedEvent?: ProcessedEvent;
+  selectedResource?: DefaultResource['assignee'];
+  currentDragged?: ProcessedEvent;
+  enableAgenda?: boolean;
 }
 
 export interface SchedulerRef {
@@ -344,4 +254,4 @@ export interface SchedulerRef {
   scheduler: Store;
 }
 
-export interface Scheduler extends Partial<SchedulerProps> {}
+export type Scheduler = Partial<SchedulerProps>;

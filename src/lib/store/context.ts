@@ -1,5 +1,14 @@
-import { createContext } from "react";
-import { initialStore } from "./default";
-import { Store } from "./types";
+import { createContext, useContext } from 'react';
+import { Store } from './types';
 
-export const StoreContext = createContext<Store>(initialStore);
+const StoreContext = createContext<Store | null>(null);
+
+export const useStore = () => {
+  const context = useContext(StoreContext);
+  if (context === null) {
+    throw new Error('useStore must be used within a StoreProvider');
+  }
+  return context;
+};
+
+export { StoreContext };

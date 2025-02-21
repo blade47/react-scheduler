@@ -1,8 +1,11 @@
-import { enUS } from "date-fns/locale";
-import { SchedulerProps } from "../types";
-import { getOneView, getTimeZonedDate } from "../helpers/generals";
+import { SchedulerProps, Translations } from '@/lib';
+import { getTimeZonedDate } from '../helpers/generals';
+import { OptionalSchedulerProps, RequiredSchedulerProps, Scheduler } from '@/lib/types.ts';
+import { MonthProps } from '@/lib/views/Month.tsx';
+import { WeekProps } from '@/lib/views/Week.tsx';
+import { DayProps } from '@/lib/views/Day.tsx';
 
-const defaultMonth = {
+const defaultMonth: MonthProps = {
   weekDays: [0, 1, 2, 3, 4, 5, 6],
   weekStartOn: 6,
   startHour: 9,
@@ -11,7 +14,7 @@ const defaultMonth = {
   disableGoToDay: false,
 };
 
-const defaultWeek = {
+const defaultWeek: WeekProps = {
   weekDays: [0, 1, 2, 3, 4, 5, 6],
   weekStartOn: 6,
   startHour: 9,
@@ -21,7 +24,7 @@ const defaultWeek = {
   disableGoToDay: false,
 };
 
-const defaultDay = {
+const defaultDay: DayProps = {
   startHour: 9,
   endHour: 17,
   step: 60,
@@ -29,66 +32,87 @@ const defaultDay = {
 };
 
 const defaultResourceFields = {
-  idField: "assignee",
-  textField: "text",
-  subTextField: "subtext",
-  avatarField: "avatar",
-  colorField: "color",
-};
+  idField: 'assignee',
+  textField: 'text',
+  subTextField: 'subtext',
+  avatarField: 'avatar',
+  colorField: 'color',
+} as const;
 
-const defaultTranslations = (trans: Partial<SchedulerProps["translations"]> = {}) => {
-  const { navigation, form, event, ...other } = trans;
+const defaultTranslations = (trans: Partial<SchedulerProps['translations']> = {}): Translations => {
+  const { navigation, form, event, validation, ...other } = trans;
 
   return {
-    navigation: Object.assign(
-      {
-        month: "Month",
-        week: "Week",
-        day: "Day",
-        agenda: "Agenda",
-        today: "Today",
-      },
-      navigation
-    ),
-    form: Object.assign(
-      {
-        addTitle: "Add Event",
-        editTitle: "Edit Event",
-        confirm: "Confirm",
-        delete: "Delete",
-        cancel: "Cancel",
-      },
-      form
-    ),
-    event: Object.assign(
-      {
-        title: "Title",
-        start: "Start",
-        end: "End",
-        allDay: "All Day",
-      },
-      event
-    ),
-    ...Object.assign(
-      { moreEvents: "More...", loading: "Loading...", noDataToDisplay: "No data to display" },
-      other
-    ),
+    navigation: {
+      month: 'Month',
+      week: 'Week',
+      day: 'Day',
+      agenda: 'Agenda',
+      today: 'Today',
+      ...navigation,
+    },
+    form: {
+      addTitle: 'Add Event',
+      editTitle: 'Edit Event',
+      confirm: 'Confirm',
+      delete: 'Delete',
+      cancel: 'Cancel',
+      ...form,
+    },
+    event: {
+      title: 'Title',
+      start: 'Start',
+      end: 'End',
+      allDay: 'All Day',
+      subtitle: 'Subtitle',
+      ...event,
+    },
+    validation: {
+      required: 'This field is required',
+      invalidEmail: 'Invalid email format',
+      onlyNumbers: 'Only numbers are allowed',
+      min: (min: number) => `Minimum ${min} characters required`,
+      max: (max: number) => `Maximum ${max} characters allowed`,
+      ...validation,
+    },
+    moreEvents: 'More...',
+    loading: 'Loading...',
+    noDataToDisplay: 'No data to display',
+    ...other,
   };
 };
 
-const defaultViews = (props: Partial<SchedulerProps>) => {
+export type View = 'month' | 'week' | 'day';
+
+interface Views {
+  month: MonthProps | null;
+  week: WeekProps | null;
+  day: DayProps | null;
+}
+
+const getOneView = (views: Views): View => {
+  if (views.week !== null) return 'week';
+  if (views.month !== null) return 'month';
+  if (views.day !== null) return 'day';
+  return 'week';
+};
+
+const defaultViews = (props: Scheduler): Views => {
   const { month, week, day } = props;
   return {
-    month: month !== null ? Object.assign(defaultMonth, month) : null,
-    week: week !== null ? Object.assign(defaultWeek, week) : null,
-    day: day !== null ? Object.assign(defaultDay, day) : null,
+    month: month !== null ? { ...defaultMonth, ...month } : null,
+    week: week !== null ? { ...defaultWeek, ...week } : null,
+    day: day !== null ? { ...defaultDay, ...day } : null,
   };
 };
 
-export const defaultProps = (props: Partial<SchedulerProps>) => {
+export const defaultProps = (props: Scheduler): SchedulerProps => {
   const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     month,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     week,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     day,
     translations,
     resourceFields,
@@ -97,59 +121,51 @@ export const defaultProps = (props: Partial<SchedulerProps>) => {
     selectedDate,
     ...otherProps
   } = props;
+
   const views = defaultViews(props);
-  const defaultView = view || "week";
-  const initialView = views[defaultView] ? defaultView : getOneView(views);
-  return {
-    ...views,
-    translations: defaultTranslations(translations),
-    resourceFields: Object.assign(defaultResourceFields, resourceFields),
+  const defaultView: View = view || 'week';
+
+  const isValidView = (view: View): view is View => {
+    return views[view] !== null;
+  };
+
+  const initialView: View = isValidView(defaultView) ? defaultView : getOneView(views);
+
+  const baseProps: RequiredSchedulerProps = {
+    height: 600,
     view: initialView,
     selectedDate: getTimeZonedDate(selectedDate || new Date(), props.timeZone),
-    ...Object.assign(
-      {
-        height: 600,
-        navigation: true,
-        disableViewNavigator: false,
-        events: [],
-        fields: [],
-        loading: undefined,
-        customEditor: undefined,
-        onConfirm: undefined,
-        onDelete: undefined,
-        viewerExtraComponent: undefined,
-        resources: [],
-        resourceHeaderComponent: undefined,
-        resourceViewMode: "default",
-        direction: "ltr",
-        dialogMaxWidth: "md",
-        locale: enUS,
-        deletable: true,
-        editable: true,
-        hourFormat: "12",
-        draggable: true,
-        agenda,
-        enableAgenda: typeof agenda === "undefined" || agenda,
-      },
-      otherProps
-    ),
+    events: [],
+    fields: [],
+    resources: [],
+    resourceFields: { ...defaultResourceFields, ...resourceFields },
+    resourceViewMode: 'default',
+    direction: 'ltr',
+    dialogMaxWidth: 'md',
+    locale: 'en',
+    translations: defaultTranslations(translations),
+    hourFormat: '12',
   };
-};
 
-export const initialStore = {
-  ...defaultProps({}),
-  setProps: () => {},
-  dialog: false,
-  selectedRange: undefined,
-  selectedEvent: undefined,
-  selectedResource: undefined,
-  handleState: () => {},
-  getViews: () => [],
-  toggleAgenda: () => {},
-  triggerDialog: () => {},
-  triggerLoading: () => {},
-  handleGotoDay: () => {},
-  confirmEvent: () => {},
-  setCurrentDragged: () => {},
-  onDrop: () => {},
+  const optionalProps: Partial<OptionalSchedulerProps> = {
+    navigation: true,
+    disableViewNavigator: false,
+    loading: undefined,
+    customEditor: undefined,
+    onConfirm: undefined,
+    onDelete: undefined,
+    viewerExtraComponent: undefined,
+    resourceHeaderComponent: undefined,
+    deletable: true,
+    editable: true,
+    draggable: true,
+    agenda,
+    ...views,
+    ...otherProps,
+  };
+
+  return {
+    ...baseProps,
+    ...optionalProps,
+  };
 };

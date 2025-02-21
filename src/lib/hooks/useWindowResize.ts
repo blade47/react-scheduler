@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export function useWindowResize() {
   const [state, setState] = useState({
@@ -7,7 +7,7 @@ export function useWindowResize() {
   });
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return;
     }
     const handler = () => {
@@ -24,12 +24,12 @@ export function useWindowResize() {
     };
 
     handler();
-    window.addEventListener("resize", handler, {
+    window.addEventListener('resize', handler, {
       capture: false,
       passive: true,
     });
     return () => {
-      window.removeEventListener("resize", handler);
+      window.removeEventListener('resize', handler);
     };
   }, []);
 

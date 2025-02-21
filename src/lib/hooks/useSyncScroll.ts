@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 /**
  * The solution to make headers sticky with overflow
@@ -16,12 +16,12 @@ const useSyncScroll = () => {
       header?.scroll({ left: el.scrollLeft });
     };
 
-    header?.addEventListener("scroll", handleScroll);
-    body?.addEventListener("scroll", handleScroll);
+    header?.addEventListener('scroll', handleScroll);
+    body?.addEventListener('scroll', handleScroll);
 
     return () => {
-      header?.removeEventListener("scroll", handleScroll);
-      body?.removeEventListener("scroll", handleScroll);
+      header?.removeEventListener('scroll', handleScroll);
+      body?.removeEventListener('scroll', handleScroll);
     };
   });
 

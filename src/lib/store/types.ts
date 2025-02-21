@@ -1,22 +1,17 @@
-import { DragEvent } from "react";
-import { View } from "../components/nav/Navigation";
-import { DefaultResource, EventActions, ProcessedEvent, SchedulerProps } from "../types";
+import { DragEvent } from 'react';
+import { View } from '../components/nav/Navigation';
+import { EventActions, ProcessedEvent } from '@/lib';
+import { SchedulerStateBase } from '../types';
 
 export type SelectedRange = { start: Date; end: Date };
 
-export interface SchedulerState extends SchedulerProps {
-  dialog: boolean;
-  selectedRange?: SelectedRange;
-  selectedEvent?: ProcessedEvent;
-  selectedResource?: DefaultResource["assignee"];
-  currentDragged?: ProcessedEvent;
-  enableAgenda?: boolean;
-}
-
-export interface Store extends SchedulerState {
-  handleState(value: SchedulerState[keyof SchedulerState], name: keyof SchedulerState): void;
+export interface Store extends SchedulerStateBase {
+  handleState(
+    value: SchedulerStateBase[keyof SchedulerStateBase],
+    name: keyof SchedulerStateBase
+  ): void;
   getViews(): View[];
-  toggleAgenda: () => void;
+  toggleAgenda(): void;
   triggerDialog(status: boolean, event?: SelectedRange | ProcessedEvent): void;
   triggerLoading(status: boolean): void;
   handleGotoDay(day: Date): void;

@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { TextField, Typography } from "@mui/material";
-import useStore from "../../hooks/useStore";
+import { useState, useEffect } from 'react';
+import { TextField, Typography } from '@mui/material';
+import useStore from '../../hooks/useStore';
 
 interface EditorInputProps {
-  variant?: "standard" | "filled" | "outlined";
+  variant?: 'standard' | 'filled' | 'outlined';
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -21,7 +21,7 @@ interface EditorInputProps {
 }
 
 const EditorInput = ({
-  variant = "outlined",
+  variant = 'outlined',
   label,
   placeholder,
   value,
@@ -40,7 +40,7 @@ const EditorInput = ({
   const [state, setState] = useState({
     touched: false,
     valid: false,
-    errorMsg: "",
+    errorMsg: '',
   });
   const { translations } = useStore();
 
@@ -53,35 +53,35 @@ const EditorInput = ({
   const handleChange = (value: string) => {
     const val = value;
     let isValid = true;
-    let errorMsg = "";
+    let errorMsg = '';
     if (email) {
       const reg =
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       isValid = reg.test(val) && isValid;
-      errorMsg = translations?.validation?.invalidEmail || "Invalid Email";
+      errorMsg = translations?.validation?.invalidEmail || 'Invalid Email';
     }
     if (decimal) {
       const reg = /^[0-9]+(\.[0-9]*)?$/;
       isValid = reg.test(val) && isValid;
-      errorMsg = translations?.validation?.onlyNumbers || "Only Numbers Allowed";
+      errorMsg = translations?.validation?.onlyNumbers || 'Only Numbers Allowed';
     }
     if (min && `${val}`.trim().length < min) {
       isValid = false;
       errorMsg =
-        typeof translations?.validation?.min === "function"
+        typeof translations?.validation?.min === 'function'
           ? translations?.validation?.min(min)
           : translations?.validation?.min || `Minimum ${min} letters`;
     }
     if (max && `${val}`.trim().length > max) {
       isValid = false;
       errorMsg =
-        typeof translations?.validation?.max === "function"
+        typeof translations?.validation?.max === 'function'
           ? translations?.validation?.max(max)
           : translations?.validation?.max || `Maximum ${max} letters`;
     }
     if (required && `${val}`.trim().length <= 0) {
       isValid = false;
-      errorMsg = translations?.validation?.required || "Required";
+      errorMsg = translations?.validation?.required || 'Required';
     }
     setState({ touched: true, valid: isValid, errorMsg: errorMsg });
     onChange(name, val, isValid);
@@ -90,7 +90,7 @@ const EditorInput = ({
   return (
     <TextField
       variant={variant}
-      label={label && <Typography variant="body2">{`${label} ${required ? "*" : ""}`}</Typography>}
+      label={label && <Typography variant="body2">{`${label} ${required ? '*' : ''}`}</Typography>}
       value={value}
       name={name}
       onChange={(e) => handleChange(e.target.value)}
@@ -99,9 +99,9 @@ const EditorInput = ({
       helperText={state.touched && !state.valid && state.errorMsg}
       multiline={multiline}
       rows={rows}
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       InputProps={{
-        placeholder: placeholder || "",
+        placeholder: placeholder || '',
       }}
     />
   );

@@ -1,29 +1,19 @@
-import { Avatar, Typography, useTheme } from "@mui/material";
-import {
-  addDays,
-  endOfDay,
-  format,
-  isSameDay,
-  isSameMonth,
-  isWithinInterval,
-  setHours,
-  startOfDay,
-  startOfMonth,
-} from "date-fns";
-import { Fragment, useCallback } from "react";
+import { Avatar, Typography, useTheme } from '@mui/material';
+import { Fragment, useCallback } from 'react';
 import {
   getHourFormat,
   getRecurrencesForDate,
   getResourcedEvents,
   isTimeZonedToday,
   sortEventsByTheEarliest,
-} from "../../helpers/generals";
-import useStore from "../../hooks/useStore";
-import useSyncScroll from "../../hooks/useSyncScroll";
-import { TableGrid } from "../../styles/styles";
-import { DefaultResource } from "../../types";
-import Cell from "../common/Cell";
-import MonthEvents from "../events/MonthEvents";
+} from '../../helpers/generals';
+import useStore from '../../hooks/useStore';
+import useSyncScroll from '../../hooks/useSyncScroll';
+import { TableGrid } from '../../styles/styles';
+import { DefaultResource } from '@/lib';
+import Cell from '../common/Cell';
+import MonthEvents from '../events/MonthEvents';
+import { dayjs } from '@/config/dayjs';
 
 type Props = {
   daysList: Date[];
@@ -40,17 +30,18 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
     handleGotoDay,
     resourceFields,
     fields,
-    locale,
     hourFormat,
     stickyNavigation,
     timeZone,
     onClickMore,
   } = useStore();
+
   const { weekDays, startHour, endHour, cellRenderer, headRenderer, disableGoToDay } = month!;
   const { headersRef, bodyRef } = useSyncScroll();
 
   const theme = useTheme();
-  const monthStart = startOfMonth(selectedDate);
+  const selectedDayjs = dayjs(selectedDate);
+  const monthStart = selectedDayjs.startOf('month');
   const hFormat = getHourFormat(hourFormat);
   const CELL_HEIGHT = height / eachWeekStart.length;
 
@@ -63,27 +54,47 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
       const rows: JSX.Element[] = [];
 
       for (const startDay of eachWeekStart) {
+        const startDayjs = dayjs(startDay);
         const cells = weekDays.map((d) => {
-          const today = addDays(startDay, d);
-          const start = new Date(`${format(setHours(today, startHour), `yyyy/MM/dd ${hFormat}`)}`);
-          const end = new Date(`${format(setHours(today, endHour), `yyyy/MM/dd ${hFormat}`)}`);
+          const today = startDayjs.add(d, 'day').toDate();
+          const todayDayjs = dayjs(today);
+
+          const start = todayDayjs.hour(startHour).format(`YYYY/MM/DD ${hFormat}`);
+
+          const end = todayDayjs.hour(endHour).format(`YYYY/MM/DD ${hFormat}`);
+
           const field = resourceFields.idField;
-          const eachFirstDayInCalcRow = isSameDay(startDay, today) ? today : null;
+          const eachFirstDayInCalcRow = startDayjs.isSame(today, 'day') ? today : null;
+
           const todayEvents = resourcedEvents
             .flatMap((e) => getRecurrencesForDate(e, today))
             .filter((e) => {
-              if (isSameDay(e.start, today)) return true;
-              const dayInterval = { start: startOfDay(e.start), end: endOfDay(e.end) };
-              if (eachFirstDayInCalcRow && isWithinInterval(eachFirstDayInCalcRow, dayInterval))
-                return true;
-              return false;
+              const eventStart = dayjs(e.start);
+              if (eventStart.isSame(today, 'day')) return true;
+
+              const dayInterval = {
+                start: eventStart.startOf('day'),
+                end: dayjs(e.end).endOf('day'),
+              };
+
+              return !!(
+                eachFirstDayInCalcRow &&
+                dayjs(eachFirstDayInCalcRow).isBetween(
+                  dayInterval.start,
+                  dayInterval.end,
+                  'day',
+                  '[]'
+                )
+              );
             });
+
           const isToday = isTimeZonedToday({ dateLeft: today, timeZone });
+
           return (
             <span style={{ height: CELL_HEIGHT }} key={d.toString()} className="rs__cell">
               <Cell
-                start={start}
-                end={end}
+                start={dayjs(start).toDate()}
+                end={dayjs(end).toDate()}
                 day={selectedDate}
                 height={CELL_HEIGHT}
                 resourceKey={field}
@@ -91,23 +102,23 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
                 cellRenderer={cellRenderer}
               />
               <Fragment>
-                {typeof headRenderer === "function" ? (
-                  <div style={{ position: "absolute", top: 0 }}>{headRenderer(today)}</div>
+                {typeof headRenderer === 'function' ? (
+                  <div style={{ position: 'absolute', top: 0 }}>{headRenderer(today)}</div>
                 ) : (
                   <Avatar
                     style={{
                       width: 27,
                       height: 27,
-                      position: "absolute",
+                      position: 'absolute',
                       top: 0,
-                      background: isToday ? theme.palette.secondary.main : "transparent",
-                      color: isToday ? theme.palette.secondary.contrastText : "",
+                      background: isToday ? theme.palette.secondary.main : 'transparent',
+                      color: isToday ? theme.palette.secondary.contrastText : '',
                       marginBottom: 2,
                     }}
                   >
                     <Typography
-                      color={!isSameMonth(today, monthStart) ? "#ccc" : "textPrimary"}
-                      className={!disableGoToDay ? "rs__hover__op" : ""}
+                      color={!todayDayjs.isSame(monthStart, 'month') ? '#ccc' : 'textPrimary'}
+                      className={!disableGoToDay ? 'rs__hover__op' : ''}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!disableGoToDay) {
@@ -115,7 +126,7 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
                         }
                       }}
                     >
-                      {format(today, "dd")}
+                      {todayDayjs.format('DD')}
                     </Typography>
                   </Avatar>
                 )}
@@ -128,9 +139,11 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
                   eachFirstDayInCalcRow={eachFirstDayInCalcRow}
                   daysList={daysList}
                   onViewMore={(e) => {
-                    onClickMore && typeof onClickMore === "function"
-                      ? onClickMore(e, handleGotoDay)
-                      : handleGotoDay(e);
+                    if (typeof onClickMore === 'function') {
+                      onClickMore(e, handleGotoDay);
+                    } else {
+                      handleGotoDay(e);
+                    }
                   }}
                   cellHeight={CELL_HEIGHT}
                 />
@@ -169,7 +182,6 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
 
   return (
     <>
-      {/* Header Days */}
       <TableGrid
         days={daysList.length}
         ref={headersRef}
@@ -184,11 +196,11 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
             align="center"
             variant="body2"
           >
-            {format(date, "EE", { locale })}
+            {dayjs(date).format('ddd')}
           </Typography>
         ))}
       </TableGrid>
-      {/* Time Cells */}
+
       <TableGrid days={daysList.length} ref={bodyRef} indent="0">
         {renderCells(resource)}
       </TableGrid>

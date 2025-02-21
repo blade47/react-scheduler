@@ -1,13 +1,13 @@
-import { DragEvent } from "react";
-import { alpha, useTheme } from "@mui/material";
-import useStore from "./useStore";
-import { revertTimeZonedDate } from "../helpers/generals";
+import { DragEvent } from 'react';
+import { alpha, useTheme } from '@mui/material';
+import useStore from './useStore';
+import { revertTimeZonedDate } from '../helpers/generals';
 
 interface Props {
   start: Date;
   end: Date;
   resourceKey: string;
-  resourceVal: string | number;
+  resourceVal?: string | number;
 }
 export const useCellAttributes = ({ start, end, resourceKey, resourceVal }: Props) => {
   const {
@@ -33,7 +33,7 @@ export const useCellAttributes = ({ start, end, resourceKey, resourceVal }: Prop
         });
       }
 
-      if (onCellClick && typeof onCellClick === "function") {
+      if (onCellClick && typeof onCellClick === 'function') {
         onCellClick(start, end, resourceKey, resourceVal);
       }
     },
@@ -50,13 +50,13 @@ export const useCellAttributes = ({ start, end, resourceKey, resourceVal }: Prop
     },
     onDragLeave: (e: DragEvent<HTMLButtonElement>) => {
       if (currentDragged) {
-        e.currentTarget.style.backgroundColor = "";
+        e.currentTarget.style.backgroundColor = '';
       }
     },
     onDrop: (e: DragEvent<HTMLButtonElement>) => {
       if (currentDragged && currentDragged.event_id) {
         e.preventDefault();
-        e.currentTarget.style.backgroundColor = "";
+        e.currentTarget.style.backgroundColor = '';
         const zonedStart = revertTimeZonedDate(start, timeZone);
         onDrop(e, currentDragged.event_id.toString(), zonedStart, resourceKey, resourceVal);
         setCurrentDragged();

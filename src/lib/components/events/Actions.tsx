@@ -1,11 +1,11 @@
-import DeleteRounded from "@mui/icons-material/DeleteRounded";
-import EditRounded from "@mui/icons-material/EditRounded";
-import { Button, Grow, IconButton, Slide } from "@mui/material";
-import { useState } from "react";
-import { EventActions as Actions } from "../../styles/styles";
-import { ProcessedEvent } from "../../types";
-import useStore from "../../hooks/useStore";
-import useEventPermissions from "../../hooks/useEventPermissions";
+import DeleteRounded from '@mui/icons-material/DeleteRounded';
+import EditRounded from '@mui/icons-material/EditRounded';
+import { Button, Grow, IconButton, Slide } from '@mui/material';
+import { useState } from 'react';
+import { EventActions as Actions } from '../../styles/styles';
+import { ProcessedEvent } from '@/lib';
+import useStore from '../../hooks/useStore';
+import useEventPermissions from '../../hooks/useEventPermissions';
 
 interface Props {
   event: ProcessedEvent;
@@ -44,7 +44,7 @@ const EventActions = ({ event, onDelete, onEdit }: Props) => {
       </Grow>
       <Slide
         in={deleteConfirm}
-        direction={direction === "rtl" ? "right" : "left"}
+        direction={direction === 'rtl' ? 'right' : 'left'}
         unmountOnExit
         timeout={400}
         exit={false}

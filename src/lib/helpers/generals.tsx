@@ -1,49 +1,18 @@
-import {
-  addDays,
-  addMilliseconds,
-  addMinutes,
-  addSeconds,
-  differenceInDays,
-  differenceInMilliseconds,
-  endOfDay,
-  format,
-  isSameDay,
-  isWithinInterval,
-  startOfDay,
-  subMinutes,
-} from "date-fns";
-import { View } from "../components/nav/Navigation";
-import {
-  DefaultResource,
-  FieldProps,
-  ProcessedEvent,
-  ResourceFields,
-  SchedulerProps,
-} from "../types";
-import { StateEvent } from "../views/Editor";
-import { datetime } from "rrule";
+import { dayjs } from '@/config/dayjs';
+import { View } from '../components/nav/Navigation';
+import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields, SchedulerProps } from '@/lib';
+import { StateEvent } from '../views/Editor';
 
-export const getOneView = (state: Partial<SchedulerProps>): View => {
-  if (state.month) {
-    return "month";
-  } else if (state.week) {
-    return "week";
-  } else if (state.day) {
-    return "day";
-  }
-  throw new Error("No views were selected");
-};
-
-export const getAvailableViews = (state: SchedulerProps) => {
+export const getAvailableViews = (state: SchedulerProps): View[] => {
   const views: View[] = [];
   if (state.month) {
-    views.push("month");
+    views.push('month');
   }
   if (state.week) {
-    views.push("week");
+    views.push('week');
   }
   if (state.day) {
-    views.push("day");
+    views.push('day');
   }
   return views;
 };
@@ -65,10 +34,7 @@ export const getResourcedEvents = (
   const resourceField = fields.find((f) => f.name === keyName);
   const isMultiple = !!resourceField?.config?.multiple;
 
-  const resourcedEvents = [];
-
-  for (const event of events) {
-    // Handle single select & multiple select accordingly
+  return events.filter((event) => {
     const arrytize = isMultiple && !Array.isArray(event[keyName]);
     const eventVal = arrytize ? [event[keyName]] : event[keyName];
 
@@ -78,91 +44,78 @@ export const getResourcedEvents = (
         : eventVal === resource[keyName];
 
     if (isThisResource) {
-      resourcedEvents.push({
+      return {
         ...event,
-        color: event.color || resource[resourceFields.colorField || ""],
-      });
+        color: event.color || resource[resourceFields.colorField || ''],
+      };
     }
-  }
-
-  return resourcedEvents;
+    return false;
+  });
 };
 
 export const traversCrossingEvents = (
   todayEvents: ProcessedEvent[],
   event: ProcessedEvent
 ): ProcessedEvent[] => {
-  return todayEvents.filter(
-    (e) =>
-      e.event_id !== event.event_id &&
-      (isWithinInterval(addMinutes(event.start, 1), {
-        start: e.start,
-        end: e.end,
-      }) ||
-        isWithinInterval(addMinutes(event.end, -1), {
-          start: e.start,
-          end: e.end,
-        }) ||
-        isWithinInterval(addMinutes(e.start, 1), {
-          start: event.start,
-          end: event.end,
-        }) ||
-        isWithinInterval(addMinutes(e.end, -1), {
-          start: event.start,
-          end: event.end,
-        }))
-  );
+  const eventStart = dayjs(event.start);
+  const eventEnd = dayjs(event.end);
+
+  return todayEvents.filter((e) => {
+    if (e.event_id === event.event_id) return false;
+
+    const eStart = dayjs(e.start);
+    const eEnd = dayjs(e.end);
+
+    return (
+      eventStart.add(1, 'minute').isBetween(eStart, eEnd, null, '[]') ||
+      eventEnd.subtract(1, 'minute').isBetween(eStart, eEnd, null, '[]') ||
+      eStart.add(1, 'minute').isBetween(eventStart, eventEnd, null, '[]') ||
+      eEnd.subtract(1, 'minute').isBetween(eventStart, eventEnd, null, '[]')
+    );
+  });
 };
 
-export const calcMinuteHeight = (cellHeight: number, step: number) => {
+export const calcMinuteHeight = (cellHeight: number, step: number): number => {
   return Math.ceil(cellHeight) / step;
 };
 
-export const calcCellHeight = (tableHeight: number, hoursLength: number) => {
+export const calcCellHeight = (tableHeight: number, hoursLength: number): number => {
   return Math.max(tableHeight / hoursLength, 60);
 };
 
-export const differenceInDaysOmitTime = (start: Date, end: Date) => {
-  return differenceInDays(endOfDay(addSeconds(end, -1)), startOfDay(start));
+export const differenceInDaysOmitTime = (start: Date, end: Date): number => {
+  const startDay = dayjs(start).startOf('day');
+  const endDay = dayjs(end).endOf('day').subtract(1, 'second');
+  return endDay.diff(startDay, 'day');
 };
 
-export const convertDateToRRuleDate = (date: Date) => {
-  return datetime(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes()
-  );
+export const convertRRuleDateToDate = (rruleDate: Date): Date => {
+  return dayjs.utc(rruleDate.getTime()).toDate();
 };
 
-export const convertRRuleDateToDate = (rruleDate: Date) => {
-  return new Date(
-    rruleDate.getUTCFullYear(),
-    rruleDate.getUTCMonth(),
-    rruleDate.getUTCDate(),
-    rruleDate.getUTCHours(),
-    rruleDate.getUTCMinutes()
-  );
-};
-
-export const getRecurrencesForDate = (event: ProcessedEvent, today: Date, timeZone?: string) => {
-  const duration = differenceInMilliseconds(event.end, event.start);
-  if (event.recurring) {
-    return event.recurring
-      ?.between(today, addDays(today, 1), true)
-      .map((d: Date, index: number) => {
-        const start = convertRRuleDateToDate(d);
-        return {
-          ...event,
-          recurrenceId: index,
-          start: start,
-          end: addMilliseconds(start, duration),
-        };
-      })
-      .map((event) => convertEventTimeZone(event, timeZone));
+export const getRecurrencesForDate = (
+  event: ProcessedEvent,
+  today: Date,
+  timeZone?: string
+): ProcessedEvent[] => {
+  if (!event.recurring) {
+    return [convertEventTimeZone(event, timeZone)];
   }
-  return [convertEventTimeZone(event, timeZone)];
+
+  const duration = dayjs(event.end).diff(event.start);
+
+  return event.recurring
+    .between(today, dayjs(today).add(1, 'day').toDate(), true)
+    .map((d: Date, index: number) => {
+      const start = convertRRuleDateToDate(d);
+      return {
+        ...event,
+        recurrenceId: index,
+        start,
+        end: dayjs(start).add(duration, 'millisecond').toDate(),
+      };
+    })
+    .map((event) => convertEventTimeZone(event, timeZone));
 };
 
 export const filterTodayEvents = (
@@ -170,45 +123,55 @@ export const filterTodayEvents = (
   today: Date,
   timeZone?: string
 ): ProcessedEvent[] => {
+  const todayDayjs = dayjs(today);
   const list: ProcessedEvent[] = [];
 
-  for (let i = 0; i < events.length; i++) {
-    for (const rec of getRecurrencesForDate(events[i], today, timeZone)) {
+  for (const event of events) {
+    const recurrences = getRecurrencesForDate(event, today, timeZone);
+
+    for (const rec of recurrences) {
       const isToday =
-        !rec.allDay && isSameDay(today, rec.start) && !differenceInDaysOmitTime(rec.start, rec.end);
+        !rec.allDay &&
+        todayDayjs.isSame(dayjs(rec.start), 'day') &&
+        !differenceInDaysOmitTime(rec.start, rec.end);
+
       if (isToday) {
         list.push(rec);
       }
     }
   }
 
-  // Sort by the length est event
   return sortEventsByTheLengthest(list);
 };
 
-export const filterTodayAgendaEvents = (events: ProcessedEvent[], today: Date) => {
-  const list: ProcessedEvent[] = events.filter((ev) =>
-    isWithinInterval(today, {
-      start: startOfDay(ev.start),
-      end: endOfDay(subMinutes(ev.end, 1)),
-    })
-  );
+export const filterTodayAgendaEvents = (
+  events: ProcessedEvent[],
+  today: Date
+): ProcessedEvent[] => {
+  const todayDayjs = dayjs(today);
+
+  const list = events.filter((ev) => {
+    const startDay = dayjs(ev.start).startOf('day');
+    const endDay = dayjs(ev.end).subtract(1, 'minute').endOf('day');
+
+    return todayDayjs.isBetween(startDay, endDay, 'day', '[]');
+  });
 
   return sortEventsByTheEarliest(list);
 };
 
-export const sortEventsByTheLengthest = (events: ProcessedEvent[]) => {
-  return events.sort((a, b) => {
-    const aDiff = a.end.getTime() - a.start.getTime();
-    const bDiff = b.end.getTime() - b.start.getTime();
-    return bDiff - aDiff;
+export const sortEventsByTheLengthest = (events: ProcessedEvent[]): ProcessedEvent[] => {
+  return [...events].sort((a, b) => {
+    const aDuration = dayjs(a.end).diff(a.start);
+    const bDuration = dayjs(b.end).diff(b.start);
+    return bDuration - aDuration;
   });
 };
 
-export const sortEventsByTheEarliest = (events: ProcessedEvent[]) => {
-  return events.sort((a, b) => {
+export const sortEventsByTheEarliest = (events: ProcessedEvent[]): ProcessedEvent[] => {
+  return [...events].sort((a, b) => {
     const isMulti = a.allDay || differenceInDaysOmitTime(a.start, a.end) > 0;
-    return isMulti ? -1 : a.start.getTime() - b.start.getTime();
+    return isMulti ? -1 : dayjs(a.start).diff(b.start);
   });
 };
 
@@ -217,52 +180,69 @@ export const filterMultiDaySlot = (
   date: Date | Date[],
   timeZone?: string,
   lengthOnly?: boolean
-) => {
+): ProcessedEvent[] => {
   const isMultiDates = Array.isArray(date);
   const list: ProcessedEvent[] = [];
   const multiPerDay: Record<string, ProcessedEvent[]> = {};
-  for (let i = 0; i < events.length; i++) {
-    const event = convertEventTimeZone(events[i], timeZone);
-    let withinSlot = event.allDay || differenceInDaysOmitTime(event.start, event.end) > 0;
+
+  for (const event of events) {
+    const convertedEvent = convertEventTimeZone(event, timeZone);
+    const eventStart = dayjs(convertedEvent.start);
+    const eventEnd = dayjs(convertedEvent.end);
+
+    let withinSlot =
+      convertedEvent.allDay ||
+      differenceInDaysOmitTime(convertedEvent.start, convertedEvent.end) > 0;
+
     if (!withinSlot) continue;
+
     if (isMultiDates) {
-      withinSlot = date.some((weekday) =>
-        isWithinInterval(weekday, {
-          start: startOfDay(event.start),
-          end: endOfDay(event.end),
-        })
-      );
-    } else {
-      withinSlot = isWithinInterval(date, {
-        start: startOfDay(event.start),
-        end: endOfDay(event.end),
+      withinSlot = (date as Date[]).some((weekday) => {
+        const weekdayDayjs = dayjs(weekday);
+        return weekdayDayjs.isBetween(
+          eventStart.startOf('day'),
+          eventEnd.endOf('day'),
+          'day',
+          '[]'
+        );
       });
+    } else {
+      const dateDayjs = dayjs(date as Date);
+      withinSlot = dateDayjs.isBetween(
+        eventStart.startOf('day'),
+        eventEnd.endOf('day'),
+        'day',
+        '[]'
+      );
     }
 
     if (withinSlot) {
-      list.push(event);
+      list.push(convertedEvent);
+
       if (isMultiDates) {
-        for (const d of date) {
-          const start = format(d, "yyyy-MM-dd");
-          if (isWithinInterval(d, { start: startOfDay(event.start), end: endOfDay(event.end) })) {
-            multiPerDay[start] = (multiPerDay[start] || []).concat(event);
+        for (const d of date as Date[]) {
+          const start = dayjs(d).format('YYYY-MM-DD');
+          if (dayjs(d).isBetween(eventStart.startOf('day'), eventEnd.endOf('day'), 'day', '[]')) {
+            multiPerDay[start] = (multiPerDay[start] || []).concat(convertedEvent);
           }
         }
       } else {
-        const start = format(event.start, "yyyy-MM-dd");
-        multiPerDay[start] = (multiPerDay[start] || []).concat(event);
+        const start = eventStart.format('YYYY-MM-DD');
+        multiPerDay[start] = (multiPerDay[start] || []).concat(convertedEvent);
       }
     }
   }
 
   if (isMultiDates && lengthOnly) {
-    return Object.values(multiPerDay).sort((a, b) => b.length - a.length)?.[0] || [];
+    return Object.values(multiPerDay).sort((a, b) => b.length - a.length)[0] || [];
   }
 
   return list;
 };
 
-export const convertEventTimeZone = (event: ProcessedEvent, timeZone?: string) => {
+export const convertEventTimeZone = (event: ProcessedEvent, timeZone?: string): ProcessedEvent => {
+  if (!timeZone || event.convertedTz) return event;
+
   return {
     ...event,
     start: getTimeZonedDate(event.start, timeZone),
@@ -271,36 +251,14 @@ export const convertEventTimeZone = (event: ProcessedEvent, timeZone?: string) =
   };
 };
 
-export const getTimeZonedDate = (date: Date, timeZone?: string) => {
-  return new Date(
-    new Intl.DateTimeFormat("en-US", {
-      dateStyle: "short",
-      timeStyle: "medium",
-      timeZone,
-    }).format(date)
-  );
+export const getTimeZonedDate = (date: Date, timeZone?: string): Date => {
+  if (!timeZone) return date;
+  return dayjs(date).tz(timeZone).toDate();
 };
 
-/**
- * Performs the reverse of getTimeZonedDate, IE: the given date is assumed
- * to already be in the provided timeZone and is reverted to the local
- * browser's timeZone.
- * @param date The date to convert.
- * @param timeZone The timeZone to convert from.
- * @returns A new date reverted from the given timeZone to local time.
- */
-export const revertTimeZonedDate = (date: Date, timeZone?: string) => {
-  if (!timeZone) {
-    return date;
-  }
-
-  // This always gets the offset between the local computer's time
-  // and UTC. It has nothing to do with the value of the date object,
-  // despite being an instance method.
-  const localOffset = -date.getTimezoneOffset();
-  const desiredOffset = getTimezoneOffset(timeZone);
-  const diff = localOffset - desiredOffset;
-  return new Date(date.getTime() + diff * 60 * 1000);
+export const revertTimeZonedDate = (date: Date, timeZone?: string): Date => {
+  if (!timeZone) return date;
+  return dayjs.tz(date, timeZone).local().toDate();
 };
 
 export const isTimeZonedToday = ({
@@ -311,22 +269,15 @@ export const isTimeZonedToday = ({
   dateLeft: Date;
   dateRight?: Date;
   timeZone?: string;
-}) => {
-  return isSameDay(dateLeft, getTimeZonedDate(dateRight || new Date(), timeZone));
+}): boolean => {
+  const rightDate = dateRight || new Date();
+  return dayjs(dateLeft).isSame(getTimeZonedDate(rightDate, timeZone), 'day');
 };
 
-export const getHourFormat = (hourFormat: "12" | "24") => {
-  return hourFormat === "12" ? "hh:mm a" : "HH:mm";
+export const getHourFormat = (hourFormat: '12' | '24'): string => {
+  return hourFormat === '12' ? 'hh:mm A' : 'HH:mm';
 };
 
-/**
- * Gets the offset in minutes of the provided timeZone.
- * @param timeZone The timeZone to get the offset for.
- * @returns The offset in minutes of the provided timeZone.
- */
-function getTimezoneOffset(timeZone: string) {
-  const now = new Date();
-  const localizedTime = new Date(now.toLocaleString("en-US", { timeZone }));
-  const utcTime = new Date(now.toLocaleString("en-US", { timeZone: "UTC" }));
-  return Math.round((localizedTime.getTime() - utcTime.getTime()) / (60 * 1000));
-}
+export const isDateToday = (date: Date): boolean => {
+  return dayjs(date).isSame(dayjs(), 'day');
+};

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   FormControl,
   FormHelperText,
@@ -10,9 +10,9 @@ import {
   CircularProgress,
   InputLabel,
   Select,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import useStore from "../../hooks/useStore";
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import useStore from '../../hooks/useStore';
 
 export type SelectOption = {
   id: string | number;
@@ -24,14 +24,14 @@ interface EditorSelectProps {
   value: string;
   name: string;
   onChange(name: string, value: string, isValid: boolean): void;
-  variant?: "standard" | "filled" | "outlined";
+  variant?: 'standard' | 'filled' | 'outlined';
   label?: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   touched?: boolean;
   loading?: boolean;
-  multiple?: "default" | "chips";
+  multiple?: 'default' | 'chips';
   errMsg?: string;
 }
 
@@ -44,7 +44,7 @@ const EditorSelect = ({
   label,
   disabled,
   touched,
-  variant = "outlined",
+  variant = 'outlined',
   loading,
   multiple,
   placeholder,
@@ -58,8 +58,8 @@ const EditorSelect = ({
     errorMsg: errMsg
       ? errMsg
       : required
-      ? translations?.validation?.required || "Required"
-      : undefined,
+        ? translations?.validation?.required || 'Required'
+        : undefined,
   });
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const EditorSelect = ({
     let errorMsg = errMsg;
     if (required && (multiple ? !val.length : !val)) {
       isValid = false;
-      errorMsg = errMsg || translations?.validation?.required || "Required";
+      errorMsg = errMsg || translations?.validation?.required || 'Required';
     }
     setState((prev) => {
       return { ...prev, touched: true, valid: isValid, errorMsg: errorMsg };
@@ -91,15 +91,14 @@ const EditorSelect = ({
   return (
     <>
       <FormControl
-        variant={variant || "outlined"}
+        variant={variant || 'outlined'}
         fullWidth
         error={required && state.touched && !state.valid}
-        // style={{ minWidth: 230 }}
         disabled={disabled}
       >
         {label && (
           <InputLabel id={`input_${name}`}>
-            <Typography variant="body2">{`${label} ${required ? "*" : ""}`}</Typography>
+            <Typography variant="body2">{`${label} ${required ? '*' : ''}`}</Typography>
           </InputLabel>
         )}
         <Select
@@ -111,7 +110,7 @@ const EditorSelect = ({
           IconComponent={loading ? () => <CircularProgress size={5} /> : ExpandMoreIcon}
           multiple={!!multiple}
           classes={{
-            select: multiple === "chips" ? "flex__wrap" : undefined,
+            select: multiple === 'chips' ? 'flex__wrap' : undefined,
           }}
           renderValue={(selected: string | Array<any> | any) => {
             if (!selected || selected.length === 0) {
@@ -124,18 +123,18 @@ const EditorSelect = ({
                   text.push([opt.text]);
                 }
               }
-              if (multiple === "chips") {
+              if (multiple === 'chips') {
                 return text.map((t, i) => (
-                  <Chip key={`${t}_${i}`} label={t} style={{ margin: "0 2px" }} color="primary" />
+                  <Chip key={`${t}_${i}`} label={t} style={{ margin: '0 2px' }} color="primary" />
                 ));
               } else {
-                return text.join(",");
+                return text.join(',');
               }
             } else {
               for (const opt of options) {
                 if (selected === opt.value) text.push([opt.text]);
               }
-              return text.join(",");
+              return text.join(',');
             }
           }}
         >

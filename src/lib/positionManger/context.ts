@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext } from 'react';
 
 export type PositionManagerState = {
   renderedSlots: { [day: string]: { [resourceId: string]: { [eventId: string]: number } } };

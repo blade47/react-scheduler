@@ -1,13 +1,13 @@
-import { useMemo } from "react";
-import { ProcessedEvent } from "../types";
-import useStore from "./useStore";
+import { useMemo } from 'react';
+import { ProcessedEvent } from '../types';
+import useStore from './useStore';
 
 const useEventPermissions = (event: ProcessedEvent) => {
   const { editable, deletable, draggable } = useStore();
 
   const canEdit = useMemo(() => {
     // Priority control to event specific editable value
-    if (typeof event.editable !== "undefined") {
+    if (typeof event.editable !== 'undefined') {
       return event.editable;
     }
     return editable;
@@ -15,7 +15,7 @@ const useEventPermissions = (event: ProcessedEvent) => {
 
   const canDelete = useMemo(() => {
     // Priority control to event specific deletable value
-    if (typeof event.deletable !== "undefined") {
+    if (typeof event.deletable !== 'undefined') {
       return event.deletable;
     }
     return deletable;
@@ -26,7 +26,7 @@ const useEventPermissions = (event: ProcessedEvent) => {
       return;
     }
     // Priority control to event specific draggable value
-    if (typeof event.draggable !== "undefined") {
+    if (typeof event.draggable !== 'undefined') {
       return event.draggable;
     }
     return draggable;

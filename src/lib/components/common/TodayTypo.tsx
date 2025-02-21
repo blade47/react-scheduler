@@ -1,41 +1,47 @@
-import { Typography } from "@mui/material";
-import { format, Locale } from "date-fns";
-import { isTimeZonedToday } from "../../helpers/generals";
-import useStore from "../../hooks/useStore";
+import { Typography } from '@mui/material';
+import { isTimeZonedToday } from '../../helpers/generals';
+import useStore from '../../hooks/useStore';
+import { dayjs } from '@/config/dayjs';
+import { MouseEvent } from 'react';
 
 interface TodayTypoProps {
   date: Date;
   onClick?(day: Date): void;
-  locale: Locale;
 }
 
-const TodayTypo = ({ date, onClick, locale }: TodayTypoProps) => {
+interface TypographyStyles {
+  fontWeight: 'bold' | 'inherit';
+  fontSize?: number;
+}
+
+const TodayTypo = ({ date, onClick }: TodayTypoProps) => {
   const { timeZone } = useStore();
-  const today = isTimeZonedToday({ dateLeft: date, timeZone });
+  const isToday = isTimeZonedToday({ dateLeft: date, timeZone });
+  const dateDayjs = dayjs(date);
+
+  const getTypographyStyles = (isSmall: boolean = false): TypographyStyles => ({
+    fontWeight: isToday ? 'bold' : 'inherit',
+    ...(isSmall && { fontSize: 11 }),
+  });
+
+  const handleClick = (e: MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    onClick?.(date);
+  };
 
   return (
     <div>
       <Typography
-        style={{
-          fontWeight: today ? "bold" : "inherit",
-        }}
-        color={today ? "primary" : "inherit"}
-        className={onClick ? "rs__hover__op" : ""}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onClick) onClick(date);
-        }}
+        style={getTypographyStyles()}
+        color={isToday ? 'primary' : 'inherit'}
+        className={onClick ? 'rs__hover__op' : ''}
+        onClick={onClick ? handleClick : undefined}
       >
-        {format(date, "dd", { locale })}
+        {dateDayjs.format('DD')}
       </Typography>
-      <Typography
-        color={today ? "primary" : "inherit"}
-        style={{
-          fontWeight: today ? "bold" : "inherit",
-          fontSize: 11,
-        }}
-      >
-        {format(date, "eee", { locale })}
+
+      <Typography color={isToday ? 'primary' : 'inherit'} style={getTypographyStyles(true)}>
+        {dateDayjs.format('ddd')}
       </Typography>
     </div>
   );

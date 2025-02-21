@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { differenceInMinutes, set } from "date-fns";
-import { BORDER_HEIGHT } from "../../helpers/constants";
-import { getTimeZonedDate } from "../../helpers/generals";
-import { TimeIndicatorBar } from "../../styles/styles";
+import { useEffect, useState, useCallback } from 'react';
+import { BORDER_HEIGHT } from '../../helpers/constants';
+import { getTimeZonedDate } from '../../helpers/generals';
+import { TimeIndicatorBar } from '../../styles/styles';
+import { dayjs } from '@/config/dayjs';
 
 interface CurrentTimeBarProps {
   startHour: number;
@@ -12,34 +12,54 @@ interface CurrentTimeBarProps {
   zIndex?: number;
 }
 
-function calculateTop({ startHour, step, minuteHeight, timeZone }: CurrentTimeBarProps): number {
+const calculateTop = ({ startHour, step, minuteHeight, timeZone }: CurrentTimeBarProps): number => {
   const now = getTimeZonedDate(new Date(), timeZone);
+  const nowDayjs = dayjs(now);
 
-  const minutesFromTop = differenceInMinutes(now, set(now, { hours: startHour, minutes: 0 }));
+  const startTime = nowDayjs.hour(startHour).minute(0);
+
+  const minutesFromTop = nowDayjs.diff(startTime, 'minute');
   const topSpace = minutesFromTop * minuteHeight;
   const slotsFromTop = minutesFromTop / step;
   const borderFactor = slotsFromTop + BORDER_HEIGHT;
-  const top = topSpace + borderFactor;
 
-  return top;
-}
+  return topSpace + borderFactor;
+};
 
-const CurrentTimeBar = (props: CurrentTimeBarProps) => {
-  const [top, setTop] = useState(calculateTop(props));
-  const { startHour, step, minuteHeight, timeZone } = props;
+const CurrentTimeBar = ({
+  startHour,
+  step,
+  minuteHeight,
+  timeZone,
+  zIndex,
+}: CurrentTimeBarProps) => {
+  const [top, setTop] = useState<number>(() =>
+    calculateTop({ startHour, step, minuteHeight, timeZone })
+  );
+
+  const updatePosition = useCallback(() => {
+    const newTop = calculateTop({
+      startHour,
+      step,
+      minuteHeight,
+      timeZone,
+    });
+    setTop(newTop);
+  }, [startHour, step, minuteHeight, timeZone]);
 
   useEffect(() => {
-    const calcProps = { startHour, step, minuteHeight, timeZone };
-    setTop(calculateTop(calcProps));
-    const interval = setInterval(() => setTop(calculateTop(calcProps)), 60 * 1000);
+    updatePosition();
+
+    const interval = setInterval(updatePosition, 60 * 1000); // Update every minute
+
     return () => clearInterval(interval);
-  }, [startHour, step, minuteHeight, timeZone]);
+  }, [updatePosition]);
 
   // Prevent showing bar on top of days/header
   if (top < 0) return null;
 
   return (
-    <TimeIndicatorBar style={{ top, zIndex: props.zIndex }}>
+    <TimeIndicatorBar style={{ top, zIndex }}>
       <div />
       <div />
     </TimeIndicatorBar>

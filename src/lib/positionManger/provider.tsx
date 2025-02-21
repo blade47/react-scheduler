@@ -1,36 +1,51 @@
-import { useEffect, useState } from "react";
-import { PositionManagerState, PositionContext } from "./context";
-import useStore from "../hooks/useStore";
-import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields } from "../types";
-import { getResourcedEvents, sortEventsByTheEarliest } from "../helpers/generals";
-import { eachDayOfInterval, format } from "date-fns";
+import { useEffect, useState } from 'react';
+import { PositionContext, PositionManagerState } from './context';
+import useStore from '../hooks/useStore';
+import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields } from '@/lib';
+import { getResourcedEvents, sortEventsByTheEarliest } from '../helpers/generals';
+import { dayjs } from '@/config/dayjs';
 
-type Props = {
+interface Props {
   children: React.ReactNode;
+}
+
+interface EventSlots {
+  [key: string]: {
+    [eventId: string]: number;
+  };
+}
+
+const getEventDays = (start: Date, end: Date): Date[] => {
+  const startDayjs = dayjs(start);
+  const endDayjs = dayjs(end);
+  const dayCount = endDayjs.diff(startDayjs, 'day') + 1;
+
+  return Array.from({ length: dayCount }, (_, i) => startDayjs.clone().add(i, 'day').toDate());
 };
 
-const setEventPositions = (events: ProcessedEvent[]) => {
-  const slots: PositionManagerState["renderedSlots"][string] = {};
+const setEventPositions = (events: ProcessedEvent[]): EventSlots => {
+  const slots: EventSlots = {};
   let position = 0;
-  for (let i = 0; i < events.length; i++) {
-    const event = events[i];
-    const eventLength = eachDayOfInterval({ start: event.start, end: event.end });
-    for (let i = 0; i < eventLength.length; i++) {
-      const day = format(eventLength[i], "yyyy-MM-dd");
-      if (slots[day]) {
-        const positions = Object.values(slots[day]);
+
+  events.forEach((event) => {
+    const eventDays = getEventDays(event.start, event.end);
+
+    eventDays.forEach((day) => {
+      const dayKey = dayjs(day).format('YYYY-MM-DD');
+
+      if (slots[dayKey]) {
+        const positions = Object.values(slots[dayKey]);
         while (positions.includes(position)) {
           position += 1;
         }
-        slots[day][event.event_id] = position;
+        slots[dayKey][event.event_id] = position;
       } else {
-        slots[day] = { [event.event_id]: position };
+        slots[dayKey] = { [event.event_id]: position };
       }
-    }
+    });
 
-    // rest
     position = 0;
-  }
+  });
 
   return slots;
 };
@@ -40,15 +55,15 @@ const setEventPositionsWithResources = (
   resources: DefaultResource[],
   rFields: ResourceFields,
   fields: FieldProps[]
-) => {
+): PositionManagerState['renderedSlots'] => {
   const sorted = sortEventsByTheEarliest(events);
-  const slots: PositionManagerState["renderedSlots"] = {};
+  const slots: PositionManagerState['renderedSlots'] = {};
+
   if (resources.length) {
-    for (const resource of resources) {
+    resources.forEach((resource) => {
       const resourcedEvents = getResourcedEvents(sorted, resource, rFields, fields);
-      const positions = setEventPositions(resourcedEvents);
-      slots[resource[rFields.idField]] = positions;
-    }
+      slots[resource[rFields.idField]] = setEventPositions(resourcedEvents);
+    });
   } else {
     slots.all = setEventPositions(sorted);
   }
@@ -58,33 +73,38 @@ const setEventPositionsWithResources = (
 
 export const PositionProvider = ({ children }: Props) => {
   const { events, resources, resourceFields, fields } = useStore();
-  const [state, set] = useState<PositionManagerState>({
+
+  const [state, setState] = useState<PositionManagerState>(() => ({
     renderedSlots: setEventPositionsWithResources(events, resources, resourceFields, fields),
-  });
+  }));
 
   useEffect(() => {
-    set((prev) => ({
+    setState((prev) => ({
       ...prev,
       renderedSlots: setEventPositionsWithResources(events, resources, resourceFields, fields),
     }));
   }, [events, fields, resourceFields, resources]);
 
   const setRenderedSlot = (day: string, eventId: string, position: number, resourceId?: string) => {
-    set((prev) => ({
-      ...prev,
-      renderedSlots: {
-        ...prev.renderedSlots,
-        [resourceId || "all"]: {
-          ...prev.renderedSlots?.[resourceId || "all"],
-          [day]: prev.renderedSlots?.[resourceId || "all"]?.[day]
-            ? {
-                ...prev.renderedSlots?.[resourceId || "all"]?.[day],
-                [eventId]: position,
-              }
-            : { [eventId]: position },
+    setState((prev) => {
+      const targetResource = resourceId || 'all';
+      const prevResourceSlots = prev.renderedSlots?.[targetResource] || {};
+      const prevDaySlots = prevResourceSlots[day] || {};
+
+      return {
+        ...prev,
+        renderedSlots: {
+          ...prev.renderedSlots,
+          [targetResource]: {
+            ...prevResourceSlots,
+            [day]: {
+              ...prevDaySlots,
+              [eventId]: position,
+            },
+          },
         },
-      },
-    }));
+      };
+    });
   };
 
   return (

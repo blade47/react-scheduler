@@ -1,13 +1,15 @@
-import { useEffect, useCallback } from "react";
-import { addDays, eachWeekOfInterval, endOfMonth, startOfMonth } from "date-fns";
-import { CellRenderedProps, DayHours, DefaultResource } from "../types";
-import { getResourcedEvents, sortEventsByTheEarliest } from "../helpers/generals";
-import { WithResources } from "../components/common/WithResources";
-import useStore from "../hooks/useStore";
-import { MonthAgenda } from "./MonthAgenda";
-import MonthTable from "../components/month/MonthTable";
+import { useEffect, useCallback } from 'react';
+import { CellRenderedProps, DayHours, DefaultResource } from '@/lib';
+import { getResourcedEvents, sortEventsByTheEarliest } from '../helpers/generals';
+import { WithResources } from '../components/common/WithResources';
+import useStore from '../hooks/useStore';
+import { MonthAgenda } from './MonthAgenda';
+import MonthTable from '../components/month/MonthTable';
+import { dayjs } from '@/config/dayjs';
+import type { Dayjs } from 'dayjs';
 
 export type WeekDays = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 export interface MonthProps {
   weekDays: WeekDays[];
   weekStartOn: WeekDays;
@@ -34,40 +36,48 @@ const Month = () => {
   } = useStore();
 
   const { weekStartOn, weekDays } = month!;
-  const monthStart = startOfMonth(selectedDate);
-  const monthEnd = endOfMonth(selectedDate);
-  const eachWeekStart = eachWeekOfInterval(
-    {
-      start: monthStart,
-      end: monthEnd,
-    },
-    { weekStartsOn: weekStartOn }
-  );
-  const daysList = weekDays.map((d) => addDays(eachWeekStart[0], d));
+
+  const selectedDayjs = dayjs(selectedDate);
+  const monthStartDayjs = selectedDayjs.startOf('month');
+  const monthEndDayjs = selectedDayjs.endOf('month');
+
+  const getWeeksInMonth = (start: Dayjs, end: Dayjs, weekStartsOn: number): Date[] => {
+    const weeks: Date[] = [];
+    let current = start.startOf('week').add(weekStartsOn, 'day');
+
+    while (current.isBefore(end) || current.isSame(end, 'day')) {
+      weeks.push(current.toDate());
+      current = current.add(1, 'week');
+    }
+    return weeks;
+  };
+
+  const eachWeekStart = getWeeksInMonth(monthStartDayjs, monthEndDayjs, weekStartOn);
+  const daysList = weekDays.map((d) => dayjs(eachWeekStart[0]).add(d, 'day').toDate());
 
   const fetchEvents = useCallback(async () => {
     try {
       triggerLoading(true);
-      const start = eachWeekStart[0];
-      const end = addDays(eachWeekStart[eachWeekStart.length - 1], daysList.length);
+
+      const startDate = dayjs(eachWeekStart[0]);
+      const endDate = dayjs(eachWeekStart[eachWeekStart.length - 1]).add(daysList.length, 'day');
+
       const events = await getRemoteEvents!({
-        start,
-        end,
-        view: "month",
+        start: startDate.toDate(),
+        end: endDate.toDate(),
+        view: 'month',
       });
-      if (events && events?.length) {
-        handleState(events, "events");
+
+      if (Array.isArray(events) && events.length > 0) {
+        handleState(events, 'events');
       }
-    } catch (error) {
-      throw error;
     } finally {
       triggerLoading(false);
     }
-    // eslint-disable-next-line
-  }, [selectedDate, getRemoteEvents]);
+  }, [triggerLoading, eachWeekStart, daysList.length, getRemoteEvents, handleState]);
 
   useEffect(() => {
-    if (getRemoteEvents instanceof Function) {
+    if (typeof getRemoteEvents === 'function') {
       fetchEvents();
     }
   }, [fetchEvents, getRemoteEvents]);

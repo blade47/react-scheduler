@@ -1,206 +1,240 @@
-import { DragEvent, useEffect, useState } from "react";
-import { EventActions, ProcessedEvent, SchedulerProps } from "../types";
-import { defaultProps, initialStore } from "./default";
-import { StoreContext } from "./context";
-import { SchedulerState, SelectedRange, Store } from "./types";
-import { arraytizeFieldVal, getAvailableViews } from "../helpers/generals";
-import { addMinutes, differenceInMinutes, isEqual } from "date-fns";
-import { View } from "../components/nav/Navigation";
+import { DragEvent, useEffect, useState, useMemo, useCallback } from 'react';
+import { DefaultResource, EventActions, ProcessedEvent } from '@/lib';
+import { defaultProps } from './default';
+import { StoreContext } from './context';
+import { Store, SelectedRange } from './types';
+import { arraytizeFieldVal, getAvailableViews } from '../helpers/generals';
+import { View } from '../components/nav/Navigation';
+import { dayjs } from '@/config/dayjs.ts';
+import { Scheduler, SchedulerStateBase } from '@/lib/types.ts';
 
-type Props = {
+interface Props {
   children: React.ReactNode;
-  initial: Partial<SchedulerProps>;
-};
+  initial: Scheduler;
+}
 
-export const StoreProvider = ({ children, initial }: Props) => {
-  const [state, set] = useState<Store>({ ...initialStore, ...defaultProps(initial) });
+export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
+  const [state, setState] = useState<SchedulerStateBase>(() => {
+    const defaults = defaultProps(initial);
+    return {
+      ...defaults,
+      dialog: false,
+      selectedRange: undefined,
+      selectedEvent: undefined,
+      selectedResource: undefined,
+      currentDragged: undefined,
+      enableAgenda: true,
+    } as SchedulerStateBase;
+  });
 
   useEffect(() => {
-    set((prev) => ({
+    setState((prev) => ({
       ...prev,
       onEventDrop: initial.onEventDrop,
       customEditor: initial.customEditor,
-      events: initial.events || [],
+      events: initial.events ?? [],
     }));
-    // Rerender if changed on some props
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial.onEventDrop, initial.customEditor, initial.events]);
 
-  const handleState = (value: SchedulerState[keyof SchedulerState], name: keyof SchedulerState) => {
-    set((prev) => ({ ...prev, [name]: value }));
+  const handleState = (
+    value: SchedulerStateBase[keyof SchedulerStateBase],
+    name: keyof SchedulerStateBase
+  ): void => {
+    setState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const getViews = () => {
+  const getViews = useCallback((): View[] => {
     return getAvailableViews(state);
-  };
+  }, [state]);
 
-  const toggleAgenda = () => {
-    set((prev) => {
+  const toggleAgenda = useCallback((): void => {
+    setState((prev) => {
       const newStatus = !prev.agenda;
 
-      if (state.onViewChange && typeof state.onViewChange === "function") {
+      if (state.onViewChange && typeof state.onViewChange === 'function') {
         state.onViewChange(state.view, newStatus);
       }
 
       return { ...prev, agenda: newStatus };
     });
-  };
+  }, [state]);
 
-  const triggerDialog = (status: boolean, selected?: SelectedRange | ProcessedEvent) => {
-    const isEvent = selected as ProcessedEvent;
+  const triggerDialog = useCallback(
+    (status: boolean, selected?: SelectedRange | ProcessedEvent): void => {
+      const isEvent = (val: any): val is ProcessedEvent =>
+        val && typeof val === 'object' && 'event_id' in val;
 
-    set((prev) => ({
-      ...prev,
-      dialog: status,
-      selectedRange: isEvent?.event_id
-        ? undefined
-        : isEvent || {
-            start: new Date(),
-            end: new Date(Date.now() + 60 * 60 * 1000),
-          },
-      selectedEvent: isEvent?.event_id ? isEvent : undefined,
-      selectedResource: prev.selectedResource || isEvent?.[state.resourceFields?.idField],
-    }));
-  };
+      setState((prev) => {
+        const processedEvent = isEvent(selected) ? selected : undefined;
+        const resourceField = state.resourceFields?.idField;
 
-  const triggerLoading = (status: boolean) => {
-    // Trigger if not out-sourced by props
-    if (typeof initial.loading === "undefined") {
-      set((prev) => ({ ...prev, loading: status }));
-    }
-  };
+        return {
+          ...prev,
+          dialog: status,
+          selectedRange: !processedEvent
+            ? (selected as SelectedRange) || {
+                start: new Date(),
+                end: new Date(Date.now() + 60 * 60 * 1000),
+              }
+            : undefined,
+          selectedEvent: processedEvent,
+          selectedResource:
+            prev.selectedResource ||
+            (processedEvent && resourceField
+              ? (processedEvent[resourceField] as DefaultResource['assignee'])
+              : undefined),
+        };
+      });
+    },
+    [state.resourceFields?.idField]
+  );
 
-  const handleGotoDay = (day: Date) => {
-    const currentViews = getViews();
-    let view: View | undefined;
-    if (currentViews.includes("day")) {
-      view = "day";
-      set((prev) => ({ ...prev, view: "day", selectedDate: day }));
-    } else if (currentViews.includes("week")) {
-      view = "week";
-      set((prev) => ({ ...prev, view: "week", selectedDate: day }));
-    } else {
-      console.warn("No Day/Week views available");
-    }
+  const triggerLoading = useCallback(
+    (status: boolean): void => {
+      if (typeof initial.loading === 'undefined') {
+        setState((prev) => ({ ...prev, loading: status }));
+      }
+    },
+    [initial.loading]
+  );
 
-    if (!!view && state.onViewChange && typeof state.onViewChange === "function") {
-      state.onViewChange(view, state.agenda);
-    }
+  const handleGotoDay = useCallback(
+    (day: Date): void => {
+      const currentViews = getViews();
+      let view: View | undefined;
 
-    if (!!view && state.onSelectedDateChange && typeof state.onSelectedDateChange === "function") {
-      state.onSelectedDateChange(day);
-    }
-  };
-
-  const confirmEvent = (event: ProcessedEvent | ProcessedEvent[], action: EventActions) => {
-    let updatedEvents: ProcessedEvent[];
-    if (action === "edit") {
-      if (Array.isArray(event)) {
-        updatedEvents = state.events.map((e) => {
-          const exist = event.find((ex) => ex.event_id === e.event_id);
-          return exist ? { ...e, ...exist } : e;
-        });
+      if (currentViews.includes('day')) {
+        view = 'day';
+      } else if (currentViews.includes('week')) {
+        view = 'week';
       } else {
-        updatedEvents = state.events.map((e) =>
-          e.event_id === event.event_id ? { ...e, ...event } : e
-        );
-      }
-    } else {
-      updatedEvents = state.events.concat(event);
-    }
-    set((prev) => ({ ...prev, events: updatedEvents }));
-  };
-
-  const setCurrentDragged = (event?: ProcessedEvent) => {
-    set((prev) => ({ ...prev, currentDragged: event }));
-  };
-
-  const onDrop = async (
-    event: DragEvent<HTMLButtonElement>,
-    eventId: string,
-    startTime: Date,
-    resKey?: string,
-    resVal?: string | number
-  ) => {
-    // Get dropped event
-    const droppedEvent = state.events.find((e) => {
-      if (typeof e.event_id === "number") {
-        return e.event_id === +eventId;
-      }
-      return e.event_id === eventId;
-    }) as ProcessedEvent;
-
-    // Check if has resource and if is multiple
-    const resField = state.fields.find((f) => f.name === resKey);
-    const isMultiple = !!resField?.config?.multiple;
-    let newResource = resVal as string | number | string[] | number[];
-    if (resField) {
-      const eResource = droppedEvent[resKey as string];
-      const currentRes = arraytizeFieldVal(resField, eResource, droppedEvent).value;
-      if (isMultiple) {
-        // if dropped on already owned resource
-        if (currentRes.includes(resVal)) {
-          // Omit if dropped on same time slot for multiple event
-          if (isEqual(droppedEvent.start, startTime)) {
-            return;
-          }
-          newResource = currentRes;
-        } else {
-          // if have multiple resource ? add other : move to other
-          newResource = currentRes.length > 1 ? [...currentRes, resVal] : [resVal];
-        }
-      }
-    }
-
-    // Omit if dropped on same time slot for non multiple events
-    if (isEqual(droppedEvent.start, startTime)) {
-      if (!newResource || (!isMultiple && newResource === droppedEvent[resKey as string])) {
+        console.warn('No Day/Week views available');
         return;
       }
-    }
 
-    // Update event time according to original duration & update resources/owners
-    const diff = differenceInMinutes(droppedEvent.end, droppedEvent.start);
-    const updatedEvent: ProcessedEvent = {
-      ...droppedEvent,
-      start: startTime,
-      end: addMinutes(startTime, diff),
-      recurring: undefined,
-      [resKey as string]: newResource || "",
-    };
+      setState((prev) => ({ ...prev, view, selectedDate: day }));
 
-    // Local
-    if (!state.onEventDrop || typeof state.onEventDrop !== "function") {
-      return confirmEvent(updatedEvent, "edit");
-    }
-    // Remote
-    try {
-      triggerLoading(true);
-      const _event = await state.onEventDrop(event, startTime, updatedEvent, droppedEvent);
-      if (_event) {
-        confirmEvent(_event, "edit");
+      if (view && state.onViewChange && typeof state.onViewChange === 'function') {
+        state.onViewChange(view, state.agenda);
       }
-    } finally {
-      triggerLoading(false);
-    }
+
+      if (view && state.onSelectedDateChange && typeof state.onSelectedDateChange === 'function') {
+        state.onSelectedDateChange(day);
+      }
+    },
+    [getViews, state]
+  );
+
+  const confirmEvent = (event: ProcessedEvent | ProcessedEvent[], action: EventActions): void => {
+    setState((prev) => {
+      let updatedEvents: ProcessedEvent[];
+
+      if (action === 'edit') {
+        if (Array.isArray(event)) {
+          updatedEvents = prev.events.map((e) => {
+            const exist = event.find((ex) => ex.event_id === e.event_id);
+            return exist ? { ...e, ...exist } : e;
+          });
+        } else {
+          updatedEvents = prev.events.map((e) =>
+            e.event_id === event.event_id ? { ...e, ...event } : e
+          );
+        }
+      } else {
+        updatedEvents = [...prev.events, ...(Array.isArray(event) ? event : [event])];
+      }
+
+      return { ...prev, events: updatedEvents };
+    });
   };
 
-  return (
-    <StoreContext.Provider
-      value={{
-        ...state,
-        handleState,
-        getViews,
-        toggleAgenda,
-        triggerDialog,
-        triggerLoading,
-        handleGotoDay,
-        confirmEvent,
-        setCurrentDragged,
-        onDrop,
-      }}
-    >
-      {children}
-    </StoreContext.Provider>
+  const setCurrentDragged = (event?: ProcessedEvent): void => {
+    setState((prev) => ({ ...prev, currentDragged: event }));
+  };
+
+  const onDrop = useCallback(
+    async (
+      event: DragEvent<HTMLButtonElement>,
+      eventId: string,
+      startTime: Date,
+      resKey?: string,
+      resVal?: string | number
+    ): Promise<void> => {
+      const droppedEvent = state.events.find((e) =>
+        typeof e.event_id === 'number' ? e.event_id === +eventId : e.event_id === eventId
+      );
+
+      if (!droppedEvent) return;
+
+      const resField = state.fields.find((f) => f.name === resKey);
+      const isMultiple = !!resField?.config?.multiple;
+
+      let newResource: string | number | (string | number)[] | undefined = resVal;
+
+      if (resField) {
+        const eResource = droppedEvent[resKey as string];
+        const currentRes = arraytizeFieldVal(resField, eResource, droppedEvent).value;
+
+        if (isMultiple && resVal) {
+          if (currentRes.includes(resVal)) {
+            if (dayjs(droppedEvent.start).isSame(dayjs(startTime))) {
+              return;
+            }
+            newResource = currentRes;
+          } else {
+            newResource = currentRes.length > 1 ? [...currentRes, resVal] : [resVal];
+          }
+        }
+      }
+
+      if (
+        dayjs(droppedEvent.start).isSame(dayjs(startTime)) &&
+        (!newResource || (!isMultiple && newResource === droppedEvent[resKey as string]))
+      ) {
+        return;
+      }
+
+      const diff = dayjs(droppedEvent.end).diff(dayjs(droppedEvent.start), 'minute');
+      const updatedEvent: ProcessedEvent = {
+        ...droppedEvent,
+        start: startTime,
+        end: dayjs(startTime).add(diff, 'minute').toDate(),
+        recurring: undefined,
+        [resKey as string]: newResource ?? '',
+      };
+
+      if (!state.onEventDrop || typeof state.onEventDrop !== 'function') {
+        return confirmEvent(updatedEvent, 'edit');
+      }
+
+      try {
+        triggerLoading(true);
+        const result = await state.onEventDrop(event, startTime, updatedEvent, droppedEvent);
+        if (result) {
+          confirmEvent(result, 'edit');
+        }
+      } finally {
+        triggerLoading(false);
+      }
+    },
+    [state, triggerLoading]
   );
+
+  const storeValue = useMemo<Store>(
+    () => ({
+      ...state,
+      handleState,
+      getViews,
+      toggleAgenda,
+      triggerDialog,
+      triggerLoading,
+      handleGotoDay,
+      confirmEvent,
+      setCurrentDragged,
+      onDrop,
+    }),
+    [getViews, handleGotoDay, onDrop, state, toggleAgenda, triggerDialog, triggerLoading]
+  );
+
+  return <StoreContext.Provider value={storeValue}>{children}</StoreContext.Provider>;
 };

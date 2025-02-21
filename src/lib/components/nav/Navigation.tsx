@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState } from 'react';
 import {
   Button,
   useTheme,
@@ -7,17 +7,17 @@ import {
   MenuList,
   MenuItem,
   IconButton,
-} from "@mui/material";
-import { WeekDateBtn } from "./WeekDateBtn";
-import { DayDateBtn } from "./DayDateBtn";
-import { MonthDateBtn } from "./MonthDateBtn";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
-import useStore from "../../hooks/useStore";
-import { NavigationDiv } from "../../styles/styles";
-import { getTimeZonedDate } from "../../helpers/generals";
+} from '@mui/material';
+import { WeekDateBtn } from './WeekDateBtn';
+import { DayDateBtn } from './DayDateBtn';
+import { MonthDateBtn } from './MonthDateBtn';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
+import useStore from '../../hooks/useStore';
+import { NavigationDiv } from '../../styles/styles';
+import { getTimeZonedDate } from '../../helpers/generals';
 
-export type View = "month" | "week" | "day";
+export type View = 'month' | 'week' | 'day';
 
 const Navigation = () => {
   const {
@@ -39,9 +39,10 @@ const Navigation = () => {
     toggleAgenda,
     enableAgenda,
   } = useStore();
+
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const views = getViews();
 
   const toggleMoreMenu = (el?: Element) => {
@@ -49,29 +50,34 @@ const Navigation = () => {
   };
 
   const handleSelectedDateChange = (date: Date) => {
-    handleState(date, "selectedDate");
+    handleState(date, 'selectedDate');
 
-    if (onSelectedDateChange && typeof onSelectedDateChange === "function") {
+    if (typeof onSelectedDateChange === 'function') {
       onSelectedDateChange(date);
     }
   };
 
   const handleChangeView = (view: View) => {
-    handleState(view, "view");
-    if (onViewChange && typeof onViewChange === "function") {
+    handleState(view, 'view');
+    if (typeof onViewChange === 'function') {
       onViewChange(view, agenda);
     }
   };
 
+  const handleTodayClick = () => {
+    const today = getTimeZonedDate(new Date(), timeZone);
+    handleSelectedDateChange(today);
+  };
+
   const renderDateSelector = () => {
     switch (view) {
-      case "month":
+      case 'month':
         return (
           month?.navigation && (
             <MonthDateBtn selectedDate={selectedDate} onChange={handleSelectedDateChange} />
           )
         );
-      case "week":
+      case 'week':
         return (
           week?.navigation && (
             <WeekDateBtn
@@ -81,40 +87,38 @@ const Navigation = () => {
             />
           )
         );
-      case "day":
+      case 'day':
         return (
           day?.navigation && (
             <DayDateBtn selectedDate={selectedDate} onChange={handleSelectedDateChange} />
           )
         );
       default:
-        return "";
+        return null;
     }
   };
 
   if (!navigation && disableViewNavigator) return null;
 
   return (
-    <NavigationDiv sticky={stickyNavigation ? "1" : "0"}>
+    <NavigationDiv sticky={stickyNavigation ? '1' : '0'}>
       <div data-testid="date-navigator">{navigation && renderDateSelector()}</div>
 
       <div
         className="rs__view_navigator"
         data-testid="view-navigator"
         style={{
-          visibility: disableViewNavigator ? "hidden" : "visible",
+          visibility: disableViewNavigator ? 'hidden' : 'visible',
         }}
       >
-        <Button
-          onClick={() => handleSelectedDateChange(getTimeZonedDate(new Date(), timeZone))}
-          aria-label={translations.navigation.today}
-        >
+        <Button onClick={handleTodayClick} aria-label={translations.navigation.today}>
           {translations.navigation.today}
         </Button>
+
         {enableAgenda &&
           (isDesktop ? (
             <Button
-              color={agenda ? "primary" : "inherit"}
+              color={agenda ? 'primary' : 'inherit'}
               onClick={toggleAgenda}
               aria-label={translations.navigation.agenda}
             >
@@ -122,7 +126,7 @@ const Navigation = () => {
             </Button>
           ) : (
             <IconButton
-              color={agenda ? "primary" : "default"}
+              color={agenda ? 'primary' : 'default'}
               style={{ padding: 5 }}
               onClick={toggleAgenda}
             >
@@ -135,7 +139,7 @@ const Navigation = () => {
             views.map((v) => (
               <Button
                 key={v}
-                color={v === view ? "primary" : "inherit"}
+                color={v === view ? 'primary' : 'inherit'}
                 onClick={() => handleChangeView(v)}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -147,27 +151,20 @@ const Navigation = () => {
             ))
           ) : (
             <Fragment>
-              <IconButton
-                style={{ padding: 5 }}
-                onClick={(e) => {
-                  toggleMoreMenu(e.currentTarget);
-                }}
-              >
+              <IconButton style={{ padding: 5 }} onClick={(e) => toggleMoreMenu(e.currentTarget)}>
                 <MoreVertIcon />
               </IconButton>
               <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
-                onClose={() => {
-                  toggleMoreMenu();
-                }}
+                onClose={() => toggleMoreMenu()}
                 anchorOrigin={{
-                  vertical: "center",
-                  horizontal: "center",
+                  vertical: 'center',
+                  horizontal: 'center',
                 }}
                 transformOrigin={{
-                  vertical: "top",
-                  horizontal: "center",
+                  vertical: 'top',
+                  horizontal: 'center',
                 }}
               >
                 <MenuList autoFocusItem={!!anchorEl} disablePadding>

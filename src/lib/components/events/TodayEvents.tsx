@@ -1,10 +1,10 @@
-import { differenceInMinutes } from "date-fns";
-import { Fragment } from "react";
-import { BORDER_HEIGHT } from "../../helpers/constants";
-import { isTimeZonedToday, traversCrossingEvents } from "../../helpers/generals";
-import { ProcessedEvent } from "../../types";
-import CurrentTimeBar from "./CurrentTimeBar";
-import EventItem from "./EventItem";
+import { Fragment } from 'react';
+import { BORDER_HEIGHT } from '../../helpers/constants';
+import { isTimeZonedToday, traversCrossingEvents } from '../../helpers/generals';
+import { ProcessedEvent } from '@/lib';
+import CurrentTimeBar from './CurrentTimeBar';
+import EventItem from './EventItem';
+import { dayjs } from '@/config/dayjs';
 
 interface TodayEventsProps {
   todayEvents: ProcessedEvent[];
@@ -13,9 +13,10 @@ interface TodayEventsProps {
   endHour: number;
   step: number;
   minuteHeight: number;
-  direction: "rtl" | "ltr";
+  direction: 'rtl' | 'ltr';
   timeZone?: string;
 }
+
 const TodayEvents = ({
   todayEvents,
   today,
@@ -27,6 +28,8 @@ const TodayEvents = ({
   timeZone,
 }: TodayEventsProps) => {
   const crossingIds: Array<number | string> = [];
+  const calendarStartInMins = startHour * 60;
+  const maxHeight = (endHour * 60 - calendarStartInMins) * minuteHeight;
 
   return (
     <Fragment>
@@ -41,43 +44,49 @@ const TodayEvents = ({
       )}
 
       {todayEvents.map((event, i) => {
-        const maxHeight = (endHour * 60 - startHour * 60) * minuteHeight;
-        const eventHeight = differenceInMinutes(event.end, event.start) * minuteHeight;
+        const eventStart = dayjs(event.start);
+        const eventEnd = dayjs(event.end);
+
+        // Calculate event dimensions
+        const eventHeight = eventEnd.diff(eventStart, 'minute') * minuteHeight;
         const height = Math.min(eventHeight, maxHeight) - BORDER_HEIGHT;
 
-        const calendarStartInMins = startHour * 60;
-        const eventStartInMins = event.start.getHours() * 60 + event.start.getMinutes();
-        const minituesFromTop = Math.max(eventStartInMins - calendarStartInMins, 0);
+        const eventStartInMins = eventStart.hour() * 60 + eventStart.minute();
+        const minutesFromTop = Math.max(eventStartInMins - calendarStartInMins, 0);
 
-        const topSpace = minituesFromTop * minuteHeight;
-        /** Add border factor to height of each slot */
+        // Calculate positioning
+        const topSpace = minutesFromTop * minuteHeight;
         const slots = height / 60;
         const heightBorderFactor = slots * BORDER_HEIGHT;
-
-        /** Calculate top space */
-        const slotsFromTop = minituesFromTop / step;
+        const slotsFromTop = minutesFromTop / step;
         const top = topSpace + slotsFromTop;
 
+        // Handle crossing events
         const crossingEvents = traversCrossingEvents(todayEvents, event);
         const alreadyRendered = crossingEvents.filter((e) => crossingIds.includes(e.event_id));
         crossingIds.push(event.event_id);
 
+        // Calculate width and position based on crossing events
+        const width =
+          alreadyRendered.length > 0
+            ? `calc(100% - ${100 - 98 / (alreadyRendered.length + 1)}%)`
+            : '98%';
+
+        const position =
+          alreadyRendered.length > 0
+            ? `${(100 / (crossingEvents.length + 1)) * alreadyRendered.length}%`
+            : '';
+
         return (
           <div
-            key={`${event.event_id}/${event.recurrenceId || ""}`}
+            key={`${event.event_id}/${event.recurrenceId || ''}`}
             className="rs__event__item"
             style={{
               height: height + heightBorderFactor,
               top,
-              width:
-                alreadyRendered.length > 0
-                  ? `calc(100% - ${100 - 98 / (alreadyRendered.length + 1)}%)`
-                  : "98%", // Leave some space to click cell
+              width,
               zIndex: todayEvents.length + i,
-              [direction === "rtl" ? "right" : "left"]:
-                alreadyRendered.length > 0
-                  ? `${(100 / (crossingEvents.length + 1)) * alreadyRendered.length}%`
-                  : "",
+              [direction === 'rtl' ? 'right' : 'left']: position,
             }}
           >
             <EventItem event={event} />

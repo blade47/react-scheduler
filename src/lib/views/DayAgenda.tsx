@@ -1,23 +1,28 @@
-import { useMemo } from "react";
-import { format } from "date-fns";
-import { AgendaDiv } from "../styles/styles";
-import { ProcessedEvent } from "../types";
-import useStore from "../hooks/useStore";
-import { Typography } from "@mui/material";
-import { filterTodayAgendaEvents } from "../helpers/generals";
-import AgendaEventsList from "../components/events/AgendaEventsList";
-import EmptyAgenda from "../components/events/EmptyAgenda";
+import { useMemo } from 'react';
+import { AgendaDiv } from '../styles/styles';
+import { ProcessedEvent } from '@/lib';
+import useStore from '../hooks/useStore';
+import { Typography } from '@mui/material';
+import { filterTodayAgendaEvents } from '../helpers/generals';
+import AgendaEventsList from '../components/events/AgendaEventsList';
+import EmptyAgenda from '../components/events/EmptyAgenda';
+import { dayjs } from '@/config/dayjs';
 
 type Props = {
   events: ProcessedEvent[];
 };
+
 const DayAgenda = ({ events }: Props) => {
-  const { day, locale, selectedDate, translations, alwaysShowAgendaDays } = useStore();
+  const { day, selectedDate, translations, alwaysShowAgendaDays } = useStore();
+
   const { headRenderer } = day!;
 
-  const dayEvents = useMemo(() => {
-    return filterTodayAgendaEvents(events, selectedDate);
-  }, [events, selectedDate]);
+  const selectedDayjs = useMemo(() => dayjs(selectedDate), [selectedDate]);
+
+  const dayEvents = useMemo(
+    () => filterTodayAgendaEvents(events, selectedDate),
+    [events, selectedDate]
+  );
 
   if (!alwaysShowAgendaDays && !dayEvents.length) {
     return <EmptyAgenda />;
@@ -27,10 +32,12 @@ const DayAgenda = ({ events }: Props) => {
     <AgendaDiv>
       <div className="rs__agenda_row rs__today_cell">
         <div className="rs__cell rs__agenda__cell">
-          {typeof headRenderer === "function" ? (
-            <div>{headRenderer(selectedDate)}</div>
+          {typeof headRenderer === 'function' ? (
+            <div>
+              {headRenderer(selectedDate)} {/* Pass Date object to external renderer */}
+            </div>
           ) : (
-            <Typography variant="body2">{format(selectedDate, "dd E", { locale })}</Typography>
+            <Typography variant="body2">{selectedDayjs.format('DD ddd')}</Typography>
           )}
         </div>
         <div className="rs__cell rs__agenda_items">

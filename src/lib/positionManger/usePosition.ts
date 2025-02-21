@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { PositionContext } from "./context";
+import { useContext } from 'react';
+import { PositionContext } from './context';
 
 const usePosition = () => {
   return useContext(PositionContext);

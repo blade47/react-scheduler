@@ -1,7 +1,7 @@
-import { DragEvent } from "react";
-import { ProcessedEvent } from "../types";
-import { useTheme } from "@mui/material";
-import useStore from "./useStore";
+import { DragEvent } from 'react';
+import { ProcessedEvent } from '../types';
+import { useTheme } from '@mui/material';
+import useStore from './useStore';
 
 const useDragAttributes = (event: ProcessedEvent) => {
   const { setCurrentDragged } = useStore();

@@ -1,6 +1,6 @@
-import { AgendaDiv } from "../../styles/styles";
-import { Typography } from "@mui/material";
-import useStore from "../../hooks/useStore";
+import { AgendaDiv } from '../../styles/styles';
+import { Typography } from '@mui/material';
+import useStore from '../../hooks/useStore';
 
 const EmptyAgenda = () => {
   const { height, translations } = useStore();
@@ -10,9 +10,9 @@ const EmptyAgenda = () => {
         borderWidth: 1,
         padding: 1,
         height: height / 2,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <div className="rs__cell rs__agenda_items">

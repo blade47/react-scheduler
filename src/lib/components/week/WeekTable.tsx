@@ -1,31 +1,23 @@
-import { Fragment, useMemo } from "react";
-import useStore from "../../hooks/useStore";
-import { TableGrid } from "../../styles/styles";
+import { Fragment, useMemo } from 'react';
+import useStore from '../../hooks/useStore';
+import { TableGrid } from '../../styles/styles';
 import {
   differenceInDaysOmitTime,
   filterMultiDaySlot,
   filterTodayEvents,
   getHourFormat,
-} from "../../helpers/generals";
-import { MULTI_DAY_EVENT_HEIGHT } from "../../helpers/constants";
-import { DefaultResource, ProcessedEvent } from "../../types";
-import useSyncScroll from "../../hooks/useSyncScroll";
-import {
-  addMinutes,
-  endOfDay,
-  format,
-  isAfter,
-  isBefore,
-  isSameDay,
-  isToday,
-  startOfDay,
-} from "date-fns";
-import TodayTypo from "../common/TodayTypo";
-import usePosition from "../../positionManger/usePosition";
-import EventItem from "../events/EventItem";
-import { Typography } from "@mui/material";
-import TodayEvents from "../events/TodayEvents";
-import Cell from "../common/Cell";
+  isDateToday,
+} from '../../helpers/generals';
+import { MULTI_DAY_EVENT_HEIGHT } from '../../helpers/constants';
+import { DefaultResource, ProcessedEvent } from '@/lib';
+import useSyncScroll from '../../hooks/useSyncScroll';
+import TodayTypo from '../common/TodayTypo';
+import usePosition from '../../positionManger/usePosition';
+import EventItem from '../events/EventItem';
+import { Typography } from '@mui/material';
+import TodayEvents from '../events/TodayEvents';
+import Cell from '../common/Cell';
+import { dayjs } from '@/config/dayjs';
 
 type Props = {
   daysList: Date[];
@@ -52,23 +44,24 @@ const WeekTable = ({
     resourceFields,
     resourceViewMode,
     direction,
-    locale,
     hourFormat,
     timeZone,
     stickyNavigation,
   } = useStore();
+
   const { startHour, endHour, step, cellRenderer, disableGoToDay, headRenderer, hourRenderer } =
     week!;
+
   const { renderedSlots } = usePosition();
   const { headersRef, bodyRef } = useSyncScroll();
   const MULTI_SPACE = MULTI_DAY_EVENT_HEIGHT;
-  const weekStart = startOfDay(daysList[0]);
-  const weekEnd = endOfDay(daysList[daysList.length - 1]);
+
+  const weekStart = dayjs(daysList[0]).startOf('day');
+  const weekEnd = dayjs(daysList[daysList.length - 1]).endOf('day');
   const hFormat = getHourFormat(hourFormat);
 
-  // Equalizing multi-day section height except in resource/tabs mode
   const headerHeight = useMemo(() => {
-    const shouldEqualize = resources.length && resourceViewMode === "default";
+    const shouldEqualize = resources.length && resourceViewMode === 'default';
     const allWeekMulti = filterMultiDaySlot(
       shouldEqualize ? events : resourcedEvents,
       daysList,
@@ -91,21 +84,31 @@ const WeekTable = ({
     today: Date,
     resource?: DefaultResource
   ) => {
-    const isFirstDayInWeek = isSameDay(weekStart, today);
+    const isFirstDayInWeek = dayjs(today).isSame(weekStart, 'day');
     const allWeekMulti = filterMultiDaySlot(events, daysList, timeZone);
 
     const multiDays = allWeekMulti
-      .filter((e) => (isBefore(e.start, weekStart) ? isFirstDayInWeek : isSameDay(e.start, today)))
-      .sort((a, b) => b.end.getTime() - a.end.getTime());
-    return multiDays.map((event) => {
-      const hasPrev = isBefore(startOfDay(event.start), weekStart);
-      const hasNext = isAfter(endOfDay(event.end), weekEnd);
-      const eventLength =
-        differenceInDaysOmitTime(hasPrev ? weekStart : event.start, hasNext ? weekEnd : event.end) +
-        1;
+      .filter((e) => {
+        const eventStart = dayjs(e.start);
+        return eventStart.isBefore(weekStart)
+          ? isFirstDayInWeek
+          : eventStart.isSame(dayjs(today), 'day');
+      })
+      .sort((a, b) => dayjs(b.end).valueOf() - dayjs(a.end).valueOf());
 
-      const day = format(today, "yyyy-MM-dd");
-      const resourceId = resource ? resource[resourceFields.idField] : "all";
+    return multiDays.map((event) => {
+      const eventStart = dayjs(event.start);
+      const eventEnd = dayjs(event.end);
+      const hasPrev = eventStart.startOf('day').isBefore(weekStart);
+      const hasNext = eventEnd.endOf('day').isAfter(weekEnd);
+      const eventLength =
+        differenceInDaysOmitTime(
+          hasPrev ? weekStart.toDate() : event.start,
+          hasNext ? weekEnd.toDate() : event.end
+        ) + 1;
+
+      const day = dayjs(today).format('YYYY-MM-DD');
+      const resourceId = resource ? resource[resourceFields.idField] : 'all';
       const rendered = renderedSlots?.[resourceId]?.[day];
       const position = rendered?.[event.event_id] || 0;
 
@@ -116,7 +119,7 @@ const WeekTable = ({
           style={{
             top: position * MULTI_SPACE + 45,
             width: `${99.9 * eventLength}%`,
-            overflowX: "hidden",
+            overflowX: 'hidden',
           }}
         >
           <EventItem event={event} hasPrev={hasPrev} hasNext={hasNext} multiday />
@@ -138,40 +141,41 @@ const WeekTable = ({
         {daysList.map((date, i) => (
           <span
             key={i}
-            className={`rs__cell rs__header ${isToday(date) ? "rs__today_cell" : ""}`}
+            className={`rs__cell rs__header ${isDateToday(date) ? 'rs__today_cell' : ''}`}
             style={{ height: headerHeight }}
           >
-            {typeof headRenderer === "function" ? (
+            {typeof headRenderer === 'function' ? (
               <div>{headRenderer(date)}</div>
             ) : (
               <TodayTypo
                 date={date}
-                onClick={!disableGoToDay ? handleGotoDay : undefined}
-                locale={locale}
+                onClick={!disableGoToDay ? () => handleGotoDay(date) : undefined}
               />
             )}
             {renderMultiDayEvents(resourcedEvents, date, resource)}
           </span>
         ))}
       </TableGrid>
-      {/* Time Cells */}
+
       <TableGrid days={daysList.length} ref={bodyRef}>
         {hours.map((h, i) => (
-          <Fragment key={i}>
+          <Fragment key={dayjs(h).valueOf()}>
             <span style={{ height: cellHeight }} className="rs__cell rs__header rs__time">
-              {typeof hourRenderer === "function" ? (
-                <div>{hourRenderer(format(h, hFormat, { locale }))}</div>
+              {typeof hourRenderer === 'function' ? (
+                <div>{hourRenderer(dayjs(h).format(hFormat))}</div>
               ) : (
-                <Typography variant="caption">{format(h, hFormat, { locale })}</Typography>
+                <Typography variant="caption">{dayjs(h).format(hFormat)}</Typography>
               )}
             </span>
             {daysList.map((date, ii) => {
-              const start = new Date(`${format(date, "yyyy/MM/dd")} ${format(h, hFormat)}`);
-              const end = addMinutes(start, step);
+              const start = dayjs(
+                `${dayjs(date).format('YYYY/MM/DD')} ${dayjs(h).format(hFormat)}`
+              );
+              const end = start.add(step, 'minute');
               const field = resourceFields.idField;
+
               return (
-                <span key={ii} className={`rs__cell ${isToday(date) ? "rs__today_cell" : ""}`}>
-                  {/* Events of each day - run once on the top hour column */}
+                <span key={ii} className={`rs__cell ${isDateToday(date) ? 'rs__today_cell' : ''}`}>
                   {i === 0 && (
                     <TodayEvents
                       todayEvents={filterTodayEvents(resourcedEvents, date, timeZone)}
@@ -185,8 +189,8 @@ const WeekTable = ({
                     />
                   )}
                   <Cell
-                    start={start}
-                    end={end}
+                    start={start.toDate()}
+                    end={end.toDate()}
                     day={date}
                     height={cellHeight}
                     resourceKey={field}

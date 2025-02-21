@@ -1,22 +1,22 @@
-import { MouseEvent } from "react";
-import { Box, IconButton, Popover, Typography, useTheme } from "@mui/material";
-import useStore from "../../hooks/useStore";
-import { ProcessedEvent } from "../../types";
-import { PopperInner } from "../../styles/styles";
-import EventActions from "./Actions";
-import { differenceInDaysOmitTime, getHourFormat } from "../../helpers/generals";
-import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import SupervisorAccountRoundedIcon from "@mui/icons-material/SupervisorAccountRounded";
-import { format } from "date-fns";
+import { MouseEvent } from 'react';
+import { Box, IconButton, Popover, Typography, useTheme } from '@mui/material';
+import useStore from '../../hooks/useStore';
+import { ProcessedEvent } from '@/lib';
+import { PopperInner } from '../../styles/styles';
+import EventActions from './Actions';
+import { differenceInDaysOmitTime, getHourFormat } from '../../helpers/generals';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
+import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
+import SupervisorAccountRoundedIcon from '@mui/icons-material/SupervisorAccountRounded';
+import { dayjs } from '@/config/dayjs';
 
-type Props = {
+interface EventItemPopoverProps {
   event: ProcessedEvent;
   anchorEl: Element | null;
-  onTriggerViewer: (el?: MouseEvent<Element>) => void;
-};
+  onTriggerViewer: (el?: MouseEvent) => void;
+}
 
-const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: Props) => {
+const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: EventItemPopoverProps) => {
   const {
     triggerDialog,
     onDelete,
@@ -28,17 +28,18 @@ const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: Props) => {
     fields,
     resources,
     resourceFields,
-    locale,
     viewerTitleComponent,
     viewerSubtitleComponent,
     hourFormat,
     translations,
     onEventEdit,
   } = useStore();
+
   const theme = useTheme();
   const hideDates = differenceInDaysOmitTime(event.start, event.end) <= 0 && event.allDay;
   const hFormat = getHourFormat(hourFormat);
   const idKey = resourceFields.idField;
+
   const hasResource = resources.filter((res) =>
     Array.isArray(event[idKey]) ? event[idKey].includes(res[idKey]) : res[idKey] === event[idKey]
   );
@@ -47,19 +48,16 @@ const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: Props) => {
     try {
       triggerLoading(true);
       let deletedId = event.event_id;
-      // Trigger custom/remote when provided
+
       if (onDelete) {
         const remoteId = await onDelete(deletedId);
-        if (remoteId) {
-          deletedId = remoteId;
-        } else {
-          deletedId = "";
-        }
+        deletedId = remoteId || '';
       }
+
       if (deletedId) {
         onTriggerViewer();
         const updatedEvents = events.filter((e) => e.event_id !== deletedId);
-        handleState(updatedEvents, "events");
+        handleState(updatedEvents, 'events');
       }
     } catch (error) {
       console.error(error);
@@ -68,26 +66,61 @@ const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: Props) => {
     }
   };
 
+  const handleEdit = () => {
+    onTriggerViewer();
+    triggerDialog(true, event);
+
+    if (typeof onEventEdit === 'function') {
+      onEventEdit(event);
+    }
+  };
+
+  const renderDateTime = () => {
+    if (hideDates) return translations.event.allDay;
+
+    const startDate = dayjs(event.start);
+    const endDate = dayjs(event.end);
+    return `${startDate.format(`DD MMMM YYYY ${hFormat}`)} - ${endDate.format(`DD MMMM YYYY ${hFormat}`)}`;
+  };
+
+  const handleClose = () => {
+    onTriggerViewer();
+  };
+
+  const renderResources = () => {
+    if (!hasResource.length) return null;
+
+    return (
+      <Typography
+        style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+        color="textSecondary"
+        variant="caption"
+        noWrap
+      >
+        <SupervisorAccountRoundedIcon />
+        {hasResource.map((res) => res[resourceFields.textField]).join(', ')}
+      </Typography>
+    );
+  };
+
   return (
     <Popover
       open={Boolean(anchorEl)}
       anchorEl={anchorEl}
-      onClose={() => {
-        onTriggerViewer();
-      }}
+      onClose={handleClose}
       anchorOrigin={{
-        vertical: "center",
-        horizontal: "center",
+        vertical: 'center',
+        horizontal: 'center',
       }}
       transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
+        vertical: 'top',
+        horizontal: 'center',
       }}
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      {typeof customViewer === "function" ? (
+      {typeof customViewer === 'function' ? (
         customViewer(event, () => onTriggerViewer())
       ) : (
         <PopperInner>
@@ -99,70 +132,41 @@ const EventItemPopover = ({ anchorEl, event, onTriggerViewer }: Props) => {
           >
             <div className="rs__popper_actions">
               <div>
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    onTriggerViewer();
-                  }}
-                >
+                <IconButton size="small" onClick={onTriggerViewer}>
                   <ClearRoundedIcon color="disabled" />
                 </IconButton>
               </div>
-              <EventActions
-                event={event}
-                onDelete={handleDelete}
-                onEdit={() => {
-                  onTriggerViewer();
-                  triggerDialog(true, event);
-
-                  if (onEventEdit && typeof onEventEdit === "function") {
-                    onEventEdit(event);
-                  }
-                }}
-              />
+              <EventActions event={event} onDelete={handleDelete} onEdit={handleEdit} />
             </div>
             {viewerTitleComponent instanceof Function ? (
               viewerTitleComponent(event)
             ) : (
-              <Typography style={{ padding: "5px 0" }} noWrap>
+              <Typography style={{ padding: '5px 0' }} noWrap>
                 {event.title}
               </Typography>
             )}
           </Box>
-          <div style={{ padding: "5px 10px" }}>
+          <div style={{ padding: '5px 10px' }}>
             <Typography
-              style={{ display: "flex", alignItems: "center", gap: 8 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
               color="textSecondary"
               variant="caption"
               noWrap
             >
               <EventNoteRoundedIcon />
-              {hideDates
-                ? translations.event.allDay
-                : `${format(event.start, `dd MMMM yyyy ${hFormat}`, {
-                    locale: locale,
-                  })} - ${format(event.end, `dd MMMM yyyy ${hFormat}`, {
-                    locale: locale,
-                  })}`}
+              {renderDateTime()}
             </Typography>
+
             {viewerSubtitleComponent instanceof Function ? (
               viewerSubtitleComponent(event)
             ) : (
-              <Typography variant="body2" style={{ padding: "5px 0" }}>
+              <Typography variant="body2" style={{ padding: '5px 0' }}>
                 {event.subtitle}
               </Typography>
             )}
-            {hasResource.length > 0 && (
-              <Typography
-                style={{ display: "flex", alignItems: "center", gap: 8 }}
-                color="textSecondary"
-                variant="caption"
-                noWrap
-              >
-                <SupervisorAccountRoundedIcon />
-                {hasResource.map((res) => res[resourceFields.textField]).join(", ")}
-              </Typography>
-            )}
+
+            {renderResources()}
+
             {viewerExtraComponent instanceof Function
               ? viewerExtraComponent(fields, event)
               : viewerExtraComponent}

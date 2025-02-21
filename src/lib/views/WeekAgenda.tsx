@@ -1,19 +1,21 @@
-import { useMemo } from "react";
-import { format, isToday } from "date-fns";
-import { AgendaDiv } from "../styles/styles";
-import { ProcessedEvent } from "../types";
-import useStore from "../hooks/useStore";
-import { Typography } from "@mui/material";
-import { filterTodayAgendaEvents, isTimeZonedToday } from "../helpers/generals";
-import AgendaEventsList from "../components/events/AgendaEventsList";
-import EmptyAgenda from "../components/events/EmptyAgenda";
+import { useMemo } from 'react';
+import { AgendaDiv } from '../styles/styles';
+import { ProcessedEvent } from '@/lib';
+import useStore from '../hooks/useStore';
+import { Typography } from '@mui/material';
+import { filterTodayAgendaEvents, isDateToday, isTimeZonedToday } from '../helpers/generals';
+import AgendaEventsList from '../components/events/AgendaEventsList';
+import EmptyAgenda from '../components/events/EmptyAgenda';
+import { dayjs } from '@/config/dayjs';
 
 type Props = {
   daysList: Date[];
   events: ProcessedEvent[];
 };
+
 const WeekAgenda = ({ daysList, events }: Props) => {
-  const { week, handleGotoDay, locale, timeZone, translations, alwaysShowAgendaDays } = useStore();
+  const { week, handleGotoDay, timeZone, translations, alwaysShowAgendaDays } = useStore();
+
   const { disableGoToDay, headRenderer } = week!;
 
   const hasEvents = useMemo(() => {
@@ -26,23 +28,27 @@ const WeekAgenda = ({ daysList, events }: Props) => {
 
   return (
     <AgendaDiv>
-      {daysList.map((day, i) => {
+      {daysList.map((day) => {
+        const dayJsDate = dayjs(day);
         const today = isTimeZonedToday({ dateLeft: day, timeZone });
         const dayEvents = filterTodayAgendaEvents(events, day);
 
         if (!alwaysShowAgendaDays && !dayEvents.length) return null;
 
         return (
-          <div key={i} className={`rs__agenda_row ${isToday(day) ? "rs__today_cell" : ""}`}>
+          <div
+            key={dayJsDate.valueOf()}
+            className={`rs__agenda_row ${isDateToday(day) ? 'rs__today_cell' : ''}`}
+          >
             <div className="rs__cell rs__agenda__cell">
-              {typeof headRenderer === "function" ? (
+              {typeof headRenderer === 'function' ? (
                 <div>{headRenderer(day)}</div>
               ) : (
                 <Typography
-                  sx={{ fontWeight: today ? "bold" : "inherit" }}
-                  color={today ? "primary" : "inherit"}
+                  sx={{ fontWeight: today ? 'bold' : 'inherit' }}
+                  color={today ? 'primary' : 'inherit'}
                   variant="body2"
-                  className={!disableGoToDay ? "rs__hover__op" : ""}
+                  className={!disableGoToDay ? 'rs__hover__op' : ''}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (!disableGoToDay) {
@@ -50,7 +56,7 @@ const WeekAgenda = ({ daysList, events }: Props) => {
                     }
                   }}
                 >
-                  {format(day, "dd E", { locale })}
+                  {dayJsDate.format('ddd MMM')}
                 </Typography>
               )}
             </div>
