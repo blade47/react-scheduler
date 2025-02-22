@@ -1,50 +1,42 @@
-import { Typography } from '@mui/material';
+import { memo, useCallback } from 'react';
+import { MouseEvent } from 'react';
 import { isTimeZonedToday } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
-import { MouseEvent } from 'react';
+import { TodayTypoProps } from '@/lib/types.ts';
+import { DateContainer, DateNumber, DateWeekday } from '@/lib/theme/css.ts';
 
-interface TodayTypoProps {
-  date: Date;
-  onClick?(day: Date): void;
-}
-
-interface TypographyStyles {
-  fontWeight: 'bold' | 'inherit';
-  fontSize?: number;
-}
-
-const TodayTypo = ({ date, onClick }: TodayTypoProps) => {
+const TodayTypo = memo(({ date, onClick }: TodayTypoProps) => {
   const { timeZone } = useStore();
   const isToday = isTimeZonedToday({ dateLeft: date, timeZone });
   const dateDayjs = dayjs(date);
 
-  const getTypographyStyles = (isSmall: boolean = false): TypographyStyles => ({
-    fontWeight: isToday ? 'bold' : 'inherit',
-    ...(isSmall && { fontSize: 11 }),
-  });
-
-  const handleClick = (e: MouseEvent<HTMLSpanElement>) => {
-    e.stopPropagation();
-    onClick?.(date);
-  };
+  const handleClick = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      onClick?.(date);
+    },
+    [date, onClick]
+  );
 
   return (
-    <div>
-      <Typography
-        style={getTypographyStyles()}
-        color={isToday ? 'primary' : 'inherit'}
-        className={onClick ? 'rs__hover__op' : ''}
-        onClick={onClick ? handleClick : undefined}
-      >
+    <DateContainer
+      className={`${isToday ? 'today' : ''} ${onClick ? 'clickable' : ''}`}
+      onClick={onClick ? handleClick : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
+      <DateNumber isToday={isToday} isClickable={!!onClick} component="span">
         {dateDayjs.format('DD')}
-      </Typography>
+      </DateNumber>
 
-      <Typography color={isToday ? 'primary' : 'inherit'} style={getTypographyStyles(true)}>
+      <DateWeekday isToday={isToday} component="span" variant="caption">
         {dateDayjs.format('ddd')}
-      </Typography>
-    </div>
+      </DateWeekday>
+    </DateContainer>
   );
-};
+});
+
+TodayTypo.displayName = 'TodayTypo';
 
 export default TodayTypo;

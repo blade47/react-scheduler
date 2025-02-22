@@ -1,4 +1,4 @@
-import { AgendaDiv } from '../../styles/styles';
+import { AgendaDiv } from '../../theme/css.ts';
 import { Typography } from '@mui/material';
 import useStore from '../../hooks/useStore';
 

@@ -3,7 +3,7 @@ import { Typography, ButtonBase, useTheme } from '@mui/material';
 import { ProcessedEvent } from '@/lib';
 import ArrowRightRoundedIcon from '@mui/icons-material/ArrowRightRounded';
 import ArrowLeftRoundedIcon from '@mui/icons-material/ArrowLeftRounded';
-import { EventItemPaper } from '../../styles/styles';
+import { EventItemPaper } from '../../theme/css.ts';
 import { differenceInDaysOmitTime, getHourFormat } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import useDragAttributes from '../../hooks/useDragAttributes';

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { BORDER_HEIGHT } from '../../helpers/constants';
 import { getTimeZonedDate } from '../../helpers/generals';
-import { TimeIndicatorBar } from '../../styles/styles';
+import { TimeIndicatorBar } from '../../theme/css.ts';
 import { dayjs } from '@/config/dayjs';
 
 interface CurrentTimeBarProps {

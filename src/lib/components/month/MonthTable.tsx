@@ -9,7 +9,7 @@ import {
 } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import useSyncScroll from '../../hooks/useSyncScroll';
-import { TableGrid } from '../../styles/styles';
+import { TableGrid } from '../../theme/css.ts';
 import { DefaultResource } from '@/lib';
 import Cell from '../common/Cell';
 import MonthEvents from '../events/MonthEvents';

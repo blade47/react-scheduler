@@ -1,25 +1,18 @@
 import { Fragment, useState } from 'react';
-import {
-  Button,
-  useTheme,
-  useMediaQuery,
-  Popover,
-  MenuList,
-  MenuItem,
-  IconButton,
-} from '@mui/material';
+import { Button, useMediaQuery, Popover, MenuList, MenuItem, IconButton } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { WeekDateBtn } from './WeekDateBtn';
 import { DayDateBtn } from './DayDateBtn';
 import { MonthDateBtn } from './MonthDateBtn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
 import useStore from '../../hooks/useStore';
-import { NavigationDiv } from '../../styles/styles';
 import { getTimeZonedDate } from '../../helpers/generals';
+import { NavigationContainer, ViewNavigator } from '@/lib/theme/css.ts';
 
 export type View = 'month' | 'week' | 'day';
 
-const Navigation = () => {
+export const Navigation = () => {
   const {
     selectedDate,
     view,
@@ -52,7 +45,6 @@ const Navigation = () => {
 
   const handleSelectedDateChange = (date: Date) => {
     handleState(date, 'selectedDate');
-
     if (typeof onSelectedDateChange === 'function') {
       onSelectedDateChange(date);
     }
@@ -102,18 +94,21 @@ const Navigation = () => {
   if (!navigation && disableViewNavigator) return null;
 
   return (
-    <NavigationDiv sticky={stickyNavigation ? '1' : '0'}>
+    <NavigationContainer sticky={stickyNavigation ? '1' : '0'}>
       <div data-testid="date-navigator">{navigation && renderDateSelector()}</div>
 
-      <div
-        className="rs__view_navigator"
+      <ViewNavigator
         data-testid="view-navigator"
-        style={{
+        sx={{
           visibility: disableViewNavigator ? 'hidden' : 'visible',
         }}
       >
         {enableTodayButton && (
-          <Button onClick={handleTodayClick} aria-label={translations.navigation.today}>
+          <Button
+            variant="outlined"
+            onClick={handleTodayClick}
+            aria-label={translations.navigation.today}
+          >
             {translations.navigation.today}
           </Button>
         )}
@@ -121,6 +116,7 @@ const Navigation = () => {
         {enableAgenda &&
           (isDesktop ? (
             <Button
+              variant="contained"
               color={agenda ? 'primary' : 'inherit'}
               onClick={toggleAgenda}
               aria-label={translations.navigation.agenda}
@@ -128,11 +124,7 @@ const Navigation = () => {
               {translations.navigation.agenda}
             </Button>
           ) : (
-            <IconButton
-              color={agenda ? 'primary' : 'default'}
-              style={{ padding: 5 }}
-              onClick={toggleAgenda}
-            >
+            <IconButton color={agenda ? 'primary' : 'inherit'} onClick={toggleAgenda} size="small">
               <ViewAgendaIcon />
             </IconButton>
           ))}
@@ -142,6 +134,7 @@ const Navigation = () => {
             views.map((v) => (
               <Button
                 key={v}
+                variant={v === view ? 'contained' : 'outlined'}
                 color={v === view ? 'primary' : 'inherit'}
                 onClick={() => handleChangeView(v)}
                 onDragOver={(e) => {
@@ -154,7 +147,7 @@ const Navigation = () => {
             ))
           ) : (
             <Fragment>
-              <IconButton style={{ padding: 5 }} onClick={(e) => toggleMoreMenu(e.currentTarget)}>
+              <IconButton size="small" onClick={(e) => toggleMoreMenu(e.currentTarget)}>
                 <MoreVertIcon />
               </IconButton>
               <Popover
@@ -162,15 +155,16 @@ const Navigation = () => {
                 anchorEl={anchorEl}
                 onClose={() => toggleMoreMenu()}
                 anchorOrigin={{
-                  vertical: 'center',
-                  horizontal: 'center',
+                  vertical: 'bottom',
+                  horizontal: 'right',
                 }}
                 transformOrigin={{
                   vertical: 'top',
-                  horizontal: 'center',
+                  horizontal: 'right',
                 }}
+                elevation={3}
               >
-                <MenuList autoFocusItem={!!anchorEl} disablePadding>
+                <MenuList autoFocusItem={!!anchorEl}>
                   {views.map((v) => (
                     <MenuItem
                       key={v}
@@ -178,6 +172,16 @@ const Navigation = () => {
                       onClick={() => {
                         toggleMoreMenu();
                         handleChangeView(v);
+                      }}
+                      sx={{
+                        minWidth: 120,
+                        '&.Mui-selected': {
+                          backgroundColor: theme.palette.primary.light,
+                          color: theme.palette.primary.contrastText,
+                          '&:hover': {
+                            backgroundColor: theme.palette.primary.main,
+                          },
+                        },
                       }}
                     >
                       {translations.navigation[v]}
@@ -187,9 +191,7 @@ const Navigation = () => {
               </Popover>
             </Fragment>
           ))}
-      </div>
-    </NavigationDiv>
+      </ViewNavigator>
+    </NavigationContainer>
   );
 };
-
-export { Navigation };

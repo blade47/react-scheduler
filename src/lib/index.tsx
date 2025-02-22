@@ -22,6 +22,7 @@ import type {
 } from './types';
 import DateProvider from '@/lib/components/hoc/DateProvider.tsx';
 import SchedulerComponent from '@/lib/SchedulerComponent.tsx';
+import ThemeProvider from './components/hoc/ThemeProvider';
 
 /**
  * Scheduler Component
@@ -43,15 +44,17 @@ import SchedulerComponent from '@/lib/SchedulerComponent.tsx';
  * ```
  */
 export const Scheduler = forwardRef<SchedulerRef, SchedulerProps>(function Scheduler(
-  { locale = 'en', ...props },
+  { locale = 'en', theme: customTheme, ...props },
   ref
 ) {
   return (
-    <DateProvider locale={locale}>
-      <StoreProvider initial={props}>
-        <SchedulerComponent ref={ref} />
-      </StoreProvider>
-    </DateProvider>
+    <ThemeProvider customTheme={customTheme}>
+      <DateProvider locale={locale}>
+        <StoreProvider initial={props}>
+          <SchedulerComponent ref={ref} />
+        </StoreProvider>
+      </DateProvider>
+    </ThemeProvider>
   );
 });
 

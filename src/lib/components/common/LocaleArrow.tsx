@@ -1,43 +1,45 @@
+import { memo, useMemo, DragEvent } from 'react';
+import useStore from '../../hooks/useStore';
 import NavigateBeforeRoundedIcon from '@mui/icons-material/NavigateBeforeRounded';
 import NavigateNextRoundedIcon from '@mui/icons-material/NavigateNextRounded';
-import { IconButton, IconButtonProps } from '@mui/material';
-import { MouseEvent, DragEvent, useMemo } from 'react';
-import useStore from '../../hooks/useStore';
+import { ArrowDirection, LocaleArrowProps, LocaleDirection } from '@/lib/types.ts';
 import { SvgIconComponent } from '@mui/icons-material';
+import { ArrowButton } from '@/lib/theme/css.ts';
 
-interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
-  type: 'prev' | 'next';
-  onClick?(e?: MouseEvent): void;
-}
+export const LocaleArrow = memo(
+  ({ type, onClick, style, className, disabled, ...props }: LocaleArrowProps) => {
+    const { direction = 'ltr' } = useStore();
 
-const LocaleArrow = ({ type, onClick, style, ...props }: LocaleArrowProps) => {
-  const { direction } = useStore();
+    const getArrowIcon = (type: ArrowDirection, direction: LocaleDirection): SvgIconComponent => {
+      if (type === 'prev') {
+        return direction === 'rtl' ? NavigateNextRoundedIcon : NavigateBeforeRoundedIcon;
+      }
+      return direction === 'rtl' ? NavigateBeforeRoundedIcon : NavigateNextRoundedIcon;
+    };
 
-  const Arrow: SvgIconComponent = useMemo(() => {
-    if (type === 'prev') {
-      return direction === 'rtl' ? NavigateNextRoundedIcon : NavigateBeforeRoundedIcon;
-    }
-    return direction === 'rtl' ? NavigateBeforeRoundedIcon : NavigateNextRoundedIcon;
-  }, [direction, type]);
+    const Arrow = useMemo(() => getArrowIcon(type, direction), [direction, type]);
 
-  const handleDragOver = (e: DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    onClick?.();
-  };
+    const handleDragOver = (e: DragEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (!disabled && onClick) {
+        onClick();
+      }
+    };
 
-  return (
-    <IconButton
-      style={{
-        padding: 2,
-        ...style,
-      }}
-      onClick={onClick}
-      onDragOver={handleDragOver}
-      {...props}
-    >
-      <Arrow />
-    </IconButton>
-  );
-};
+    return (
+      <ArrowButton
+        className={className}
+        disabled={disabled}
+        onClick={onClick}
+        onDragOver={handleDragOver}
+        style={style}
+        aria-label={type === 'prev' ? 'Previous' : 'Next'}
+        {...props}
+      >
+        <Arrow />
+      </ArrowButton>
+    );
+  }
+);
 
-export { LocaleArrow };
+LocaleArrow.displayName = 'LocaleArrow';

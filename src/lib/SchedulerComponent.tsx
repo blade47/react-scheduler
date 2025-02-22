@@ -5,7 +5,7 @@ import Editor from './views/Editor';
 import { CircularProgress, Typography } from '@mui/material';
 import { Month } from './views/Month';
 import { Day } from './views/Day';
-import { Table, Wrapper } from './styles/styles';
+import { Table, Wrapper } from './theme/css.ts';
 import { useMemo } from 'react';
 import useStore from './hooks/useStore';
 import { SchedulerRef } from './types';

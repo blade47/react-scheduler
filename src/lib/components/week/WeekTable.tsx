@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from 'react';
 import useStore from '../../hooks/useStore';
-import { TableGrid } from '../../styles/styles';
+import { TableGrid } from '../../theme/css.ts';
 import {
   differenceInDaysOmitTime,
   filterMultiDaySlot,

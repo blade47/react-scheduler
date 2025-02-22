@@ -2,7 +2,7 @@ import { MouseEvent } from 'react';
 import { Box, IconButton, Popover, Typography, useTheme } from '@mui/material';
 import useStore from '../../hooks/useStore';
 import { ProcessedEvent } from '@/lib';
-import { PopperInner } from '../../styles/styles';
+import { PopperInner } from '../../theme/css.ts';
 import EventActions from './Actions';
 import { differenceInDaysOmitTime, getHourFormat } from '../../helpers/generals';
 import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';

@@ -1,65 +1,31 @@
-import {
-  Avatar,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-  useTheme,
-  SxProps,
-  Theme,
-} from '@mui/material';
-import { DefaultResource } from '@/lib';
+import { Avatar, Typography, useTheme } from '@mui/material';
 import useStore from '../../hooks/useStore';
+import { ResourceHeaderProps, ResourceViewMode } from '@/lib/types.ts';
+import { ResourceAvatar, ResourceContent, ResourceListItem } from '@/lib/theme/css.ts';
 
-interface ResourceHeaderProps {
-  resource: DefaultResource;
-}
-
-interface ResourceFields {
+export interface LocalResourceFields {
   text: string;
-  subtext: string | undefined;
-  avatar: string | undefined;
-  color: string | undefined;
+  subtext?: string;
+  avatar?: string;
+  color?: string;
 }
 
-const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
-  const { resourceHeaderComponent, resourceFields, direction, resourceViewMode } = useStore();
+export const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
+  const {
+    resourceHeaderComponent,
+    resourceFields,
+    direction = 'ltr',
+    resourceViewMode = 'default',
+  } = useStore();
 
   const theme = useTheme();
 
-  const getResourceFields = (): ResourceFields => ({
+  const getResourceFields = (): LocalResourceFields => ({
     text: resource[resourceFields.textField],
     subtext: resource[resourceFields.subTextField || ''],
     avatar: resource[resourceFields.avatarField || ''],
     color: resource[resourceFields.colorField || ''],
   });
-
-  const getListItemStyles = (): SxProps<Theme> => {
-    const baseStyles = {
-      padding: '2px 10px',
-      textAlign: direction === 'rtl' ? 'right' : 'left',
-    };
-
-    switch (resourceViewMode) {
-      case 'tabs':
-        return baseStyles;
-      case 'vertical':
-        return {
-          ...baseStyles,
-          display: 'block',
-          textAlign: 'center',
-          position: 'sticky',
-          top: 4,
-        };
-      default:
-        return {
-          ...baseStyles,
-          borderColor: theme.palette.grey[300],
-          borderStyle: 'solid',
-          borderWidth: 1,
-        };
-    }
-  };
 
   if (typeof resourceHeaderComponent === 'function') {
     return resourceHeaderComponent(resource);
@@ -68,25 +34,55 @@ const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
   const { text, subtext, avatar, color } = getResourceFields();
   const shouldWrapText = resourceViewMode !== 'vertical';
 
+  const renderAvatar = () => {
+    if (avatar) {
+      return (
+        <Avatar
+          sx={{
+            bgcolor: color || theme.palette.primary.main,
+            width: 36,
+            height: 36,
+          }}
+          alt={text}
+          src={avatar}
+        />
+      );
+    }
+
+    return <ResourceAvatar color={color}>{text.charAt(0).toUpperCase()}</ResourceAvatar>;
+  };
+
   return (
-    <ListItem sx={getListItemStyles()} component="div">
-      <ListItemAvatar>
-        <Avatar sx={{ background: color, margin: 'auto' }} alt={text} src={avatar} />
-      </ListItemAvatar>
-      <ListItemText
-        primary={
-          <Typography variant="body2" noWrap={shouldWrapText}>
-            {text}
-          </Typography>
-        }
-        secondary={
-          <Typography variant="caption" color="textSecondary" noWrap={shouldWrapText}>
+    <ResourceListItem
+      viewMode={resourceViewMode as ResourceViewMode}
+      direction={direction as 'ltr' | 'rtl'}
+    >
+      {renderAvatar()}
+      <ResourceContent viewMode={resourceViewMode as ResourceViewMode}>
+        <Typography
+          variant="body2"
+          noWrap={shouldWrapText}
+          sx={{
+            fontWeight: theme.typography.fontWeightMedium,
+            color: theme.palette.text.primary,
+          }}
+        >
+          {text}
+        </Typography>
+        {subtext && (
+          <Typography
+            variant="caption"
+            noWrap={shouldWrapText}
+            sx={{
+              color: theme.palette.text.secondary,
+              display: 'block',
+              marginTop: 0.25,
+            }}
+          >
             {subtext}
           </Typography>
-        }
-      />
-    </ListItem>
+        )}
+      </ResourceContent>
+    </ResourceListItem>
   );
 };
-
-export { ResourceHeader };

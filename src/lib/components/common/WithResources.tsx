@@ -1,97 +1,48 @@
-import { useMemo } from 'react';
-import { DefaultResource } from '@/lib';
-import { ResourceHeader } from './ResourceHeader';
-import { ButtonTabProps, ButtonTabs } from './Tabs';
+import { memo } from 'react';
 import useStore from '../../hooks/useStore';
-import { Box, useTheme } from '@mui/material';
+import { ResourcesTabTables } from './ResourcesTabTables';
+import { WithResourcesProps } from '@/lib/types.ts';
+import {
+  DefaultResourceItem,
+  ResourceContainer,
+  VerticalContent,
+  VerticalResourceWrapper,
+  VerticalSidebar,
+} from '@/lib/theme/css.ts';
+import { ResourceHeader } from '@/lib/components/common/ResourceHeader.tsx';
 
-interface WithResourcesProps {
-  renderChildren(resource: DefaultResource): React.ReactNode;
-}
-const WithResources = ({ renderChildren }: WithResourcesProps) => {
+export const WithResources = memo(({ renderChildren }: WithResourcesProps) => {
   const { resources, resourceFields, resourceViewMode } = useStore();
-  const theme = useTheme();
 
   if (resourceViewMode === 'tabs') {
     return <ResourcesTabTables renderChildren={renderChildren} />;
-  } else if (resourceViewMode === 'vertical') {
+  }
+
+  if (resourceViewMode === 'vertical') {
     return (
-      <>
-        {resources.map((res: DefaultResource, i: number) => (
-          <Box key={`${res[resourceFields.idField]}_${i}`} sx={{ display: 'flex' }}>
-            <Box
-              sx={{
-                borderColor: theme.palette.grey[300],
-                borderStyle: 'solid',
-                borderWidth: '1px 1px 0 1px',
-                paddingTop: 1,
-                flexBasis: 140,
-              }}
-            >
+      <ResourceContainer>
+        {resources.map((res, i) => (
+          <VerticalResourceWrapper key={`${res[resourceFields.idField]}_${i}`}>
+            <VerticalSidebar>
               <ResourceHeader resource={res} />
-            </Box>
-            <Box
-              //
-              sx={{ width: '100%', overflowX: 'auto' }}
-            >
-              {renderChildren(res)}
-            </Box>
-          </Box>
+            </VerticalSidebar>
+            <VerticalContent>{renderChildren(res)}</VerticalContent>
+          </VerticalResourceWrapper>
         ))}
-      </>
-    );
-  } else {
-    return (
-      <>
-        {resources.map((res: DefaultResource, i: number) => (
-          <div key={`${res[resourceFields.idField]}_${i}`}>
-            <ResourceHeader resource={res} />
-            {renderChildren(res)}
-          </div>
-        ))}
-      </>
+      </ResourceContainer>
     );
   }
-};
-
-const ResourcesTabTables = ({ renderChildren }: WithResourcesProps) => {
-  const { resources, resourceFields, selectedResource, handleState, onResourceChange } = useStore();
-
-  const tabs: ButtonTabProps[] = resources.map((res) => {
-    return {
-      id: res[resourceFields.idField],
-      label: <ResourceHeader resource={res} />,
-      component: <>{renderChildren(res)}</>,
-    };
-  });
-
-  const setTab = (tab: DefaultResource['assignee']) => {
-    handleState(tab, 'selectedResource');
-    if (typeof onResourceChange === 'function') {
-      const selected = resources.find((re) => re[resourceFields.idField] === tab);
-      if (selected) {
-        onResourceChange(selected);
-      }
-    }
-  };
-
-  const currentTabSafeId = useMemo(() => {
-    const firstId = resources[0][resourceFields.idField];
-    if (!selectedResource) {
-      return firstId;
-    }
-    // Make sure current selected id is within the resources array
-    const idx = resources.findIndex((re) => re[resourceFields.idField] === selectedResource);
-    if (idx < 0) {
-      return firstId;
-    }
-
-    return selectedResource;
-  }, [resources, selectedResource, resourceFields.idField]);
 
   return (
-    <ButtonTabs tabs={tabs} tab={currentTabSafeId} setTab={setTab} style={{ display: 'grid' }} />
+    <ResourceContainer>
+      {resources.map((res, i) => (
+        <DefaultResourceItem key={`${res[resourceFields.idField]}_${i}`}>
+          <ResourceHeader resource={res} />
+          {renderChildren(res)}
+        </DefaultResourceItem>
+      ))}
+    </ResourceContainer>
   );
-};
+});
 
-export { WithResources };
+WithResources.displayName = 'WithResources';

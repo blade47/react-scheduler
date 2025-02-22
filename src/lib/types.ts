@@ -1,6 +1,6 @@
-import { DialogProps, GridSize } from '@mui/material';
+import { DialogProps, GridSize, IconButtonProps, Theme } from '@mui/material';
 import { DateCalendarProps } from '@mui/x-date-pickers';
-import { DragEvent, ReactElement, ReactNode } from 'react';
+import { CSSProperties, DragEvent, ReactElement, ReactNode, MouseEvent } from 'react';
 import { SelectOption } from './components/inputs/SelectInput';
 import { View } from './components/nav/Navigation';
 import { SelectedRange, Store } from './store/types';
@@ -65,6 +65,46 @@ export interface CalendarEvent {
   draggable?: boolean;
   allDay?: boolean;
   agendaAvatar?: ReactElement | string;
+}
+
+export interface TodayTypoProps {
+  date: Date;
+  onClick?(day: Date): void;
+}
+
+export interface CellProps {
+  day: Date;
+  start: Date;
+  height: number;
+  end: Date;
+  resourceKey: string;
+  resourceVal: string | number;
+  cellRenderer?(props: CellRenderedProps): JSX.Element;
+  children?: JSX.Element;
+}
+
+export type TabVariant = 'scrollable' | 'standard' | 'fullWidth';
+export type TabIndicator = 'primary' | 'secondary' | 'info' | 'error';
+
+export interface TabPanelProps {
+  value: string | number;
+  index: string | number;
+  children: ReactNode;
+}
+
+export interface ButtonTabProps {
+  id: string | number;
+  label: string | JSX.Element;
+  component: JSX.Element;
+}
+
+export interface ButtonTabsProps {
+  tabs: ButtonTabProps[];
+  tab: string | number;
+  setTab(tab: string | number): void;
+  variant?: TabVariant;
+  indicator?: TabIndicator;
+  style?: CSSProperties;
 }
 
 export interface Translations {
@@ -173,6 +213,24 @@ export interface SchedulerHelpers {
   [resourceKey: string]: unknown;
 }
 
+export interface ResourceHeaderProps {
+  resource: DefaultResource;
+}
+
+export interface WithResourcesProps {
+  renderChildren(resource: DefaultResource): React.ReactNode;
+}
+
+export type ResourceViewMode = 'default' | 'tabs' | 'vertical';
+
+export type ArrowDirection = 'prev' | 'next';
+export type LocaleDirection = 'rtl' | 'ltr';
+
+export interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
+  type: ArrowDirection;
+  onClick?(e?: MouseEvent): void;
+}
+
 export interface RequiredSchedulerProps {
   height: number;
   view: View;
@@ -181,8 +239,8 @@ export interface RequiredSchedulerProps {
   fields: FieldProps[];
   resources: DefaultResource[];
   resourceFields: ResourceFields;
-  resourceViewMode: 'default' | 'vertical' | 'tabs';
-  direction: 'rtl' | 'ltr';
+  resourceViewMode: ResourceViewMode;
+  direction: LocaleDirection;
   dialogMaxWidth: DialogProps['maxWidth'];
   locale: string;
   translations: Translations;
@@ -193,6 +251,7 @@ export interface OptionalSchedulerProps {
   agenda?: boolean;
   enableAgenda?: boolean;
   enableTodayButton?: boolean;
+  theme?: Partial<Theme>;
   alwaysShowAgendaDays?: boolean;
   month: MonthProps | null;
   week: WeekProps | null;

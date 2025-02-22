@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AgendaDiv } from '../styles/styles';
+import { AgendaDiv } from '../theme/css.ts';
 import { ProcessedEvent } from '@/lib';
 import useStore from '../hooks/useStore';
 import { Typography } from '@mui/material';
@@ -33,9 +33,7 @@ const DayAgenda = ({ events }: Props) => {
       <div className="rs__agenda_row rs__today_cell">
         <div className="rs__cell rs__agenda__cell">
           {typeof headRenderer === 'function' ? (
-            <div>
-              {headRenderer(selectedDate)} {/* Pass Date object to external renderer */}
-            </div>
+            <div>{headRenderer(selectedDate)}</div>
           ) : (
             <Typography variant="body2">{selectedDayjs.format('DD ddd')}</Typography>
           )}

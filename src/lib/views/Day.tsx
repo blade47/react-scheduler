@@ -15,7 +15,7 @@ import {
 import { WithResources } from '../components/common/WithResources';
 import Cell from '../components/common/Cell';
 import TodayEvents from '../components/events/TodayEvents';
-import { TableGrid } from '../styles/styles';
+import { TableGrid } from '../theme/css.ts';
 import { MULTI_DAY_EVENT_HEIGHT } from '../helpers/constants';
 import useStore from '../hooks/useStore';
 import { DayAgenda } from './DayAgenda';

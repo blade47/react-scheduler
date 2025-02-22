@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AgendaDiv } from '../styles/styles';
+import { AgendaDiv } from '../theme/css.ts';
 import { ProcessedEvent } from '@/lib';
 import useStore from '../hooks/useStore';
 import { Typography } from '@mui/material';

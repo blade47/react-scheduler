@@ -2,7 +2,7 @@ import DeleteRounded from '@mui/icons-material/DeleteRounded';
 import EditRounded from '@mui/icons-material/EditRounded';
 import { Button, Grow, IconButton, Slide } from '@mui/material';
 import { useState } from 'react';
-import { EventActions as Actions } from '../../styles/styles';
+import { EventActions as Actions } from '../../theme/css.ts';
 import { ProcessedEvent } from '@/lib';
 import useStore from '../../hooks/useStore';
 import useEventPermissions from '../../hooks/useEventPermissions';
