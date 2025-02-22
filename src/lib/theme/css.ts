@@ -583,3 +583,57 @@ export const ArrowButton = styled(IconButton)(({ theme }) => ({
     transform: 'scale(1.1)',
   },
 }));
+
+export const MonthCell = styled('div')(({ theme }) => ({
+  position: 'relative',
+  height: '100%',
+  minHeight: 100,
+  padding: '4px',
+  backgroundColor: theme.palette.background.paper,
+  borderRight: `1px solid ${theme.palette.divider}`,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+
+  '&.outside-month': {
+    backgroundColor: alpha(theme.palette.action.disabled, 0.05),
+  },
+
+  '&.today': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.05),
+  },
+}));
+
+export const MonthDateHeader = styled('div')(() => ({
+  position: 'sticky',
+  top: 0,
+  zIndex: 2,
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '2px 4px',
+  marginBottom: '4px',
+  backgroundColor: 'inherit',
+  minHeight: 28,
+}));
+
+export const MonthEventsContainer = styled('div')({
+  flex: 1,
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px',
+  position: 'relative',
+});
+
+export const MoreEventsButton = styled(Button)(({ theme }) => ({
+  fontSize: '0.75rem',
+  padding: '2px 4px',
+  minHeight: 20,
+  justifyContent: 'flex-start',
+  color: theme.palette.text.secondary,
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.action.active, 0.05),
+  },
+}));

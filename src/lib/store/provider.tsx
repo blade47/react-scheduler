@@ -30,10 +30,10 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
     setState((prev) => ({
       ...prev,
       onEventDrop: initial.onEventDrop,
-      customEditor: initial.customEditor,
+      customDialog: initial.customDialog,
       events: initial.events ?? [],
     }));
-  }, [initial.onEventDrop, initial.customEditor, initial.events]);
+  }, [initial.onEventDrop, initial.customDialog, initial.events]);
 
   const handleState = (
     value: SchedulerStateBase[keyof SchedulerStateBase],

@@ -15,7 +15,7 @@ import type {
   ProcessedEvent,
   RemoteQuery,
   ResourceFields,
-  SchedulerHelpers,
+  CustomDialogProps,
   Scheduler as SchedulerProps,
   SchedulerRef,
   Translations,
@@ -75,7 +75,7 @@ export type {
   ResourceFields,
 
   // Helper types
-  SchedulerHelpers,
+  CustomDialogProps,
   SchedulerRef,
 
   // View related types

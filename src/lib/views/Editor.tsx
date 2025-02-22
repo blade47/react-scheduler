@@ -15,15 +15,9 @@ import { EditorSelect } from '../components/inputs/SelectInput';
 import { arraytizeFieldVal, revertTimeZonedDate } from '../helpers/generals';
 import useStore from '../hooks/useStore';
 import { SelectedRange } from '../store/types';
-import {
-  EventActions,
-  FieldInputProps,
-  FieldProps,
-  InputTypes,
-  ProcessedEvent,
-  SchedulerHelpers,
-} from '@/lib';
+import { EventActions, FieldInputProps, FieldProps, InputTypes, ProcessedEvent } from '@/lib';
 import { dayjs } from '@/config/dayjs';
+import { CustomDialogProps } from '@/lib/types.ts';
 
 export type StateItem = {
   value: any;
@@ -90,11 +84,9 @@ const Editor = () => {
     triggerDialog,
     selectedRange,
     selectedEvent,
-    resourceFields,
-    selectedResource,
     triggerLoading,
     onConfirm,
-    customEditor,
+    customDialog,
     confirmEvent,
     dialogMaxWidth,
     translations,
@@ -126,7 +118,7 @@ const Editor = () => {
     // Validate and build body
     for (const key in state) {
       body[key] = state[key].value;
-      if (!customEditor && !state[key].validity) {
+      if (!customDialog && !state[key].validity) {
         return setTouched(true);
       }
     }
@@ -146,20 +138,16 @@ const Editor = () => {
         }
       }
 
-      // Specify action
       const action: EventActions = selectedEvent?.event_id ? 'edit' : 'create';
 
-      // Handle custom/remote confirmation
       if (onConfirm) {
         body = await onConfirm(body, action);
       } else {
-        // Create/Edit local data
         body.event_id =
           selectedEvent?.event_id ||
           `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
       }
 
-      // Handle timezone conversion
       body.start = revertTimeZonedDate(body.start, timeZone);
       body.end = revertTimeZonedDate(body.end, timeZone);
 
@@ -217,47 +205,47 @@ const Editor = () => {
     }
   };
 
-  const renderEditor = () => {
-    if (customEditor) {
-      const schedulerHelpers: SchedulerHelpers = {
-        state,
-        close: () => triggerDialog(false),
-        loading: triggerLoading,
-        edited: selectedEvent,
-        onConfirm: confirmEvent,
-        [resourceFields.idField]: selectedResource,
-      };
-      return customEditor(schedulerHelpers);
-    }
+  const DefaultDialog = () => (
+    <Fragment>
+      <DialogTitle>
+        {selectedEvent ? translations.form.editTitle : translations.form.addTitle}
+      </DialogTitle>
+      <DialogContent style={{ overflowX: 'hidden' }}>
+        <Grid container spacing={2}>
+          {Object.keys(state).map((key) => {
+            const item = state[key];
+            return (
+              <Grid item key={key} sm={item.config?.sm} xs={12}>
+                {renderInputs(key)}
+              </Grid>
+            );
+          })}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button color="inherit" fullWidth onClick={() => handleClose()}>
+          {translations.form.cancel}
+        </Button>
+        <Button color="primary" fullWidth onClick={handleConfirm}>
+          {translations.form.confirm}
+        </Button>
+      </DialogActions>
+    </Fragment>
+  );
 
-    return (
-      <Fragment>
-        <DialogTitle>
-          {selectedEvent ? translations.form.editTitle : translations.form.addTitle}
-        </DialogTitle>
-        <DialogContent style={{ overflowX: 'hidden' }}>
-          <Grid container spacing={2}>
-            {Object.keys(state).map((key) => {
-              const item = state[key];
-              return (
-                <Grid item key={key} sm={item.config?.sm} xs={12}>
-                  {renderInputs(key)}
-                </Grid>
-              );
-            })}
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button color="inherit" fullWidth onClick={() => handleClose()}>
-            {translations.form.cancel}
-          </Button>
-          <Button color="primary" fullWidth onClick={handleConfirm}>
-            {translations.form.confirm}
-          </Button>
-        </DialogActions>
-      </Fragment>
-    );
-  };
+  if (!dialog) return null;
+
+  if (customDialog) {
+    const customDialogProps: CustomDialogProps = {
+      open: dialog,
+      state,
+      selectedEvent,
+      close: () => triggerDialog(false),
+      onConfirm: confirmEvent,
+    };
+
+    return customDialog(customDialogProps);
+  }
 
   return (
     <Dialog
@@ -266,7 +254,7 @@ const Editor = () => {
       maxWidth={dialogMaxWidth}
       onClose={() => triggerDialog(false)}
     >
-      {renderEditor()}
+      <DefaultDialog />
     </Dialog>
   );
 };

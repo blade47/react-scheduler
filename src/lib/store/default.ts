@@ -150,7 +150,7 @@ export const defaultProps = (props: Scheduler): SchedulerProps => {
     navigation: true,
     disableViewNavigator: false,
     loading: undefined,
-    customEditor: undefined,
+    customDialog: undefined,
     onConfirm: undefined,
     onDelete: undefined,
     viewerExtraComponent: undefined,

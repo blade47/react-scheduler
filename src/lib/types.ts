@@ -204,15 +204,6 @@ export type ResourceFields = {
   colorField?: string;
 } & Record<string, string>;
 
-export interface SchedulerHelpers {
-  state: Record<string, StateItem>;
-  close(): void;
-  loading(status: boolean): void;
-  edited?: ProcessedEvent;
-  onConfirm(event: ProcessedEvent | ProcessedEvent[], action: EventActions): void;
-  [resourceKey: string]: unknown;
-}
-
 export interface ResourceHeaderProps {
   resource: DefaultResource;
 }
@@ -272,7 +263,7 @@ export interface OptionalSchedulerProps {
   loadingComponent?: ReactElement;
   onConfirm?(event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent>;
   onDelete?(deletedId: string | number): Promise<string | number | void>;
-  customEditor?(scheduler: SchedulerHelpers): ReactElement;
+  customDialog?: (props: CustomDialogProps) => ReactElement;
   customViewer?(event: ProcessedEvent, close: () => void): ReactElement;
   viewerExtraComponent?:
     | ReactElement
@@ -318,3 +309,11 @@ export interface SchedulerRef {
 }
 
 export type Scheduler = Partial<Omit<SchedulerProps, 'agenda'>>;
+
+export interface CustomDialogProps {
+  open: boolean;
+  state: Record<string, StateItem>;
+  selectedEvent?: ProcessedEvent;
+  close(): void;
+  onConfirm(event: ProcessedEvent | ProcessedEvent[], action: EventActions): void;
+}
