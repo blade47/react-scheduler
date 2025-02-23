@@ -4,9 +4,8 @@ import { defaultProps } from './default';
 import { StoreContext } from './context';
 import { Store, SelectedRange } from './types';
 import { arraytizeFieldVal, getAvailableViews } from '../helpers/generals';
-import { View } from '../components/nav/Navigation';
 import { dayjs } from '@/config/dayjs';
-import { Scheduler, SchedulerStateBase } from '@/lib/types.ts';
+import { Scheduler, SchedulerStateBase, View } from '@/lib/types.ts';
 
 interface Props {
   children: React.ReactNode;

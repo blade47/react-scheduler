@@ -1,5 +1,5 @@
-const primaryFont = 'Open Sans, sans-serif';
-const secondaryFont = 'Manrope';
+const primaryFont = '"Open Sans", sans-serif';
+const secondaryFont = '"Manrope", sans-serif';
 
 export const typography = {
   fontFamily: primaryFont,
@@ -44,30 +44,37 @@ export const typography = {
     fontFamily: secondaryFont,
   },
   subtitle1: {
+    fontFamily: primaryFont,
     fontWeight: 600,
     lineHeight: 1.5,
     fontSize: '1rem',
   },
   subtitle2: {
+    fontFamily: primaryFont,
     fontWeight: 600,
     lineHeight: 22 / 14,
     fontSize: '0.875rem',
   },
   body1: {
+    fontFamily: primaryFont,
     lineHeight: 1.5,
     fontSize: '1rem',
   },
   body2: {
+    fontFamily: primaryFont,
     lineHeight: 22 / 14,
     fontSize: '0.875rem',
   },
   caption: {
+    fontFamily: primaryFont,
     lineHeight: 1.5,
     fontSize: '0.75rem',
   },
   button: {
+    fontFamily: primaryFont,
     fontWeight: 700,
     lineHeight: 24 / 14,
     fontSize: '0.875rem',
+    textTransform: 'capitalize',
   },
 } as const;

@@ -1,6 +1,6 @@
 import { SchedulerProps, Translations } from '@/lib';
 import { getTimeZonedDate } from '../helpers/generals';
-import { OptionalSchedulerProps, RequiredSchedulerProps, Scheduler } from '@/lib/types.ts';
+import { OptionalSchedulerProps, RequiredSchedulerProps, Scheduler, View } from '@/lib/types.ts';
 import { MonthProps } from '@/lib/views/Month.tsx';
 import { WeekProps } from '@/lib/views/Week.tsx';
 import { DayProps } from '@/lib/views/Day.tsx';
@@ -81,8 +81,6 @@ const defaultTranslations = (trans: Partial<SchedulerProps['translations']> = {}
     ...other,
   };
 };
-
-export type View = 'month' | 'week' | 'day';
 
 interface Views {
   month: MonthProps | null;

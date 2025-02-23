@@ -12,11 +12,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./styles.css": "./dist/style.css"
+    }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "vite",
@@ -24,7 +25,13 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   },
   "author": {
     "name": "Alessandro Afloarei"
@@ -33,44 +40,87 @@
     "type": "git",
     "url": "https://github.com/blade47/react-scheduler"
   },
-  "keywords": [
-    "react",
-    "material-ui",
-    "calendar",
-    "scheduler"
-  ],
   "license": "MIT",
   "peerDependencies": {
-    "@mui/icons-material": "^^5.13.7",
-    "@mui/material": "^^5.13.7",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@emotion/react": "^11.x",
+    "@emotion/styled": "^11.x",
+    "@mui/icons-material": "^5.x",
+    "@mui/material": "^5.x",
+    "dayjs": "^1.11.0",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0",
     "rrule": "^2.8.1"
   },
+  "peerDependenciesMeta": {
+    "@emotion/react": {
+      "optional": false
+    },
+    "@emotion/styled": {
+      "optional": false
+    },
+    "@mui/material": {
+      "optional": false
+    },
+    "dayjs": {
+      "optional": false
+    },
+    "rrule": {
+      "optional": false
+    }
+  },
+  "dependencies": {
+    "@fontsource/manrope": "^5.1.1",
+    "@fontsource/open-sans": "^5.1.1",
+    "lodash.merge": "^4.6.2",
+    "@mui/x-date-pickers": "^7.27.0"
+  },
   "devDependencies": {
+    "@babel/preset-react": "^7.26.3",
+    "@emotion/babel-plugin": "^11.x",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@eslint/js": "^9.19.0",
-    "@mui/icons-material": "^^5.13.7",
-    "@mui/material": "^^5.13.7",
+    "@mui/icons-material": "^5.16.14",
+    "@mui/material": "^5.13.7",
+    "@types/lodash.merge": "^4.6.9",
     "@types/node": "^22.13.4",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "dayjs": "^1.11.13",
     "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
     "prettier": "3.5.1",
+    "rimraf": "^5.0.0",
     "rrule": "^2.8.1",
+    "terser": "^5.x",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.22.0",
     "vite": "^6.1.0",
     "vite-plugin-dts": "^4.5.0"
   },
-  "dependencies": {
-    "@mui/x-date-pickers": "^7.27.0",
-    "dayjs": "^1.11.13"
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react",
+    "material-ui",
+    "calendar",
+    "scheduler"
+  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

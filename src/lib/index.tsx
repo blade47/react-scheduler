@@ -1,3 +1,5 @@
+import '@fontsource/open-sans';
+import '@fontsource/manrope';
 import '@/config/dayjs';
 import { forwardRef } from 'react';
 import { StoreProvider } from './store/provider';

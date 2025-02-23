@@ -1,0 +1,8 @@
+src/
+tests/
+demo/
+.github/
+.vscode/
+.idea/
+*.log
+*.tgz

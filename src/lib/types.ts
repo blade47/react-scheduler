@@ -2,7 +2,6 @@ import { DialogProps, GridSize, IconButtonProps, Theme } from '@mui/material';
 import { DateCalendarProps } from '@mui/x-date-pickers';
 import { CSSProperties, DragEvent, ReactElement, ReactNode, MouseEvent } from 'react';
 import { SelectOption } from './components/inputs/SelectInput';
-import { View } from './components/nav/Navigation';
 import { SelectedRange, Store } from './store/types';
 import { DayProps } from './views/Day';
 import { StateItem } from './views/Editor';
@@ -10,6 +9,8 @@ import { MonthProps } from './views/Month';
 import { WeekProps } from './views/Week';
 import type { RRule } from 'rrule';
 import { Dayjs } from 'dayjs';
+
+export type View = 'month' | 'week' | 'day';
 
 export type DayHours =
   | 0

@@ -1,8 +1,8 @@
 import { dayjs } from '@/config/dayjs';
-import { View } from '../components/nav/Navigation';
 import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields, SchedulerProps } from '@/lib';
 import { StateEvent } from '../views/Editor';
 import { Dayjs } from 'dayjs';
+import { View } from '@/lib/types.ts';
 
 export const getAvailableViews = (state: SchedulerProps): View[] => {
   const views: View[] = [];

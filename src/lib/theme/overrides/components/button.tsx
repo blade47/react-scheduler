@@ -1,6 +1,5 @@
-import { alpha, Theme } from '@mui/material/styles';
+import { Theme } from '@mui/material/styles';
 import { ButtonProps } from '@mui/material/Button';
-import { MODERN_STYLES } from '@/lib/theme/common.ts';
 
 export function button(theme: Theme) {
   const rootStyles = (ownerState: ButtonProps) => {
@@ -21,30 +20,28 @@ export function button(theme: Theme) {
     const defaultStyle = {
       ...(inheritColor && {
         ...(containedVariant && {
-          color: theme.palette.common.white,
+          color: theme.palette.primary.contrastText,
           backgroundColor: theme.palette.grey[800],
           '&:hover': {
-            backgroundColor: theme.palette.grey[700],
+            backgroundColor: theme.palette.primary.dark,
           },
           boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
         }),
         ...(outlinedVariant && {
-          borderColor: alpha(theme.palette.grey[500], 0.32),
+          color: theme.palette.text.primary,
+          borderColor: theme.palette.divider,
           '&:hover': {
             backgroundColor: theme.palette.action.hover,
+            borderColor: theme.palette.primary.main,
+            boxShadow: '0 0 0 0.5px currentColor',
           },
         }),
         ...(textVariant && {
+          color: theme.palette.text.primary,
           '&:hover': {
             backgroundColor: theme.palette.action.hover,
           },
         }),
-      }),
-      ...(outlinedVariant && {
-        '&:hover': {
-          borderColor: 'currentColor',
-          boxShadow: '0 0 0 0.5px currentColor',
-        },
       }),
     };
 
@@ -77,16 +74,6 @@ export function button(theme: Theme) {
           paddingRight: 10,
         }),
       }),
-      '&.rs__cell_button': {
-        width: '100%',
-        height: '100%',
-        borderRadius: 0,
-        cursor: 'pointer',
-        transition: MODERN_STYLES.transition,
-        '&:hover': {
-          background: `${theme.palette.primary.main}14`,
-        },
-      },
     };
 
     return [defaultStyle, size];
@@ -95,7 +82,14 @@ export function button(theme: Theme) {
   return {
     MuiButton: {
       styleOverrides: {
-        root: ({ ownerState }: { ownerState: ButtonProps }) => rootStyles(ownerState),
+        root: ({ ownerState }: { ownerState: ButtonProps }) => ({
+          fontFamily: theme.typography.button.fontFamily,
+          fontWeight: theme.typography.button.fontWeight,
+          textTransform: 'capitalize',
+          borderRadius: theme.shape.borderRadius,
+          transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color']),
+          ...rootStyles(ownerState),
+        }),
       },
     },
   };

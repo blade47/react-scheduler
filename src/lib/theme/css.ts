@@ -1,4 +1,13 @@
-import { Paper, alpha, Button, Typography, TypographyProps, Box, IconButton } from '@mui/material';
+import {
+  Paper,
+  alpha,
+  Button,
+  Typography,
+  TypographyProps,
+  Box,
+  IconButton,
+  MenuItem,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { MODERN_STYLES } from '@/lib/theme/common.ts';
 import { ResourceViewMode } from '@/lib/types.ts';
@@ -636,4 +645,15 @@ export const MoreEventsButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.action.active, 0.05),
   },
+}));
+
+export const ViewMenuItem = styled(MenuItem)<{ selected?: boolean }>(({ theme, selected }) => ({
+  minWidth: 120,
+  ...(selected && {
+    backgroundColor: theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+    },
+  }),
 }));

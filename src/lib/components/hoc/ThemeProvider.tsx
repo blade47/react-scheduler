@@ -4,12 +4,12 @@ import {
   ThemeOptions,
   ThemeProvider as MuiThemeProvider,
 } from '@mui/material/styles';
-import { useEffect, useMemo } from 'react';
-import { deepmerge } from '@mui/utils';
+import { useMemo } from 'react';
 import { palette } from '@/lib/theme/palette.ts';
 import { typography } from '@/lib/theme/typography.ts';
 import { shadows } from '@/lib/theme/shadows.ts';
 import { componentsOverrides } from '@/lib/theme/overrides';
+import merge from 'lodash.merge';
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ interface ThemeProviderProps {
 
 const ThemeProvider = ({ children, customTheme }: ThemeProviderProps) => {
   const theme = useMemo(() => {
-    const baseTheme: ThemeOptions = {
+    const baseOptions: ThemeOptions = {
       palette: palette(),
       shadows: shadows,
       typography,
@@ -27,23 +27,18 @@ const ThemeProvider = ({ children, customTheme }: ThemeProviderProps) => {
       },
     };
 
-    let t = createTheme(baseTheme);
+    const baseTheme = createTheme(baseOptions);
 
-    t = createTheme(t, {
-      components: componentsOverrides(t),
+    const themeWithOverrides = createTheme(baseTheme, {
+      components: componentsOverrides(baseTheme),
     });
 
     if (customTheme) {
-      t = createTheme(deepmerge(t, customTheme));
+      return createTheme(merge(themeWithOverrides, customTheme));
     }
 
-    return t;
+    return themeWithOverrides;
   }, [customTheme]);
-
-  // For debugging
-  useEffect(() => {
-    console.log('Scheduler theme:', theme.palette.primary);
-  }, [theme]);
 
   return <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>;
 };
