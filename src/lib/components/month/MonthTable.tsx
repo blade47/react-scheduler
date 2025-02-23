@@ -1,13 +1,12 @@
-// components/month/MonthTable.tsx
 import { memo, useCallback, useMemo } from 'react';
 import { Typography } from '@mui/material';
 import { TableGrid } from '../../theme/css';
 import useStore from '../../hooks/useStore';
-import { MonthCellMemo } from './MonthCell';
 import { dayjs } from '@/config/dayjs';
 import useSyncScroll from '../../hooks/useSyncScroll';
 import { DefaultResource } from '@/lib/types';
 import { getResourcedEvents, sortEventsByTheEarliest } from '../../helpers/generals';
+import { MonthEvents } from '@/lib/components/events/MonthEvents.tsx';
 
 interface MonthTableProps {
   daysList: Date[];
@@ -64,7 +63,7 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: MonthTableProps) => {
         const events = getEventsForDate(date);
 
         return (
-          <MonthCellMemo
+          <MonthEvents
             key={dateDayjs.valueOf()}
             date={date}
             events={events}

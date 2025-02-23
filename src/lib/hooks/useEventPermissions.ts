@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ProcessedEvent } from '../types';
+import { ProcessedEvent } from '@/lib';
 import useStore from './useStore';
 
 const useEventPermissions = (event: ProcessedEvent) => {

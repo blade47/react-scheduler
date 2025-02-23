@@ -50,7 +50,6 @@ export const ButtonTabs = ({
             onDragEnter={() => handleDragEnter(tabItem.id)}
             sx={{
               flex: variant === 'fullWidth' ? 1 : 'initial',
-              minWidth: 120,
             }}
           />
         ))}

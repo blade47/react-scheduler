@@ -1,47 +1,26 @@
-import { Fragment, MouseEvent, useState } from 'react';
-import {
-  useTheme,
-  List,
-  ListItemButton,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
-} from '@mui/material';
+import { memo, useState } from 'react';
+import { List } from '@mui/material';
 import { ProcessedEvent } from '@/lib';
 import { getHourFormat, isTimeZonedToday } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
-import EventItemPopover from './EventItemPopover';
-import { dayjs } from '@/config/dayjs';
+import { AgendaEventItem } from './AgendaEventItem';
+import { AgendaEventsListProps, EventDateFormat } from '@/lib/types.ts';
+import { dayjs } from '@/config/dayjs.ts';
+import EventItemPopover from '@/lib/components/events/EventItemPopover.tsx';
+import { MouseEvent } from 'react';
 
-interface AgendaEventsListProps {
-  day: Date;
-  events: ProcessedEvent[];
-}
-
-interface EventDateFormat {
-  isToday: boolean;
-  format: string;
-  formatted: string;
-}
-
-const AgendaEventsList = ({ day, events }: AgendaEventsListProps) => {
+export const AgendaEventsList = memo(({ day, events }: AgendaEventsListProps) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<ProcessedEvent | undefined>();
+  const [selectedEvent, setSelectedEvent] = useState<ProcessedEvent>();
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
-  const { hourFormat, eventRenderer, onEventClick, timeZone, disableViewer } = useStore();
-
-  const theme = useTheme();
-  const hFormat = getHourFormat(hourFormat);
-
-  const triggerViewer = (el?: MouseEvent) => {
-    if (!el?.currentTarget && deleteConfirm) {
-      setDeleteConfirm(false);
-    }
-    setAnchorEl(el?.currentTarget || null);
-  };
-
-  const getEventDateFormat = (date: Date, isStart: boolean): EventDateFormat => {
+  const getEventDateFormat = (
+    date: Date,
+    day: Date,
+    isStart: boolean,
+    hFormat: string,
+    timeZone?: string
+  ): EventDateFormat => {
     const isToday = isTimeZonedToday({
       dateLeft: date,
       dateRight: day,
@@ -58,6 +37,23 @@ const AgendaEventsList = ({ day, events }: AgendaEventsListProps) => {
     };
   };
 
+  const {
+    hourFormat,
+    eventRenderer,
+    onEventClick: onEventClickProp,
+    timeZone,
+    disableViewer,
+  } = useStore();
+
+  const hFormat = getHourFormat(hourFormat);
+
+  const triggerViewer = (el?: MouseEvent) => {
+    if (!el?.currentTarget && deleteConfirm) {
+      setDeleteConfirm(false);
+    }
+    setAnchorEl(el?.currentTarget || null);
+  };
+
   const handleEventClick = (event: ProcessedEvent) => (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -68,8 +64,8 @@ const AgendaEventsList = ({ day, events }: AgendaEventsListProps) => {
 
     setSelectedEvent(event);
 
-    if (typeof onEventClick === 'function') {
-      onEventClick(event);
+    if (typeof onEventClickProp === 'function') {
+      onEventClickProp(event);
     }
   };
 
@@ -78,41 +74,24 @@ const AgendaEventsList = ({ day, events }: AgendaEventsListProps) => {
       return eventRenderer({ event, onClick: triggerViewer });
     }
 
-    const startDate = getEventDateFormat(event.start, true);
-    const endDate = getEventDateFormat(event.end, false);
+    const startDate = getEventDateFormat(event.start, day, true, hFormat, timeZone);
+    const endDate = getEventDateFormat(event.end, day, false, hFormat, timeZone);
 
     return (
-      <ListItemButton
-        key={`${event.start.valueOf()}_${event.end.valueOf()}_${event.event_id}`}
-        focusRipple
-        disableRipple={disableViewer}
-        tabIndex={disableViewer ? -1 : 0}
-        disabled={event.disabled}
-        onClick={handleEventClick(event)}
-      >
-        <ListItemAvatar>
-          <Avatar
-            sx={{
-              bgcolor: event.disabled ? '#d0d0d0' : event.color || theme.palette.primary.main,
-              color: event.disabled
-                ? '#808080'
-                : event.textColor || theme.palette.primary.contrastText,
-            }}
-          >
-            {event.agendaAvatar || ' '}
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary={event.title}
-          secondary={`${startDate.formatted} - ${endDate.formatted}`}
-        />
-      </ListItemButton>
+      <AgendaEventItem
+        key={event.event_id}
+        event={event}
+        onEventClick={handleEventClick}
+        startDate={startDate}
+        endDate={endDate}
+        disableViewer={!!disableViewer}
+      />
     );
   };
 
   return (
-    <Fragment>
-      <List>{events.map(renderEvent)}</List>
+    <>
+      <List disablePadding>{events.map(renderEvent)}</List>
 
       {selectedEvent && (
         <EventItemPopover
@@ -121,8 +100,10 @@ const AgendaEventsList = ({ day, events }: AgendaEventsListProps) => {
           onTriggerViewer={triggerViewer}
         />
       )}
-    </Fragment>
+    </>
   );
-};
+});
+
+AgendaEventsList.displayName = 'AgendaEventsList';
 
 export default AgendaEventsList;

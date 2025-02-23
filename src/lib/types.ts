@@ -68,9 +68,65 @@ export interface CalendarEvent {
   agendaAvatar?: ReactElement | string;
 }
 
+export interface AgendaEventsListProps {
+  day: Date;
+  events: ProcessedEvent[];
+}
+
+export interface EventDateFormat {
+  isToday: boolean;
+  format: string;
+  formatted: string;
+}
+
+export interface AgendaEventItemProps {
+  event: ProcessedEvent;
+  onEventClick: (event: ProcessedEvent) => (e: MouseEvent) => void;
+  startDate: EventDateFormat;
+  endDate: EventDateFormat;
+  disableViewer: boolean;
+}
+
+export interface EmptyAgendaProps {
+  customMessage?: string;
+}
+
+export interface EventItemPopoverProps {
+  event: ProcessedEvent;
+  anchorEl: Element | null;
+  onTriggerViewer: (el?: MouseEvent) => void;
+}
+
+export interface PopoverContentProps {
+  event: ProcessedEvent;
+  onClose: () => void;
+  onDelete: () => Promise<void>;
+  onEdit: () => void;
+  dateTimeText: string;
+  resourcesText: string | null;
+}
+
 export interface TodayTypoProps {
   date: Date;
   onClick?(day: Date): void;
+}
+
+export interface EventItemProps {
+  event: ProcessedEvent;
+  multiday?: boolean;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  showdate?: boolean;
+}
+
+export interface EventContentProps {
+  event: ProcessedEvent;
+  showTime: boolean;
+  hideDates: boolean;
+  hFormat: string;
+  multiday?: boolean;
+  hasPrev?: boolean;
+  hasNext?: boolean;
 }
 
 export interface CellProps {
@@ -82,6 +138,32 @@ export interface CellProps {
   resourceVal: string | number;
   cellRenderer?(props: CellRenderedProps): JSX.Element;
   children?: JSX.Element;
+}
+
+export interface TodayEventsProps {
+  todayEvents: ProcessedEvent[];
+  today: Date;
+  startHour: number;
+  endHour: number;
+  step: number;
+  minuteHeight: number;
+  direction: 'rtl' | 'ltr';
+  timeZone?: string;
+}
+
+export interface EventPositionProps {
+  event: ProcessedEvent;
+  crossingEvents: ProcessedEvent[];
+  alreadyRendered: ProcessedEvent[];
+  direction: 'rtl' | 'ltr';
+}
+
+export interface EventDimensionsProps {
+  event: ProcessedEvent;
+  startHour: number;
+  minuteHeight: number;
+  maxHeight: number;
+  step: number;
 }
 
 export type TabVariant = 'scrollable' | 'standard' | 'fullWidth';

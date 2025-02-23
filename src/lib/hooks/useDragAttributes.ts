@@ -1,5 +1,5 @@
 import { DragEvent } from 'react';
-import { ProcessedEvent } from '../types';
+import { ProcessedEvent } from '@/lib';
 import { useTheme } from '@mui/material';
 import useStore from './useStore';
 
@@ -11,7 +11,7 @@ const useDragAttributes = (event: ProcessedEvent) => {
     onDragStart: (e: DragEvent<HTMLElement>) => {
       e.stopPropagation();
       setCurrentDragged(event);
-      e.currentTarget.style.backgroundColor = theme.palette.error.main;
+      e.currentTarget.style.backgroundColor = theme.palette.background.paper;
     },
     onDragEnd: (e: DragEvent<HTMLElement>) => {
       setCurrentDragged();

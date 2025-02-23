@@ -1,25 +1,30 @@
-import { AgendaDiv } from '../../theme/css.ts';
+import { memo } from 'react';
 import { Typography } from '@mui/material';
 import useStore from '../../hooks/useStore';
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import { EmptyContainer, EmptyContent } from '@/lib/theme/css.ts';
+import { EmptyAgendaProps } from '@/lib/types.ts';
 
-const EmptyAgenda = () => {
+export const EmptyAgenda = memo(({ customMessage }: EmptyAgendaProps) => {
   const { height, translations } = useStore();
+
   return (
-    <AgendaDiv
+    <EmptyContainer
       sx={{
-        borderWidth: 1,
-        padding: 1,
         height: height / 2,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
+      className="rs__empty_agenda"
     >
-      <div className="rs__cell rs__agenda_items">
-        <Typography>{translations.noDataToDisplay}</Typography>
-      </div>
-    </AgendaDiv>
+      <EmptyContent className="rs__cell rs__agenda_items">
+        <CalendarTodayOutlinedIcon className="rs__empty_icon" fontSize="large" />
+        <Typography variant="body1" color="textSecondary">
+          {customMessage || translations.noDataToDisplay}
+        </Typography>
+      </EmptyContent>
+    </EmptyContainer>
   );
-};
+});
+
+EmptyAgenda.displayName = 'EmptyAgenda';
 
 export default EmptyAgenda;

@@ -15,9 +15,9 @@ import TodayTypo from '../common/TodayTypo';
 import usePosition from '../../positionManger/usePosition';
 import EventItem from '../events/EventItem';
 import { Typography } from '@mui/material';
-import TodayEvents from '../events/TodayEvents';
 import Cell from '../common/Cell';
 import { dayjs } from '@/config/dayjs';
+import { TodayEvents } from '@/lib/components/events/TodayEvents.tsx';
 
 type Props = {
   daysList: Date[];
@@ -130,7 +130,6 @@ const WeekTable = ({
 
   return (
     <>
-      {/* Header days */}
       <TableGrid
         days={daysList.length}
         ref={headersRef}

@@ -82,14 +82,7 @@ export function button(theme: Theme) {
   return {
     MuiButton: {
       styleOverrides: {
-        root: ({ ownerState }: { ownerState: ButtonProps }) => ({
-          fontFamily: theme.typography.button.fontFamily,
-          fontWeight: theme.typography.button.fontWeight,
-          textTransform: 'capitalize',
-          borderRadius: theme.shape.borderRadius,
-          transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color']),
-          ...rootStyles(ownerState),
-        }),
+        root: ({ ownerState }: { ownerState: ButtonProps }) => rootStyles(ownerState),
       },
     },
   };

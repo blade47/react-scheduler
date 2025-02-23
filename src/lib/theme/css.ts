@@ -7,6 +7,9 @@ import {
   Box,
   IconButton,
   MenuItem,
+  ButtonBase,
+  ListItemButton,
+  Avatar,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { MODERN_STYLES } from '@/lib/theme/common.ts';
@@ -377,8 +380,18 @@ export const StyledTabs = styled(MuiTabs)(({ theme }) => ({
   borderColor: theme.palette.divider,
   borderStyle: 'solid',
   borderWidth: 1,
-  display: 'grid',
   backgroundColor: theme.palette.background.paper,
+  display: 'flex',
+  minHeight: 48,
+
+  '& .MuiTabs-scroller': {
+    display: 'flex',
+  },
+
+  '& .MuiTabs-flexContainer': {
+    display: 'flex',
+    flex: 1,
+  },
 
   '& .MuiTabs-indicator': {
     transition: theme.transitions.create(['background-color']),
@@ -404,10 +417,10 @@ export const StyledTab = styled(MuiTab)(({ theme }) => ({
   transition: theme.transitions.create(['color', 'background-color', 'border-color'], {
     duration: theme.transitions.duration.shorter,
   }),
-
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
+  margin: 0,
+  padding: theme.spacing(1, 2),
+  minWidth: 120,
+  minHeight: 48,
 
   '&.Mui-selected': {
     fontWeight: theme.typography.fontWeightMedium,
@@ -469,7 +482,7 @@ interface StyledTypographyProps extends TypographyProps {
 export const DateNumber = styled(Typography, {
   shouldForwardProp: (prop) => !['isToday', 'isClickable'].includes(prop as string),
 })<StyledTypographyProps>(({ theme, isToday, isClickable }) => ({
-  fontSize: theme.typography.h6.fontSize,
+  fontSize: theme.typography.body2.fontSize,
   fontWeight: isToday ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
   lineHeight: 1.2,
   color: 'inherit',
@@ -655,5 +668,159 @@ export const ViewMenuItem = styled(MenuItem)<{ selected?: boolean }>(({ theme, s
     '&:hover': {
       backgroundColor: theme.palette.primary.main,
     },
+  }),
+}));
+
+export const EventWrapper = styled(Paper, {
+  shouldForwardProp: (prop) => !['disabled', 'isShortEvent', 'isMultiday'].includes(prop as string),
+})<{ disabled?: boolean; isShortEvent?: boolean; isMultiday?: boolean }>(
+  ({ theme, disabled, isShortEvent, isMultiday }) => ({
+    display: 'flex',
+    width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: disabled ? '#d0d0d0' : theme.palette.primary.main,
+    color: disabled ? '#808080' : theme.palette.primary.contrastText,
+    cursor: disabled ? 'default' : 'pointer',
+    borderRadius: theme.shape.borderRadius,
+    minHeight: '24px',
+
+    ...(isShortEvent && {
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: '3px',
+        backgroundColor: theme.palette.warning.main,
+      },
+      paddingLeft: '8px',
+    }),
+
+    ...(isMultiday && {
+      boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`,
+      '&:hover': {
+        boxShadow: `0 3px 6px ${alpha(theme.palette.common.black, 0.15)}`,
+      },
+
+      // Add a subtle gradient background
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `linear-gradient(to right, ${alpha(theme.palette.common.white, 0.1)}, transparent)`,
+        pointerEvents: 'none',
+      },
+    }),
+  })
+);
+
+export const EventButton = styled(ButtonBase)(() => ({
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'flex-start',
+  textAlign: 'left',
+  padding: 0,
+}));
+
+export const EventContent = styled('div')({
+  padding: '2px 6px',
+  width: '100%',
+});
+
+export const MultidayContent = styled('div')(({ theme }) => ({
+  padding: '4px 8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  gap: theme.spacing(1),
+  height: '100%',
+  minHeight: '28px',
+
+  '& .multiday-arrow': {
+    display: 'flex',
+    alignItems: 'center',
+    opacity: 0.7,
+    width: '20px',
+    justifyContent: 'center',
+  },
+
+  '& .multiday-time': {
+    fontSize: '0.75rem',
+    opacity: 0.9,
+    whiteSpace: 'nowrap',
+  },
+
+  '& .multiday-title': {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+  },
+}));
+
+export const PopoverHeader = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  position: 'relative',
+}));
+
+export const PopoverActions = styled('div')({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+export const PopoverContent = styled('div')(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+}));
+
+export const InfoRow = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+}));
+
+export const EmptyContainer = styled(Box)(({ theme }) => ({
+  borderWidth: 1,
+  borderStyle: 'solid',
+  borderColor: theme.palette.divider,
+  padding: theme.spacing(1),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+}));
+
+export const EmptyContent = styled('div')(({ theme }) => ({
+  textAlign: 'center',
+  padding: theme.spacing(2),
+  '& .rs__empty_icon': {
+    marginBottom: theme.spacing(1),
+    color: theme.palette.text.secondary,
+  },
+}));
+
+export const EventListItem = styled(ListItemButton)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(0.5),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+export const EventAvatar = styled(Avatar)<{ disabled?: boolean }>(({ theme, disabled }) => ({
+  transition: theme.transitions.create(['background-color', 'color'], {
+    duration: theme.transitions.duration.shortest,
+  }),
+  ...(disabled && {
+    backgroundColor: '#d0d0d0',
+    color: '#808080',
   }),
 }));

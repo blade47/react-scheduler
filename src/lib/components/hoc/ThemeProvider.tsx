@@ -4,7 +4,7 @@ import {
   ThemeOptions,
   ThemeProvider as MuiThemeProvider,
 } from '@mui/material/styles';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { palette } from '@/lib/theme/palette.ts';
 import { typography } from '@/lib/theme/typography.ts';
 import { shadows } from '@/lib/theme/shadows.ts';

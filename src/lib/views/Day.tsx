@@ -14,13 +14,13 @@ import {
 } from '../helpers/generals';
 import { WithResources } from '../components/common/WithResources';
 import Cell from '../components/common/Cell';
-import TodayEvents from '../components/events/TodayEvents';
 import { TableGrid } from '../theme/css.ts';
 import { MULTI_DAY_EVENT_HEIGHT } from '../helpers/constants';
 import useStore from '../hooks/useStore';
 import { DayAgenda } from './DayAgenda';
 import { dayjs } from '@/config/dayjs';
 import type { Dayjs } from 'dayjs';
+import { TodayEvents } from '@/lib/components/events/TodayEvents.tsx';
 
 export interface DayProps {
   startHour: DayHours;

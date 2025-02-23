@@ -1,118 +1,73 @@
-import { Fragment, MouseEvent, useMemo, useState } from 'react';
-import { Typography, ButtonBase, useTheme } from '@mui/material';
-import { ProcessedEvent } from '@/lib';
-import ArrowRightRoundedIcon from '@mui/icons-material/ArrowRightRounded';
-import ArrowLeftRoundedIcon from '@mui/icons-material/ArrowLeftRounded';
-import { EventItemPaper } from '../../theme/css.ts';
+import { Fragment, MouseEvent, useCallback, useMemo, useState } from 'react';
+import { useTheme } from '@mui/material';
 import { differenceInDaysOmitTime, getHourFormat } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import useDragAttributes from '../../hooks/useDragAttributes';
-import EventItemPopover from './EventItemPopover';
 import useEventPermissions from '../../hooks/useEventPermissions';
-import { dayjs } from '@/config/dayjs';
+import { EventContentComponent } from './EventContent';
+import { EventItemProps } from '@/lib/types.ts';
+import { EventButton, EventWrapper } from '@/lib/theme/css.ts';
+import EventItemPopover from '@/lib/components/events/EventItemPopover.tsx';
+import { dayjs } from '@/config/dayjs.ts';
 
-interface EventItemProps {
-  event: ProcessedEvent;
-  multiday?: boolean;
-  hasPrev?: boolean;
-  hasNext?: boolean;
-  showdate?: boolean;
-}
+export const EventItem = ({
+  event,
+  multiday,
+  hasPrev,
+  hasNext,
+  showdate = true,
+}: EventItemProps) => {
+  const { hourFormat, eventRenderer, onEventClick, view, disableViewer } = useStore();
 
-const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }: EventItemProps) => {
-  const { direction, hourFormat, eventRenderer, onEventClick, view, disableViewer } = useStore();
   const dragProps = useDragAttributes(event);
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const theme = useTheme();
   const hFormat = getHourFormat(hourFormat);
-
-  const NextArrow = direction === 'rtl' ? ArrowLeftRoundedIcon : ArrowRightRoundedIcon;
-  const PrevArrow = direction === 'rtl' ? ArrowRightRoundedIcon : ArrowLeftRoundedIcon;
   const hideDates = differenceInDaysOmitTime(event.start, event.end) <= 0 && event.allDay;
-
   const { canDrag } = useEventPermissions(event);
 
-  const triggerViewer = (el?: MouseEvent) => {
-    if (!el?.currentTarget && deleteConfirm) {
-      setDeleteConfirm(false);
-    }
-    setAnchorEl(el?.currentTarget || null);
-  };
+  const triggerViewer = useCallback(
+    (el?: MouseEvent) => {
+      if (!el?.currentTarget && deleteConfirm) {
+        setDeleteConfirm(false);
+      }
+      setAnchorEl(el?.currentTarget || null);
+    },
+    [deleteConfirm]
+  );
 
   const renderEvent = useMemo(() => {
-    // Check if has custom render event method
-    // only applicable to non-multiday events and not in month-view
     if (typeof eventRenderer === 'function' && !multiday && view !== 'month') {
       const custom = eventRenderer({ event, onClick: triggerViewer, ...dragProps });
       if (custom) {
         return (
-          <EventItemPaper key={`${event.start.valueOf()}_${event.end.valueOf()}_${event.event_id}`}>
+          <EventWrapper key={`${event.start.valueOf()}_${event.end.valueOf()}_${event.event_id}`}>
             {custom}
-          </EventItemPaper>
+          </EventWrapper>
         );
       }
     }
 
-    let item = (
-      <div style={{ padding: '2px 6px' }}>
-        <Typography variant="subtitle2" style={{ fontSize: 12 }} noWrap>
-          {event.title}
-        </Typography>
-        {event.subtitle && (
-          <Typography variant="body2" style={{ fontSize: 11 }} noWrap>
-            {event.subtitle}
-          </Typography>
-        )}
-        {showdate && (
-          <Typography style={{ fontSize: 11 }} noWrap>
-            {`${dayjs(event.start).format(hFormat)} - ${dayjs(event.end).format(hFormat)}`}
-          </Typography>
-        )}
-      </div>
-    );
-    if (multiday) {
-      item = (
-        <div
-          style={{
-            padding: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Typography sx={{ fontSize: 11 }} noWrap>
-            {hasPrev ? (
-              <PrevArrow fontSize="small" sx={{ display: 'flex' }} />
-            ) : (
-              showdate && !hideDates && dayjs(event.start).format(hFormat)
-            )}
-          </Typography>
-          <Typography variant="subtitle2" align="center" sx={{ fontSize: 12 }} noWrap>
-            {event.title}
-          </Typography>
-          <Typography sx={{ fontSize: 11 }} noWrap>
-            {hasNext ? (
-              <NextArrow fontSize="small" sx={{ display: 'flex' }} />
-            ) : (
-              showdate && !hideDates && dayjs(event.end).format(hFormat)
-            )}
-          </Typography>
-        </div>
-      );
-    }
+    const durationInMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute');
+    const isShortEvent = durationInMinutes <= 15;
+
     return (
-      <EventItemPaper
+      <EventWrapper
         key={`${event.start.valueOf()}_${event.end.valueOf()}_${event.event_id}`}
         disabled={event.disabled}
+        isShortEvent={isShortEvent}
+        isMultiday={multiday}
         sx={{
           bgcolor: event.disabled ? '#d0d0d0' : event.color || theme.palette.primary.main,
           color: event.disabled ? '#808080' : event.textColor || theme.palette.primary.contrastText,
           ...(event.sx || {}),
         }}
+        {...dragProps}
+        draggable={canDrag}
       >
-        <ButtonBase
-          onClick={(e) => {
+        <EventButton
+          onClick={(e: any) => {
             e.preventDefault();
             e.stopPropagation();
             if (!disableViewer) {
@@ -127,20 +82,42 @@ const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }: Event
           disableRipple={disableViewer}
           disabled={event.disabled}
         >
-          <div {...dragProps} draggable={canDrag}>
-            {item}
+          <div>
+            <EventContentComponent
+              event={event}
+              showTime={showdate}
+              hideDates={hideDates ?? true}
+              hFormat={hFormat}
+              multiday={multiday}
+              hasPrev={hasPrev}
+              hasNext={hasNext}
+            />
           </div>
-        </ButtonBase>
-      </EventItemPaper>
+        </EventButton>
+      </EventWrapper>
     );
-    // eslint-disable-next-line
-  }, [hasPrev, hasNext, event, canDrag, theme.palette]);
+  }, [
+    eventRenderer,
+    multiday,
+    view,
+    event,
+    theme.palette.primary.main,
+    theme.palette.primary.contrastText,
+    disableViewer,
+    dragProps,
+    canDrag,
+    showdate,
+    hideDates,
+    hFormat,
+    hasPrev,
+    hasNext,
+    triggerViewer,
+    onEventClick,
+  ]);
 
   return (
     <Fragment>
       {renderEvent}
-
-      {/* Viewer */}
       <EventItemPopover anchorEl={anchorEl} event={event} onTriggerViewer={triggerViewer} />
     </Fragment>
   );

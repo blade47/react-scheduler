@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PositionContext, PositionManagerState } from './context';
 import useStore from '../hooks/useStore';
 import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields } from '@/lib';

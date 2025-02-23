@@ -1,146 +1,95 @@
-import { Fragment, useMemo } from 'react';
-import { ProcessedEvent } from '@/lib';
+import { memo, useMemo } from 'react';
 import { Typography } from '@mui/material';
-import EventItem from './EventItem';
 import {
-  MONTH_BAR_HEIGHT,
-  MONTH_NUMBER_HEIGHT,
-  MULTI_DAY_EVENT_HEIGHT,
-} from '../../helpers/constants';
-import { convertEventTimeZone, differenceInDaysOmitTime } from '../../helpers/generals';
-import useStore from '../../hooks/useStore';
-import usePosition from '../../positionManger/usePosition';
+  MonthCell,
+  MonthDateHeader,
+  MonthEventsContainer,
+  MoreEventsButton,
+} from '../../theme/css';
+import { ProcessedEvent } from '@/lib/types';
 import { dayjs } from '@/config/dayjs';
+import EventItem from '../events/EventItem';
+import { isDateToday } from '../../helpers/generals';
 
-interface MonthEventProps {
+interface MonthEventsProps {
+  date: Date;
   events: ProcessedEvent[];
-  resourceId?: string;
-  today: Date;
-  eachWeekStart: Date[];
-  eachFirstDayInCalcRow: Date | null;
-  daysList: Date[];
-  onViewMore(day: Date): void;
+  isOutsideMonth: boolean;
+  maxVisibleEvents?: number;
+  onEventClick?: (event: ProcessedEvent) => void;
+  onMoreClick?: (date: Date) => void;
   cellHeight: number;
 }
 
-const MonthEvents = ({
+const DEFAULT_VISIBLE_EVENTS = 3;
+
+export const MonthEventsComponent = ({
+  date,
   events,
-  resourceId,
-  today,
-  eachWeekStart,
-  eachFirstDayInCalcRow,
-  daysList,
-  onViewMore,
+  isOutsideMonth,
+  maxVisibleEvents = DEFAULT_VISIBLE_EVENTS,
+  onMoreClick,
   cellHeight,
-}: MonthEventProps) => {
-  const LIMIT = Math.round((cellHeight - MONTH_NUMBER_HEIGHT) / MULTI_DAY_EVENT_HEIGHT - 1);
-  const { translations, month, timeZone } = useStore();
-  const { renderedSlots } = usePosition();
-  const todayStr = dayjs(today).format('YYYY-MM-DD');
+}: MonthEventsProps) => {
+  const dateDayjs = dayjs(date);
+  const isToday = isDateToday(date);
 
-  const renderEvents = useMemo(() => {
-    const elements: JSX.Element[] = [];
-    const weekStartOn = month?.weekStartOn || 0;
+  const { visibleEvents, hasMore, remainingCount } = useMemo(() => {
+    const sortedEvents = [...events].sort((a, b) => {
+      // Sort all-day events first, then by duration (longer first), then by start time
+      if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
 
-    for (let i = 0; i < Math.min(events.length, LIMIT + 1); i++) {
-      const event = convertEventTimeZone(events[i], timeZone);
-      const eventStart = dayjs(event.start);
-      const eventEnd = dayjs(event.end);
-      const firstDayDayjs = eachFirstDayInCalcRow ? dayjs(eachFirstDayInCalcRow) : null;
+      const aDuration = dayjs(a.end).diff(a.start);
+      const bDuration = dayjs(b.end).diff(b.start);
+      if (aDuration !== bDuration) return bDuration - aDuration;
 
-      const fromPrevWeek = !!firstDayDayjs && eventStart.isBefore(firstDayDayjs);
-      const start = fromPrevWeek && firstDayDayjs ? firstDayDayjs.toDate() : event.start;
-      let eventLength = differenceInDaysOmitTime(start, event.end) + 1;
+      return dayjs(a.start).diff(b.start);
+    });
 
-      const toNextWeek = eventEnd.diff(dayjs(start), 'week', true) > 0;
+    return {
+      visibleEvents: sortedEvents.slice(0, maxVisibleEvents),
+      hasMore: sortedEvents.length > maxVisibleEvents,
+      remainingCount: sortedEvents.length - maxVisibleEvents,
+    };
+  }, [events, maxVisibleEvents]);
 
-      if (toNextWeek) {
-        const notAccurateWeekStart = eventStart.startOf('week').day(weekStartOn);
-
-        // Find closest week start
-        const closestStart = eachWeekStart.reduce(
-          (closest, date) => {
-            if (!closest) return date;
-
-            const currentDiff = Math.abs(dayjs(date).diff(notAccurateWeekStart));
-            const closestDiff = Math.abs(dayjs(closest).diff(notAccurateWeekStart));
-
-            return currentDiff < closestDiff ? date : closest;
-          },
-          null as Date | null
-        );
-
-        if (closestStart) {
-          const startDiff = !eachFirstDayInCalcRow
-            ? eventStart.diff(dayjs(closestStart), 'day')
-            : 0;
-
-          eventLength = daysList.length - startDiff;
-        }
-      }
-
-      const rendered = renderedSlots?.[resourceId || 'all']?.[todayStr];
-      const position = rendered?.[event.event_id] || 0;
-      const topSpace = Math.min(position, LIMIT) * MULTI_DAY_EVENT_HEIGHT + MONTH_NUMBER_HEIGHT;
-
-      if (position >= LIMIT) {
-        elements.push(
-          <Typography
-            key={i}
-            width="100%"
-            className="rs__multi_day rs__hover__op"
-            style={{ top: topSpace, fontSize: 11 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewMore(event.start);
-            }}
-          >
-            {`${Math.abs(events.length - i)} ${translations.moreEvents}`}
-          </Typography>
-        );
-        break;
-      }
-
-      const isMultiDay = differenceInDaysOmitTime(event.start, event.end) > 0;
-
-      elements.push(
-        <div
-          key={`${event.event_id}_${i}`}
-          className="rs__multi_day"
-          style={{
-            top: topSpace,
-            width: `${100 * eventLength}%`,
-            height: MONTH_BAR_HEIGHT,
-          }}
+  return (
+    <MonthCell
+      className={`${isOutsideMonth ? 'outside-month' : ''} ${isToday ? 'today' : ''}`}
+      style={{ height: cellHeight }}
+    >
+      <MonthDateHeader>
+        <Typography
+          variant="body2"
+          color={isOutsideMonth ? 'text.disabled' : 'text.primary'}
+          sx={{ fontWeight: isToday ? 600 : 400 }}
         >
+          {dateDayjs.format('D')}
+        </Typography>
+      </MonthDateHeader>
+
+      <MonthEventsContainer>
+        {visibleEvents.map((event) => (
           <EventItem
+            key={event.event_id}
             event={event}
-            showdate={false}
-            multiday={isMultiDay}
-            hasPrev={fromPrevWeek}
-            hasNext={toNextWeek}
+            multiday={event.allDay || dayjs(event.end).diff(event.start, 'day') > 0}
+            hasPrev={dayjs(event.start).isBefore(dateDayjs.startOf('day'))}
+            hasNext={dayjs(event.end).isAfter(dateDayjs.endOf('day'))}
           />
-        </div>
-      );
-    }
+        ))}
 
-    return elements;
-  }, [
-    month?.weekStartOn,
-    events,
-    LIMIT,
-    timeZone,
-    eachFirstDayInCalcRow,
-    renderedSlots,
-    resourceId,
-    todayStr,
-    eachWeekStart,
-    daysList.length,
-    translations.moreEvents,
-    onViewMore,
-  ]);
-
-  return <Fragment>{renderEvents}</Fragment>;
+        {hasMore && (
+          <MoreEventsButton
+            onClick={() => onMoreClick?.(date)}
+            title={`${remainingCount} more events`}
+          >
+            +{remainingCount} more
+          </MoreEventsButton>
+        )}
+      </MonthEventsContainer>
+    </MonthCell>
+  );
 };
 
-export default MonthEvents;
+export const MonthEvents = memo(MonthEventsComponent);
