@@ -9,7 +9,7 @@ import {
 import { ProcessedEvent } from '@/lib/types';
 import { dayjs } from '@/config/dayjs';
 import EventItem from '../events/EventItem';
-import { isDateToday } from '../../helpers/generals';
+import { isDateToday } from '@/lib/helpers/generals.tsx';
 
 interface MonthEventsProps {
   date: Date;
@@ -18,78 +18,57 @@ interface MonthEventsProps {
   maxVisibleEvents?: number;
   onEventClick?: (event: ProcessedEvent) => void;
   onMoreClick?: (date: Date) => void;
-  cellHeight: number;
 }
 
-const DEFAULT_VISIBLE_EVENTS = 3;
+export const MonthEvents = memo(
+  ({ date, events, isOutsideMonth, maxVisibleEvents = 3, onMoreClick }: MonthEventsProps) => {
+    const dateDayjs = dayjs(date);
+    const isToday = isDateToday(date);
 
-export const MonthEventsComponent = ({
-  date,
-  events,
-  isOutsideMonth,
-  maxVisibleEvents = DEFAULT_VISIBLE_EVENTS,
-  onMoreClick,
-  cellHeight,
-}: MonthEventsProps) => {
-  const dateDayjs = dayjs(date);
-  const isToday = isDateToday(date);
+    const { visibleEvents, hasMore, remainingCount } = useMemo(() => {
+      const sortedEvents = [...events].sort((a, b) => {
+        if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+        const aDuration = dayjs(a.end).diff(a.start);
+        const bDuration = dayjs(b.end).diff(b.start);
+        return bDuration - aDuration;
+      });
 
-  const { visibleEvents, hasMore, remainingCount } = useMemo(() => {
-    const sortedEvents = [...events].sort((a, b) => {
-      // Sort all-day events first, then by duration (longer first), then by start time
-      if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+      return {
+        visibleEvents: sortedEvents.slice(0, maxVisibleEvents),
+        hasMore: sortedEvents.length > maxVisibleEvents,
+        remainingCount: sortedEvents.length - maxVisibleEvents,
+      };
+    }, [events, maxVisibleEvents]);
 
-      const aDuration = dayjs(a.end).diff(a.start);
-      const bDuration = dayjs(b.end).diff(b.start);
-      if (aDuration !== bDuration) return bDuration - aDuration;
-
-      return dayjs(a.start).diff(b.start);
-    });
-
-    return {
-      visibleEvents: sortedEvents.slice(0, maxVisibleEvents),
-      hasMore: sortedEvents.length > maxVisibleEvents,
-      remainingCount: sortedEvents.length - maxVisibleEvents,
-    };
-  }, [events, maxVisibleEvents]);
-
-  return (
-    <MonthCell
-      className={`${isOutsideMonth ? 'outside-month' : ''} ${isToday ? 'today' : ''}`}
-      style={{ height: cellHeight }}
-    >
-      <MonthDateHeader>
-        <Typography
-          variant="body2"
-          color={isOutsideMonth ? 'text.disabled' : 'text.primary'}
-          sx={{ fontWeight: isToday ? 600 : 400 }}
-        >
-          {dateDayjs.format('D')}
-        </Typography>
-      </MonthDateHeader>
-
-      <MonthEventsContainer>
-        {visibleEvents.map((event) => (
-          <EventItem
-            key={event.event_id}
-            event={event}
-            multiday={event.allDay || dayjs(event.end).diff(event.start, 'day') > 0}
-            hasPrev={dayjs(event.start).isBefore(dateDayjs.startOf('day'))}
-            hasNext={dayjs(event.end).isAfter(dateDayjs.endOf('day'))}
-          />
-        ))}
-
-        {hasMore && (
-          <MoreEventsButton
-            onClick={() => onMoreClick?.(date)}
-            title={`${remainingCount} more events`}
+    return (
+      <MonthCell className={isOutsideMonth ? 'outside-month' : ''}>
+        <MonthDateHeader>
+          <Typography
+            variant="body2"
+            color={isOutsideMonth ? 'text.disabled' : 'text.primary'}
+            sx={{ fontWeight: isToday ? 600 : 400 }}
           >
-            +{remainingCount} more
-          </MoreEventsButton>
-        )}
-      </MonthEventsContainer>
-    </MonthCell>
-  );
-};
+            {dateDayjs.format('D')}
+          </Typography>
+        </MonthDateHeader>
 
-export const MonthEvents = memo(MonthEventsComponent);
+        <MonthEventsContainer>
+          {visibleEvents.map((event) => (
+            <EventItem
+              key={event.event_id}
+              event={event}
+              multiday={event.allDay || dayjs(event.end).diff(event.start, 'day') > 0}
+              hasPrev={dayjs(event.start).isBefore(dayjs(date).startOf('day'))}
+              hasNext={dayjs(event.end).isAfter(dayjs(date).endOf('day'))}
+            />
+          ))}
+          {hasMore && (
+            <MoreEventsButton onClick={() => onMoreClick?.(date)}>
+              +{remainingCount} more
+            </MoreEventsButton>
+          )}
+        </MonthEventsContainer>
+      </MonthCell>
+    );
+  }
+);

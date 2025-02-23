@@ -1,6 +1,6 @@
 import { Fragment, MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material';
-import { differenceInDaysOmitTime, getHourFormat } from '../../helpers/generals';
+import { getHourFormat } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import useDragAttributes from '../../hooks/useDragAttributes';
 import useEventPermissions from '../../hooks/useEventPermissions';
@@ -24,7 +24,6 @@ export const EventItem = ({
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const theme = useTheme();
   const hFormat = getHourFormat(hourFormat);
-  const hideDates = differenceInDaysOmitTime(event.start, event.end) <= 0 && event.allDay;
   const { canDrag } = useEventPermissions(event);
 
   const triggerViewer = useCallback(
@@ -50,13 +49,13 @@ export const EventItem = ({
     }
 
     const durationInMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute');
-    const isShortEvent = durationInMinutes <= 15;
+    const isShortDuration = durationInMinutes <= 30;
 
     return (
       <EventWrapper
-        key={`${event.start.valueOf()}_${event.end.valueOf()}_${event.event_id}`}
         disabled={event.disabled}
-        isShortEvent={isShortEvent}
+        view={view}
+        isShortDuration={isShortDuration}
         isMultiday={multiday}
         sx={{
           bgcolor: event.disabled ? '#d0d0d0' : event.color || theme.palette.primary.main,
@@ -86,11 +85,11 @@ export const EventItem = ({
             <EventContentComponent
               event={event}
               showTime={showdate}
-              hideDates={hideDates ?? true}
               hFormat={hFormat}
               multiday={multiday}
               hasPrev={hasPrev}
               hasNext={hasNext}
+              view={view}
             />
           </div>
         </EventButton>
@@ -107,7 +106,6 @@ export const EventItem = ({
     dragProps,
     canDrag,
     showdate,
-    hideDates,
     hFormat,
     hasPrev,
     hasNext,

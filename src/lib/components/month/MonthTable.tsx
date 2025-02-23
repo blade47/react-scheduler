@@ -16,7 +16,6 @@ interface MonthTableProps {
 
 const MonthTable = ({ daysList, resource, eachWeekStart }: MonthTableProps) => {
   const {
-    height,
     selectedDate,
     events,
     handleGotoDay,
@@ -30,8 +29,6 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: MonthTableProps) => {
   const selectedDayjs = dayjs(selectedDate);
   const monthStart = selectedDayjs.startOf('month');
   const monthEnd = selectedDayjs.endOf('month');
-
-  const CELL_HEIGHT = height / eachWeekStart.length;
 
   const resourcedEvents = useMemo(() => {
     let filteredEvents = sortEventsByTheEarliest(events);
@@ -78,12 +75,11 @@ const MonthTable = ({ daysList, resource, eachWeekStart }: MonthTableProps) => {
                 handleGotoDay(date);
               }
             }}
-            cellHeight={CELL_HEIGHT}
           />
         );
       });
     },
-    [CELL_HEIGHT, monthStart, monthEnd, getEventsForDate, onClickMore, handleGotoDay]
+    [monthStart, monthEnd, getEventsForDate, onClickMore, handleGotoDay]
   );
 
   return (

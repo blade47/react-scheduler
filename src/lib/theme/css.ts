@@ -188,39 +188,6 @@ export const TableGrid = styled('div')<{
   },
 }));
 
-export const EventItemPaper = styled(Paper)<{ disabled?: boolean }>(({ disabled, theme }) => ({
-  width: 'calc(100% - 4px)',
-  height: 'calc(100% - 4px)',
-  margin: '2px',
-  display: 'block',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  overflow: 'hidden',
-  borderRadius: '6px',
-  boxShadow: MODERN_STYLES.shadowLight,
-  transition: MODERN_STYLES.transition,
-  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-  backgroundColor: alpha(theme.palette.primary.main, 0.08),
-
-  '&:hover': {
-    transform: disabled ? 'none' : 'translateY(-1px)',
-    boxShadow: disabled ? MODERN_STYLES.shadowLight : MODERN_STYLES.shadowMedium,
-    border: `1px solid ${alpha(theme.palette.primary.main, 0.4)}`,
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-  },
-
-  '& .MuiButtonBase-root': {
-    width: '100%',
-    height: '100%',
-    display: 'block',
-    textAlign: 'left',
-    padding: '4px 8px',
-    '& > div': {
-      height: '100%',
-    },
-  },
-}));
-
 export const PopperInner = styled('div')(() => ({
   maxWidth: '100%',
   width: 400,
@@ -672,52 +639,71 @@ export const ViewMenuItem = styled(MenuItem)<{ selected?: boolean }>(({ theme, s
 }));
 
 export const EventWrapper = styled(Paper, {
-  shouldForwardProp: (prop) => !['disabled', 'isShortEvent', 'isMultiday'].includes(prop as string),
-})<{ disabled?: boolean; isShortEvent?: boolean; isMultiday?: boolean }>(
-  ({ theme, disabled, isShortEvent, isMultiday }) => ({
-    display: 'flex',
-    width: '100%',
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: disabled ? '#d0d0d0' : theme.palette.primary.main,
-    color: disabled ? '#808080' : theme.palette.primary.contrastText,
-    cursor: disabled ? 'default' : 'pointer',
-    borderRadius: theme.shape.borderRadius,
+  shouldForwardProp: (prop) =>
+    !['disabled', 'view', 'isShortDuration', 'isMultiday'].includes(prop as string),
+})<{
+  disabled?: boolean;
+  view?: 'day' | 'week' | 'month';
+  isShortDuration?: boolean;
+  isMultiday?: boolean;
+}>(({ theme, disabled, view, isShortDuration, isMultiday }) => ({
+  display: 'flex',
+  width: '100%',
+  position: 'relative',
+  overflow: 'hidden',
+  backgroundColor: disabled ? '#d0d0d0' : theme.palette.primary.main,
+  color: disabled ? '#808080' : theme.palette.primary.contrastText,
+  cursor: disabled ? 'default' : 'pointer',
+  borderRadius: '6px',
+  boxShadow: MODERN_STYLES.shadowLight,
+  transition: MODERN_STYLES.transition,
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+
+  // View-specific styles
+  ...(view === 'month' && {
+    minHeight: '22px',
+    fontSize: '0.8rem',
+    margin: '1px 0',
+  }),
+
+  ...(view === 'day' && {
+    minHeight: isShortDuration ? '22px' : '24px',
+  }),
+
+  ...(view === 'week' && {
     minHeight: '24px',
+  }),
 
-    ...(isShortEvent && {
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '3px',
-        backgroundColor: theme.palette.warning.main,
-      },
-      paddingLeft: '8px',
-    }),
+  // Short duration indicator
+  ...(isShortDuration && {
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: '3px',
+      backgroundColor: theme.palette.warning.main,
+    },
+    paddingLeft: '8px',
+  }),
 
-    ...(isMultiday && {
-      boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`,
-      '&:hover': {
-        boxShadow: `0 3px 6px ${alpha(theme.palette.common.black, 0.15)}`,
-      },
-
-      // Add a subtle gradient background
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `linear-gradient(to right, ${alpha(theme.palette.common.white, 0.1)}, transparent)`,
-        pointerEvents: 'none',
-      },
-    }),
-  })
-);
+  // Multi-day styles
+  ...(isMultiday && {
+    minHeight: '24px',
+    boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: `linear-gradient(to right, ${alpha(theme.palette.common.white, 0.1)}, transparent)`,
+      pointerEvents: 'none',
+    },
+  }),
+}));
 
 export const EventButton = styled(ButtonBase)(() => ({
   width: '100%',
@@ -727,10 +713,31 @@ export const EventButton = styled(ButtonBase)(() => ({
   padding: 0,
 }));
 
-export const EventContent = styled('div')({
-  padding: '2px 6px',
+export const EventContent = styled('div')<{ view?: 'day' | 'week' | 'month' }>(({ view }) => ({
+  padding: view === 'month' ? '2px 4px' : '4px 8px',
   width: '100%',
-});
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+
+  '& .event-time': {
+    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
+    opacity: 0.9,
+    whiteSpace: 'nowrap',
+  },
+
+  '& .event-title': {
+    fontSize: view === 'month' ? '0.8rem' : '0.875rem',
+    fontWeight: 500,
+    letterSpacing: '0.01em',
+  },
+
+  '& .event-subtitle': {
+    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
+    opacity: 0.8,
+  },
+}));
 
 export const MultidayContent = styled('div')(({ theme }) => ({
   padding: '4px 8px',

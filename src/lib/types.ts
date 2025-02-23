@@ -122,7 +122,6 @@ export interface EventItemProps {
 export interface EventContentProps {
   event: ProcessedEvent;
   showTime: boolean;
-  hideDates: boolean;
   hFormat: string;
   multiday?: boolean;
   hasPrev?: boolean;

@@ -9,130 +9,69 @@ import { EventContent, MultidayContent } from '@/lib/theme/css.ts';
 export const EventContentComponent = ({
   event,
   showTime,
-  hideDates,
   hFormat,
   multiday,
   hasPrev,
   hasNext,
-}: EventContentProps) => {
+  view,
+}: EventContentProps & { view?: 'day' | 'week' | 'month' }) => {
   const { direction } = useStore();
   const NextArrow = direction === 'rtl' ? ArrowLeftRoundedIcon : ArrowRightRoundedIcon;
   const PrevArrow = direction === 'rtl' ? ArrowRightRoundedIcon : ArrowLeftRoundedIcon;
 
   const durationInMinutes = dayjs(event.end).diff(dayjs(event.start), 'minute');
-  const isShortEvent = durationInMinutes <= 15;
+  const isShortDuration = durationInMinutes <= 30;
 
   if (multiday) {
     return (
       <MultidayContent>
-        <div className="multiday-arrow">
-          {hasPrev && (
-            <PrevArrow
-              fontSize="small"
-              sx={{
-                fontSize: '1.1rem',
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                },
-              }}
-            />
-          )}
-        </div>
-
+        <div className="multiday-arrow">{hasPrev && <PrevArrow fontSize="small" />}</div>
         <div className="multiday-title">
-          {!hasPrev && showTime && !hideDates && (
-            <Typography className="multiday-time" component="span">
-              {dayjs(event.start).format(hFormat)}
-            </Typography>
-          )}
-
-          <Typography
-            variant="subtitle2"
-            sx={{
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              letterSpacing: '0.01em',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <Typography className="event-title" noWrap>
             {event.title}
           </Typography>
-
-          {event.subtitle && (
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: '0.75rem',
-                opacity: 0.8,
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {event.subtitle}
-            </Typography>
-          )}
         </div>
-
-        <div className="multiday-arrow">
-          {hasNext && (
-            <NextArrow
-              fontSize="small"
-              sx={{
-                fontSize: '1.2rem',
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                },
-              }}
-            />
-          )}
-          {!hasNext && showTime && !hideDates && (
-            <Typography className="multiday-time" component="span">
-              {dayjs(event.end).format(hFormat)}
-            </Typography>
-          )}
-        </div>
+        <div className="multiday-arrow">{hasNext && <NextArrow fontSize="small" />}</div>
       </MultidayContent>
     );
   }
 
-  return (
-    <EventContent>
-      {isShortEvent ? (
-        <Typography
-          variant="subtitle2"
-          style={{
-            fontSize: 11,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          {dayjs(event.start).format('HH:mm')} • {event.title}
+  // Month view - compact display
+  if (view === 'month') {
+    return (
+      <EventContent view="month">
+        <Typography className="event-title" noWrap>
+          {event.title}
         </Typography>
-      ) : (
-        <>
-          <Typography variant="subtitle2" style={{ fontSize: 12 }} noWrap>
-            {event.title}
-          </Typography>
-          {event.subtitle && (
-            <Typography variant="body2" style={{ fontSize: 11 }} noWrap>
-              {event.subtitle}
-            </Typography>
-          )}
-          {showTime && (
-            <Typography style={{ fontSize: 11 }} noWrap>
-              {`${dayjs(event.start).format(hFormat)} - ${dayjs(event.end).format(hFormat)}`}
-            </Typography>
-          )}
-        </>
+      </EventContent>
+    );
+  }
+
+  // Day/Week view
+  if (isShortDuration) {
+    return (
+      <EventContent view={view}>
+        <Typography className="event-title" noWrap>
+          {event.title}
+        </Typography>
+      </EventContent>
+    );
+  }
+
+  return (
+    <EventContent view={view}>
+      <Typography className="event-title" noWrap>
+        {event.title}
+      </Typography>
+      {event.subtitle && (
+        <Typography className="event-subtitle" noWrap>
+          {event.subtitle}
+        </Typography>
+      )}
+      {showTime && (
+        <Typography className="event-time" noWrap>
+          {`${dayjs(event.start).format(hFormat)} - ${dayjs(event.end).format(hFormat)}`}
+        </Typography>
       )}
     </EventContent>
   );
