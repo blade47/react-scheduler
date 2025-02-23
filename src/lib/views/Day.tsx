@@ -17,10 +17,10 @@ import Cell from '../components/common/Cell';
 import { TableGrid } from '../theme/css.ts';
 import { MULTI_DAY_EVENT_HEIGHT } from '../helpers/constants';
 import useStore from '../hooks/useStore';
-import { DayAgenda } from './DayAgenda';
 import { dayjs } from '@/config/dayjs';
 import type { Dayjs } from 'dayjs';
 import { TodayEvents } from '@/lib/components/events/TodayEvents.tsx';
+import { AgendaView } from '@/lib/views/AgendaView.tsx';
 
 export interface DayProps {
   startHour: DayHours;
@@ -141,7 +141,7 @@ const Day = () => {
     }
 
     if (agenda) {
-      return <DayAgenda events={resourcedEvents} />;
+      return <AgendaView events={resourcedEvents} view="day" />;
     }
 
     // Equalizing multi-day section height

@@ -4,10 +4,10 @@ import { WeekDays } from './Month';
 import { calcCellHeight, calcMinuteHeight, getResourcedEvents } from '../helpers/generals';
 import { WithResources } from '../components/common/WithResources';
 import useStore from '../hooks/useStore';
-import { WeekAgenda } from './WeekAgenda';
 import WeekTable from '../components/week/WeekTable';
 import { dayjs } from '@/config/dayjs';
 import type { Dayjs } from 'dayjs';
+import { AgendaView } from '@/lib/views/AgendaView.tsx';
 
 export interface WeekProps {
   weekDays: WeekDays[];
@@ -97,7 +97,7 @@ const Week = () => {
     }
 
     if (agenda) {
-      return <WeekAgenda daysList={daysList} events={resourcedEvents} />;
+      return <AgendaView view="week" daysList={daysList} events={resourcedEvents} />;
     }
 
     return (

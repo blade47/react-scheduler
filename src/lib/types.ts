@@ -139,6 +139,19 @@ export interface CellProps {
   children?: JSX.Element;
 }
 
+export interface AgendaViewProps {
+  events: ProcessedEvent[];
+  view: View;
+  daysList?: Date[];
+}
+
+export interface AgendaDayProps {
+  day: Date | Dayjs;
+  events: ProcessedEvent[];
+  today: boolean;
+  onDayClick?: (day: Date) => void;
+}
+
 export interface TodayEventsProps {
   todayEvents: ProcessedEvent[];
   today: Date;

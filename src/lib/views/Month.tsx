@@ -3,10 +3,10 @@ import { CellRenderedProps, DayHours, DefaultResource } from '@/lib';
 import { getResourcedEvents, sortEventsByTheEarliest } from '../helpers/generals';
 import { WithResources } from '../components/common/WithResources';
 import useStore from '../hooks/useStore';
-import { MonthAgenda } from './MonthAgenda';
 import MonthTable from '../components/month/MonthTable';
 import { dayjs } from '@/config/dayjs';
 import type { Dayjs } from 'dayjs';
+import { AgendaView } from '@/lib/views/AgendaView.tsx';
 
 export type WeekDays = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -90,7 +90,7 @@ const Month = () => {
           resourcedEvents = getResourcedEvents(events, resource, resourceFields, fields);
         }
 
-        return <MonthAgenda events={resourcedEvents} />;
+        return <AgendaView view="month" events={resourcedEvents} />;
       }
 
       return <MonthTable daysList={daysList} eachWeekStart={eachWeekStart} resource={resource} />;

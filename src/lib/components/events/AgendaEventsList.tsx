@@ -1,5 +1,4 @@
 import { memo, useState } from 'react';
-import { List } from '@mui/material';
 import { ProcessedEvent } from '@/lib';
 import { getHourFormat, isTimeZonedToday } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
@@ -8,6 +7,7 @@ import { AgendaEventsListProps, EventDateFormat } from '@/lib/types.ts';
 import { dayjs } from '@/config/dayjs.ts';
 import EventItemPopover from '@/lib/components/events/EventItemPopover.tsx';
 import { MouseEvent } from 'react';
+import { AgendaList, AgendaListContainer } from '@/lib/theme/css.ts';
 
 export const AgendaEventsList = memo(({ day, events }: AgendaEventsListProps) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
@@ -90,8 +90,8 @@ export const AgendaEventsList = memo(({ day, events }: AgendaEventsListProps) =>
   };
 
   return (
-    <>
-      <List disablePadding>{events.map(renderEvent)}</List>
+    <AgendaListContainer>
+      <AgendaList disablePadding>{events.map(renderEvent)}</AgendaList>
 
       {selectedEvent && (
         <EventItemPopover
@@ -100,10 +100,6 @@ export const AgendaEventsList = memo(({ day, events }: AgendaEventsListProps) =>
           onTriggerViewer={triggerViewer}
         />
       )}
-    </>
+    </AgendaListContainer>
   );
 });
-
-AgendaEventsList.displayName = 'AgendaEventsList';
-
-export default AgendaEventsList;

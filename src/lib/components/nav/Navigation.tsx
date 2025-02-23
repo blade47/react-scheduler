@@ -6,10 +6,11 @@ import { useCallback, useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ViewAgendaIcon from '@mui/icons-material/ViewAgenda';
 import useStore from '@/lib/hooks/useStore.ts';
-import { getTimeZonedDate } from '@/lib/helpers/generals';
+import { getTimeZonedDate, isDateInRange } from '@/lib/helpers/generals';
 import { MonthDateBtn } from '@/lib/components/nav/MonthDateBtn.tsx';
 import { WeekDateBtn } from '@/lib/components/nav/WeekDateBtn.tsx';
 import { DayDateBtn } from '@/lib/components/nav/DayDateBtn.tsx';
+import dayjs from '@/config/dayjs';
 
 const ViewSelector = ({
   views,
@@ -214,6 +215,8 @@ export const Navigation = () => {
     toggleAgenda,
     enableAgenda,
     enableTodayButton,
+    minDate,
+    maxDate,
   } = useStore();
 
   const theme = useTheme();
@@ -234,10 +237,18 @@ export const Navigation = () => {
     [handleState, onViewChange, agenda]
   );
 
+  const canNavigateToToday = useCallback(
+    () =>
+      isDateInRange(dayjs(getTimeZonedDate(new Date(), timeZone)), minDate, maxDate) &&
+      (enableTodayButton ?? false),
+    [enableTodayButton, maxDate, minDate, timeZone]
+  );
+
   const handleTodayClick = useCallback(() => {
+    if (!canNavigateToToday()) return;
     const today = getTimeZonedDate(new Date(), timeZone);
     handleSelectedDateChange(today);
-  }, [timeZone, handleSelectedDateChange]);
+  }, [canNavigateToToday, timeZone, handleSelectedDateChange]);
 
   const renderDateSelector = useCallback(() => {
     switch (view) {
@@ -283,7 +294,7 @@ export const Navigation = () => {
           gap: 1,
         }}
       >
-        {enableTodayButton && (
+        {canNavigateToToday() && (
           <Button
             variant="outlined"
             onClick={handleTodayClick}

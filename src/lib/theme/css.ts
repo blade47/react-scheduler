@@ -10,6 +10,7 @@ import {
   ButtonBase,
   ListItemButton,
   Avatar,
+  List,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { MODERN_STYLES } from '@/lib/theme/common.ts';
@@ -713,32 +714,6 @@ export const EventButton = styled(ButtonBase)(() => ({
   padding: 0,
 }));
 
-export const EventContent = styled('div')<{ view?: 'day' | 'week' | 'month' }>(({ view }) => ({
-  padding: view === 'month' ? '2px 4px' : '4px 8px',
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-
-  '& .event-time': {
-    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
-    opacity: 0.9,
-    whiteSpace: 'nowrap',
-  },
-
-  '& .event-title': {
-    fontSize: view === 'month' ? '0.8rem' : '0.875rem',
-    fontWeight: 500,
-    letterSpacing: '0.01em',
-  },
-
-  '& .event-subtitle': {
-    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
-    opacity: 0.8,
-  },
-}));
-
 export const MultidayContent = styled('div')(({ theme }) => ({
   padding: '4px 8px',
   display: 'flex',
@@ -816,18 +791,162 @@ export const EmptyContent = styled('div')(({ theme }) => ({
 
 export const EventListItem = styled(ListItemButton)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
-  marginBottom: theme.spacing(0.5),
+  marginBottom: theme.spacing(1),
+  padding: theme.spacing(1.5, 2),
+  transition: theme.transitions.create(['background-color', 'box-shadow']),
+  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: alpha(theme.palette.primary.main, 0.04),
+    boxShadow: theme.shadows[1],
+  },
+
+  '&.Mui-disabled': {
+    opacity: 0.6,
+    backgroundColor: alpha(theme.palette.action.disabled, 0.08),
   },
 }));
 
 export const EventAvatar = styled(Avatar)<{ disabled?: boolean }>(({ theme, disabled }) => ({
-  transition: theme.transitions.create(['background-color', 'color'], {
-    duration: theme.transitions.duration.shortest,
-  }),
+  width: 40,
+  height: 40,
+  fontSize: theme.typography.pxToRem(16),
+  fontWeight: theme.typography.fontWeightMedium,
+  transition: theme.transitions.create(['background-color', 'transform', 'box-shadow']),
+
   ...(disabled && {
-    backgroundColor: '#d0d0d0',
-    color: '#808080',
+    backgroundColor: theme.palette.action.disabledBackground,
+    color: theme.palette.text.disabled,
   }),
+
+  '&:hover': {
+    boxShadow: disabled ? 'none' : theme.shadows[2],
+  },
+}));
+
+export const EventContent = styled('div')<{ view?: 'day' | 'week' | 'month' }>(({ view }) => ({
+  padding: view === 'month' ? '2px 4px' : '4px 8px',
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+
+  '& .event-time': {
+    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
+    opacity: 0.9,
+    whiteSpace: 'nowrap',
+  },
+
+  '& .event-title': {
+    fontSize: view === 'month' ? '0.8rem' : '0.875rem',
+    fontWeight: 500,
+    letterSpacing: '0.01em',
+  },
+
+  '& .event-subtitle': {
+    fontSize: view === 'month' ? '0.7rem' : '0.75rem',
+    opacity: 0.8,
+  },
+}));
+
+export const AgendaEventContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(0.5),
+}));
+
+export const EventTitle = styled(Typography)(({ theme }) => ({
+  fontSize: theme.typography.pxToRem(16),
+  fontWeight: theme.typography.fontWeightMedium,
+  color: theme.palette.text.primary,
+  letterSpacing: '0.015em',
+}));
+
+export const EventTime = styled(Typography)(({ theme }) => ({
+  fontSize: theme.typography.pxToRem(14),
+  color: theme.palette.text.secondary,
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(0.5),
+}));
+
+export const AgendaContainer = styled(Box)(({ theme }) => ({
+  borderStyle: 'solid',
+  borderColor: theme.palette.divider,
+  borderWidth: '1px 1px 0 0',
+}));
+
+export const AgendaListContainer = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[1],
+}));
+
+export const AgendaList = styled(List)(({ theme }) => ({
+  padding: theme.spacing(2),
+  '& .MuiListItem-root': {
+    marginBottom: theme.spacing(1),
+  },
+}));
+
+export const AgendaRow = styled(Paper)(({ theme }) => ({
+  display: 'flex',
+  margin: theme.spacing(1, 0),
+  borderRadius: theme.shape.borderRadius,
+  overflow: 'hidden',
+  border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+  transition: theme.transitions.create(['box-shadow', 'transform', 'background-color']),
+
+  '&:hover': {
+    boxShadow: theme.shadows[2],
+  },
+
+  '&.rs__today_cell': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.03),
+    borderLeft: `3px solid ${theme.palette.primary.main}`,
+  },
+
+  '& .rs__agenda__cell': {
+    padding: theme.spacing(2),
+    width: 100,
+    minWidth: 100,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: alpha(theme.palette.background.default, 0.4),
+  },
+
+  '& .rs__agenda_items': {
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+  },
+}));
+
+export const DayHeader = styled(Box)<{ today?: boolean }>(({ theme, today }) => ({
+  textAlign: 'center',
+  cursor: 'pointer',
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  transition: theme.transitions.create(['background-color', 'transform']),
+
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.action.hover, 0.1),
+  },
+
+  '& .day-number': {
+    fontSize: theme.typography.h5.fontSize,
+    fontWeight: today ? theme.typography.fontWeightBold : theme.typography.fontWeightMedium,
+    color: today ? theme.palette.primary.main : theme.palette.text.primary,
+    lineHeight: 1.2,
+  },
+
+  '& .day-name': {
+    fontSize: theme.typography.body2.fontSize,
+    color: today ? theme.palette.primary.main : theme.palette.text.secondary,
+    textTransform: 'uppercase',
+    marginTop: theme.spacing(0.5),
+  },
 }));
