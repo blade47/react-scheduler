@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Popover } from '@mui/material';
-import { WeekProps } from '../../views/Week';
 import { LocaleArrow } from '../common/LocaleArrow';
 import { DateCalendar } from '@mui/x-date-pickers';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
 import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
+import { WeekProps } from '@/lib/types.ts';
 
 interface WeekDateBtnProps {
   selectedDate: Date;
@@ -36,14 +36,14 @@ const WeekDateBtn = ({ selectedDate, onChange, weekProps }: WeekDateBtnProps) =>
   };
 
   const handleDateNavigation = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction, 'week');
+    const newDate = getNewDate(selectedDate, direction, 'week');
     if (isDateInRange(newDate, minDate, maxDate)) {
-      onChange(newDate.toDate());
+      onChange(newDate);
     }
   };
 
   const canGo = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction, 'week');
+    const newDate = getNewDate(selectedDate, direction, 'week');
     return isDateInRange(newDate, minDate, maxDate);
   };
 

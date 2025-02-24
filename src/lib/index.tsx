@@ -23,8 +23,8 @@ import type {
   Translations,
 } from './types';
 import DateProvider from '@/lib/components/hoc/DateProvider.tsx';
-import SchedulerComponent from '@/lib/SchedulerComponent.tsx';
 import ThemeProvider from './components/hoc/ThemeProvider';
+import { SchedulerComponent } from '@/lib/components/scheduler/Scheduler.tsx';
 
 /**
  * Scheduler Component

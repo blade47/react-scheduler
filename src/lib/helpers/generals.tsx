@@ -1,8 +1,7 @@
 import { dayjs } from '@/config/dayjs';
 import { DefaultResource, FieldProps, ProcessedEvent, ResourceFields, SchedulerProps } from '@/lib';
 import { StateEvent } from '../views/Editor';
-import { Dayjs } from 'dayjs';
-import { View } from '@/lib/types.ts';
+import { View, WeekDays } from '@/lib/types.ts';
 
 export const getAvailableViews = (state: SchedulerProps): View[] => {
   const views: View[] = [];
@@ -284,16 +283,58 @@ export const isDateToday = (date: Date): boolean => {
 };
 
 export const isDateInRange = (
-  date: Dayjs,
+  date: Date,
   minDate?: Date | null,
   maxDate?: Date | null
 ): boolean => {
-  if (minDate && date.isBefore(dayjs(minDate))) return false;
-  return !(maxDate && date.isAfter(dayjs(maxDate)));
+  const dayjsDate = dayjs(date);
+  if (minDate && dayjsDate.isBefore(dayjs(minDate))) return false;
+  return !(maxDate && dayjsDate.isAfter(dayjs(maxDate)));
 };
 
 export const getNewDate = (
-  date: Dayjs,
+  date: Date,
   direction: 'prev' | 'next',
   time: 'day' | 'week' | 'month' = 'day'
-): Dayjs => (direction === 'prev' ? date.subtract(1, time) : date.add(1, time));
+): Date =>
+  direction === 'prev' ? dayjs(date).subtract(1, time).toDate() : dayjs(date).add(1, time).toDate();
+
+export const generateWeekDays = (
+  selectedDate: Date,
+  weekStartOn: WeekDays,
+  weekDays: WeekDays[]
+): Date[] => {
+  const weekStart = dayjs(selectedDate).startOf('week').add(weekStartOn, 'day').toDate();
+  return generateDays(weekStart, weekDays);
+};
+
+export const generateDays = (weekStart: Date, weekDays: WeekDays[]): Date[] => {
+  return weekDays.map((d) => dayjs(weekStart).add(d, 'day').clone().toDate());
+};
+
+export const generateHourSlots = (startHour: Date, endHour: Date, stepMinutes: number): Date[] => {
+  const result: Date[] = [];
+  let current = dayjs(startHour).clone();
+
+  while (current.isBefore(endHour) || current.isSame(endHour)) {
+    result.push(current.toDate());
+    current = current.add(stepMinutes, 'minute');
+  }
+  return result;
+};
+
+export const generateMonthWeeks = (
+  startMonth: Date,
+  endMonth: Date,
+  weekStartsOn: WeekDays
+): Date[] => {
+  const weeks: Date[] = [];
+  const startMonthDayjs = dayjs(startMonth);
+  const endMonthDayjs = dayjs(endMonth);
+  let current = startMonthDayjs.startOf('week').add(weekStartsOn, 'day');
+  while (current.isBefore(endMonthDayjs) || current.isSame(endMonthDayjs, 'day')) {
+    weeks.push(current.toDate());
+    current = current.add(1, 'week');
+  }
+  return weeks;
+};

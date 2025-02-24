@@ -10,7 +10,6 @@ import { getTimeZonedDate, isDateInRange } from '@/lib/helpers/generals';
 import { MonthDateBtn } from '@/lib/components/nav/MonthDateBtn.tsx';
 import { WeekDateBtn } from '@/lib/components/nav/WeekDateBtn.tsx';
 import { DayDateBtn } from '@/lib/components/nav/DayDateBtn.tsx';
-import dayjs from '@/config/dayjs';
 
 const ViewSelector = ({
   views,
@@ -239,7 +238,7 @@ export const Navigation = () => {
 
   const canNavigateToToday = useCallback(
     () =>
-      isDateInRange(dayjs(getTimeZonedDate(new Date(), timeZone)), minDate, maxDate) &&
+      isDateInRange(getTimeZonedDate(new Date(), timeZone), minDate, maxDate) &&
       (enableTodayButton ?? false),
     [enableTodayButton, maxDate, minDate, timeZone]
   );

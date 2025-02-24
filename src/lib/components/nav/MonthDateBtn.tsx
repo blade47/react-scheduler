@@ -31,14 +31,14 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
   };
 
   const handleDateNavigation = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction, 'month');
+    const newDate = getNewDate(selectedDate, direction, 'month');
     if (isDateInRange(newDate, minDate, maxDate)) {
-      onChange(newDate.toDate());
+      onChange(newDate);
     }
   };
 
   const canGo = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction, 'month');
+    const newDate = getNewDate(selectedDate, direction, 'month');
     return isDateInRange(newDate, minDate, maxDate);
   };
 

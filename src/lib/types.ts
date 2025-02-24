@@ -1,12 +1,9 @@
 import { DialogProps, GridSize, IconButtonProps, Theme } from '@mui/material';
 import { DateCalendarProps } from '@mui/x-date-pickers';
-import { CSSProperties, DragEvent, ReactElement, ReactNode, MouseEvent } from 'react';
+import React, { CSSProperties, DragEvent, ReactElement, ReactNode, MouseEvent } from 'react';
 import { SelectOption } from './components/inputs/SelectInput';
 import { SelectedRange, Store } from './store/types';
-import { DayProps } from './views/Day';
 import { StateItem } from './views/Editor';
-import { MonthProps } from './views/Month';
-import { WeekProps } from './views/Week';
 import type { RRule } from 'rrule';
 import { Dayjs } from 'dayjs';
 
@@ -38,6 +35,8 @@ export type DayHours =
   | 22
   | 23
   | 24;
+
+export type WeekDays = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface CellRenderedProps {
   day: Date;
@@ -146,7 +145,7 @@ export interface AgendaViewProps {
 }
 
 export interface AgendaDayProps {
-  day: Date | Dayjs;
+  day: Date;
   events: ProcessedEvent[];
   today: boolean;
   onDayClick?: (day: Date) => void;
@@ -331,6 +330,40 @@ export interface RequiredSchedulerProps {
   locale: string;
   translations: Translations;
   hourFormat: '12' | '24';
+}
+
+export interface DayProps {
+  startHour: DayHours;
+  endHour: DayHours;
+  step: number;
+  cellRenderer?(props: CellRenderedProps): JSX.Element;
+  headRenderer?(day: Date): JSX.Element;
+  hourRenderer?(hour: string): JSX.Element;
+  navigation?: boolean;
+}
+
+export interface WeekProps {
+  weekDays: WeekDays[];
+  weekStartOn: WeekDays;
+  startHour: DayHours;
+  endHour: DayHours;
+  step: number;
+  cellRenderer?(props: CellRenderedProps): JSX.Element;
+  headRenderer?(day: Date): JSX.Element;
+  hourRenderer?(hour: string): JSX.Element;
+  navigation?: boolean;
+  disableGoToDay?: boolean;
+}
+
+export interface MonthProps {
+  weekDays: WeekDays[];
+  weekStartOn: WeekDays;
+  startHour: DayHours;
+  endHour: DayHours;
+  cellRenderer?(props: CellRenderedProps): JSX.Element;
+  headRenderer?(day: Date): JSX.Element;
+  navigation?: boolean;
+  disableGoToDay?: boolean;
 }
 
 export interface OptionalSchedulerProps {

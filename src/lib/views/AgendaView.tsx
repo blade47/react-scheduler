@@ -42,7 +42,7 @@ export const AgendaView = memo(({ events, view, daysList }: AgendaViewProps) => 
         return (
           <AgendaDay
             key={date.valueOf()}
-            day={date}
+            day={date.toDate()}
             events={dayEvents}
             today={today}
             onDayClick={handleGotoDay}

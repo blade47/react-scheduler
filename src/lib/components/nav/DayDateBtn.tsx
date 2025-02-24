@@ -31,14 +31,14 @@ const DayDateBtn = ({ selectedDate, onChange }: DayDateBtnProps) => {
   };
 
   const handleDateNavigation = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction);
+    const newDate = getNewDate(selectedDate, direction);
     if (isDateInRange(newDate, minDate, maxDate)) {
-      onChange(newDate.toDate());
+      onChange(newDate);
     }
   };
 
   const canGo = (direction: 'prev' | 'next') => {
-    const newDate = getNewDate(selectedDayjs, direction);
+    const newDate = getNewDate(selectedDate, direction);
     return isDateInRange(newDate, minDate, maxDate);
   };
 

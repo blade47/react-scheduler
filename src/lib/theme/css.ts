@@ -11,90 +11,69 @@ import {
   ListItemButton,
   Avatar,
   List,
+  keyframes,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { MODERN_STYLES } from '@/lib/theme/common.ts';
 import { ResourceViewMode } from '@/lib/types.ts';
 import { Tabs as MuiTabs, Tab as MuiTab } from '@mui/material';
 
-export const Wrapper = styled('div')<{ dialog: number }>(({ theme, dialog }) => ({
+export const SchedulerWrapper = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'isDialog',
+})<{ isDialog: boolean }>(({ theme, isDialog }) => ({
   position: 'relative',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  userSelect: dialog ? 'none' : 'auto',
-
-  '& .rs__table_loading': {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: 999999,
-    '& .rs__table_loading_internal': {
-      background: dialog ? '' : alpha(theme.palette.background.paper, 0.6),
-      backdropFilter: 'blur(4px)',
-      height: '100%',
-      '& > span': {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        flexDirection: 'column',
-        '& > span': {
-          marginBottom: 15,
-        },
-      },
-    },
-  },
+  userSelect: isDialog ? 'none' : 'auto',
+  backgroundColor: theme.palette.background.default,
 }));
 
-export const Table = styled('div')<{ resource_count: number }>(({ resource_count }) => ({
-  position: 'relative',
-  display: 'flex',
-  flexDirection: resource_count > 1 ? 'row' : 'column',
-  width: '100%',
-  boxSizing: 'content-box',
-  '& > div': {
-    flexShrink: 0,
-    flexGrow: 1,
-  },
-}));
-
-export const AgendaDiv = styled('div')(({ theme }) => ({
-  borderStyle: 'solid',
-  borderColor: theme.palette.divider,
-  borderWidth: '1px 1px 0 0',
-  '& > .rs__agenda_row': {
+export const SchedulerContent = styled('div')<{ resourceCount: number }>(
+  ({ theme, resourceCount }) => ({
+    position: 'relative',
     display: 'flex',
-    '& > .rs__agenda__cell': {
-      padding: '8px 12px',
-      width: '100%',
-      maxWidth: 60,
-      '& > .MuiTypography-root': {
-        position: 'sticky',
-        top: 0,
-        '&.rs__hover__op': {
-          cursor: 'pointer',
-          transition: MODERN_STYLES.transition,
-          '&:hover': {
-            opacity: 0.8,
-            color: theme.palette.primary.main,
-          },
-        },
-      },
+    flexDirection: resourceCount > 1 ? 'row' : 'column',
+    width: '100%',
+    flexGrow: 1,
+    overflow: 'auto',
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[1],
+    transition: theme.transitions.create(['box-shadow', 'background-color']),
+
+    '&:hover': {
+      boxShadow: theme.shadows[2],
     },
-    '& .rs__cell': {
-      borderStyle: 'solid',
-      borderColor: theme.palette.divider,
-      borderWidth: '0 0 1px 1px',
-    },
-    '& > .rs__agenda_items': {
-      flexGrow: 1,
-    },
-  },
+  })
+);
+
+export const LoadingOverlay = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+  zIndex: theme.zIndex.modal,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  backgroundColor: alpha(theme.palette.background.paper, 0.8),
+  backdropFilter: 'blur(4px)',
+  animation: `${fadeIn} 0.2s ease-in-out`,
 }));
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 export const TableGrid = styled('div')<{
   days: number;
