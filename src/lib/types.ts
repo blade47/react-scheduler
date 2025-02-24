@@ -1,6 +1,6 @@
-import { DialogProps, GridSize, IconButtonProps, Theme } from '@mui/material';
+import { DialogProps, GridSize, Theme } from '@mui/material';
 import { DateCalendarProps } from '@mui/x-date-pickers';
-import React, { CSSProperties, DragEvent, ReactElement, ReactNode, MouseEvent } from 'react';
+import React, { DragEvent, ReactElement, ReactNode } from 'react';
 import { SelectOption } from './components/inputs/SelectInput';
 import { SelectedRange, Store } from './store/types';
 import { StateItem } from './views/Editor';
@@ -67,138 +67,19 @@ export interface CalendarEvent {
   agendaAvatar?: ReactElement | string;
 }
 
-export interface AgendaEventsListProps {
-  day: Date;
-  events: ProcessedEvent[];
-}
-
 export interface EventDateFormat {
   isToday: boolean;
   format: string;
   formatted: string;
 }
 
-export interface AgendaEventItemProps {
-  event: ProcessedEvent;
-  onEventClick: (event: ProcessedEvent) => (e: MouseEvent) => void;
-  startDate: EventDateFormat;
-  endDate: EventDateFormat;
-  disableViewer: boolean;
-}
-
-export interface EmptyAgendaProps {
-  customMessage?: string;
-}
-
-export interface EventItemPopoverProps {
-  event: ProcessedEvent;
-  anchorEl: Element | null;
-  onTriggerViewer: (el?: MouseEvent) => void;
-}
-
-export interface PopoverContentProps {
-  event: ProcessedEvent;
-  onClose: () => void;
-  onDelete: () => Promise<void>;
-  onEdit: () => void;
-  dateTimeText: string;
-  resourcesText: string | null;
-}
-
-export interface TodayTypoProps {
-  date: Date;
-  onClick?(day: Date): void;
-}
-
-export interface EventItemProps {
-  event: ProcessedEvent;
-  multiday?: boolean;
-  hasPrev?: boolean;
-  hasNext?: boolean;
-  showdate?: boolean;
-}
-
-export interface EventContentProps {
-  event: ProcessedEvent;
-  showTime: boolean;
-  hFormat: string;
-  multiday?: boolean;
-  hasPrev?: boolean;
-  hasNext?: boolean;
-}
-
-export interface CellProps {
-  day: Date;
-  start: Date;
-  height: number;
-  end: Date;
-  resourceKey: string;
-  resourceVal: string | number;
-  cellRenderer?(props: CellRenderedProps): JSX.Element;
-  children?: JSX.Element;
-}
-
-export interface AgendaViewProps {
-  events: ProcessedEvent[];
-  view: View;
-  daysList?: Date[];
-}
-
-export interface AgendaDayProps {
-  day: Date;
-  events: ProcessedEvent[];
-  today: boolean;
-  onDayClick?: (day: Date) => void;
-}
-
-export interface TodayEventsProps {
-  todayEvents: ProcessedEvent[];
-  today: Date;
-  startHour: number;
-  endHour: number;
-  step: number;
-  minuteHeight: number;
-  direction: 'rtl' | 'ltr';
-  timeZone?: string;
-}
-
-export interface EventPositionProps {
-  event: ProcessedEvent;
-  crossingEvents: ProcessedEvent[];
-  alreadyRendered: ProcessedEvent[];
-  direction: 'rtl' | 'ltr';
-}
-
-export interface EventDimensionsProps {
-  event: ProcessedEvent;
-  startHour: number;
-  minuteHeight: number;
-  maxHeight: number;
-  step: number;
-}
-
 export type TabVariant = 'scrollable' | 'standard' | 'fullWidth';
 export type TabIndicator = 'primary' | 'secondary' | 'info' | 'error';
 
-export interface TabPanelProps {
-  value: string | number;
-  index: string | number;
-  children: ReactNode;
-}
-
 export interface ButtonTabProps {
   id: string | number;
-  label: string | JSX.Element;
-  component: JSX.Element;
-}
-
-export interface ButtonTabsProps {
-  tabs: ButtonTabProps[];
-  tab: string | number;
-  setTab(tab: string | number): void;
-  variant?: TabVariant;
-  indicator?: TabIndicator;
-  style?: CSSProperties;
+  label: string | React.ReactNode;
+  component: React.ReactNode;
 }
 
 export interface Translations {
@@ -298,23 +179,10 @@ export type ResourceFields = {
   colorField?: string;
 } & Record<string, string>;
 
-export interface ResourceHeaderProps {
-  resource: DefaultResource;
-}
-
-export interface WithResourcesProps {
-  renderChildren(resource: DefaultResource): React.ReactNode;
-}
-
 export type ResourceViewMode = 'default' | 'tabs' | 'vertical';
 
 export type ArrowDirection = 'prev' | 'next';
 export type LocaleDirection = 'rtl' | 'ltr';
-
-export interface LocaleArrowProps extends Omit<IconButtonProps, 'type'> {
-  type: ArrowDirection;
-  onClick?(e?: MouseEvent): void;
-}
 
 export interface RequiredSchedulerProps {
   height: number;
@@ -336,9 +204,9 @@ export interface DayProps {
   startHour: DayHours;
   endHour: DayHours;
   step: number;
-  cellRenderer?(props: CellRenderedProps): JSX.Element;
-  headRenderer?(day: Date): JSX.Element;
-  hourRenderer?(hour: string): JSX.Element;
+  cellRenderer?(props: CellRenderedProps): React.ReactNode;
+  headRenderer?(day: Date): React.ReactNode;
+  hourRenderer?(hour: string): React.ReactNode;
   navigation?: boolean;
 }
 
@@ -348,9 +216,9 @@ export interface WeekProps {
   startHour: DayHours;
   endHour: DayHours;
   step: number;
-  cellRenderer?(props: CellRenderedProps): JSX.Element;
-  headRenderer?(day: Date): JSX.Element;
-  hourRenderer?(hour: string): JSX.Element;
+  cellRenderer?(props: CellRenderedProps): React.ReactNode;
+  headRenderer?(day: Date): React.ReactNode;
+  hourRenderer?(hour: string): React.ReactNode;
   navigation?: boolean;
   disableGoToDay?: boolean;
 }
@@ -360,8 +228,8 @@ export interface MonthProps {
   weekStartOn: WeekDays;
   startHour: DayHours;
   endHour: DayHours;
-  cellRenderer?(props: CellRenderedProps): JSX.Element;
-  headRenderer?(day: Date): JSX.Element;
+  cellRenderer?(props: CellRenderedProps): React.ReactNode;
+  headRenderer?(day: Date): React.ReactNode;
   navigation?: boolean;
   disableGoToDay?: boolean;
 }

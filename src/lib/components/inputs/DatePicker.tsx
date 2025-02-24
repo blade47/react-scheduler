@@ -5,7 +5,7 @@ import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
 import type { Dayjs } from 'dayjs';
 
-interface EditorDatePickerProps {
+interface Props {
   type?: 'date' | 'datetime';
   label?: string;
   variant?: 'standard' | 'filled' | 'outlined';
@@ -35,7 +35,7 @@ const EditorDatePicker = ({
   errMsg,
   touched,
   required,
-}: EditorDatePickerProps) => {
+}: Props) => {
   const { translations } = useStore();
 
   const [state, setState] = useState<PickerState>({

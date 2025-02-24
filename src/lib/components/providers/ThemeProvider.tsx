@@ -11,12 +11,12 @@ import { shadows } from '@/lib/theme/shadows.ts';
 import { componentsOverrides } from '@/lib/theme/overrides';
 import merge from 'lodash.merge';
 
-interface ThemeProviderProps {
+interface Props {
   children: React.ReactNode;
   customTheme?: Partial<Theme>;
 }
 
-const ThemeProvider = ({ children, customTheme }: ThemeProviderProps) => {
+const ThemeProvider = ({ children, customTheme }: Props) => {
   const theme = useMemo(() => {
     const baseOptions: ThemeOptions = {
       palette: palette(),

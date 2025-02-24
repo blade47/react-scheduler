@@ -1,6 +1,14 @@
 import { dayjs } from '@/config/dayjs';
 import { BORDER_HEIGHT } from '../../helpers/constants';
-import { EventDimensionsProps, EventPositionProps } from '@/lib/types.ts';
+import { ProcessedEvent } from '@/lib/types.ts';
+
+export interface Props {
+  event: ProcessedEvent;
+  startHour: number;
+  minuteHeight: number;
+  maxHeight: number;
+  step: number;
+}
 
 export const calculateEventDimensions = ({
   event,
@@ -8,7 +16,7 @@ export const calculateEventDimensions = ({
   minuteHeight,
   maxHeight,
   step,
-}: EventDimensionsProps) => {
+}: Props) => {
   const eventStart = dayjs(event.start);
   const eventEnd = dayjs(event.end);
   const calendarStartInMins = startHour * 60;
@@ -32,6 +40,13 @@ export const calculateEventDimensions = ({
     top,
   };
 };
+
+export interface EventPositionProps {
+  event: ProcessedEvent;
+  crossingEvents: ProcessedEvent[];
+  alreadyRendered: ProcessedEvent[];
+  direction: 'rtl' | 'ltr';
+}
 
 export const calculateEventPosition = ({
   crossingEvents,

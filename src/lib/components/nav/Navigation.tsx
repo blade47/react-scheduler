@@ -11,17 +11,14 @@ import { MonthDateBtn } from '@/lib/components/nav/MonthDateBtn.tsx';
 import { WeekDateBtn } from '@/lib/components/nav/WeekDateBtn.tsx';
 import { DayDateBtn } from '@/lib/components/nav/DayDateBtn.tsx';
 
-const ViewSelector = ({
-  views,
-  currentView,
-  onChange,
-  translations,
-}: {
+interface Props {
   views: View[];
   currentView: View;
   onChange: (view: View) => void;
   translations: any;
-}) => {
+}
+
+const ViewSelector = ({ views, currentView, onChange, translations }: Props) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

@@ -11,7 +11,7 @@ import { dayjs } from '@/config/dayjs';
 import EventItem from '../events/EventItem';
 import { isDateToday } from '@/lib/helpers/generals.tsx';
 
-interface MonthEventsProps {
+interface Props {
   date: Date;
   events: ProcessedEvent[];
   isOutsideMonth: boolean;
@@ -21,7 +21,7 @@ interface MonthEventsProps {
 }
 
 export const MonthEvents = memo(
-  ({ date, events, isOutsideMonth, maxVisibleEvents = 3, onMoreClick }: MonthEventsProps) => {
+  ({ date, events, isOutsideMonth, maxVisibleEvents = 3, onMoreClick }: Props) => {
     const dateDayjs = dayjs(date);
     const isToday = isDateToday(date);
 

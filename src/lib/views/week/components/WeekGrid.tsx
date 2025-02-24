@@ -4,14 +4,14 @@ import WeekTable from '@/lib/components/week/WeekTable.tsx';
 import { calcCellHeight, calcMinuteHeight } from '@/lib/helpers/generals.tsx';
 import useStore from '@/lib/hooks/useStore.ts';
 
-interface WeekGridProps {
+interface Props {
   hours: Date[];
   events: ProcessedEvent[];
   resource?: DefaultResource;
   daysList: Date[];
 }
 
-export const WeekGrid = memo(({ hours, events, resource, daysList }: WeekGridProps) => {
+export const WeekGrid = memo(({ hours, events, resource, daysList }: Props) => {
   const { height, week } = useStore();
   const { step } = week!;
 

@@ -1,7 +1,16 @@
-import { useCallback } from 'react';
-import { ButtonTabsProps } from '@/lib/types.ts';
+import { CSSProperties, useCallback } from 'react';
+import { ButtonTabProps, TabIndicator, TabVariant } from '@/lib/types.ts';
 import { StyledTab, StyledTabs, TabsContainer } from '@/lib/theme/css.ts';
 import { TabPanel } from '@/lib/components/common/TabPanel.tsx';
+
+export interface Props {
+  tabs: ButtonTabProps[];
+  tab: string | number;
+  setTab(tab: string | number): void;
+  variant?: TabVariant;
+  indicator?: TabIndicator;
+  style?: CSSProperties;
+}
 
 const getA11yProps = (index: string | number) => ({
   id: `tab-${index}`,
@@ -14,7 +23,7 @@ export const ButtonTabs = ({
   tab,
   setTab,
   indicator = 'primary',
-}: ButtonTabsProps) => {
+}: Props) => {
   const handleTabChange = useCallback(
     (tabId: string | number) => {
       setTab(tabId);

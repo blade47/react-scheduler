@@ -3,10 +3,14 @@ import { MouseEvent } from 'react';
 import { isTimeZonedToday } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
-import { TodayTypoProps } from '@/lib/types.ts';
 import { DateContainer, DateNumber, DateWeekday } from '@/lib/theme/css.ts';
 
-const TodayTypo = memo(({ date, onClick }: TodayTypoProps) => {
+export interface Props {
+  date: Date;
+  onClick?(day: Date): void;
+}
+
+const TodayTypo = memo(({ date, onClick }: Props) => {
   const { timeZone } = useStore();
   const isToday = isTimeZonedToday({ dateLeft: date, timeZone });
   const dateDayjs = dayjs(date);

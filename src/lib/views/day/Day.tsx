@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { DefaultResource } from '@/lib';
 import { WithResources } from '../../components/common/WithResources';
-import { AgendaView } from '../AgendaView';
+import { AgendaView } from '../agenda/AgendaView.tsx';
 import { DayGrid } from './components/DayGrid';
 import { filterMultiDaySlot, generateHourSlots, getResourcedEvents } from '../../helpers/generals';
 import { dayjs } from '@/config/dayjs';

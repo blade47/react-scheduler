@@ -1,4 +1,4 @@
-import { DragEvent, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { DragEvent, useEffect, useState, useMemo, useCallback } from 'react';
 import { DefaultResource, EventActions, ProcessedEvent } from '@/lib';
 import { defaultProps } from './default';
 import { StoreContext } from './context';

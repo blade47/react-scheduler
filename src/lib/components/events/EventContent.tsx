@@ -2,9 +2,19 @@ import { Typography } from '@mui/material';
 import { dayjs } from '@/config/dayjs';
 import ArrowRightRoundedIcon from '@mui/icons-material/ArrowRightRounded';
 import ArrowLeftRoundedIcon from '@mui/icons-material/ArrowLeftRounded';
-import { EventContentProps } from '@/lib/types.ts';
+import { ProcessedEvent, View } from '@/lib/types.ts';
 import useStore from '@/lib/hooks/useStore.ts';
 import { EventContent, MultidayContent } from '@/lib/theme/css.ts';
+
+export interface Props {
+  event: ProcessedEvent;
+  showTime: boolean;
+  hFormat: string;
+  multiday?: boolean;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  view: View;
+}
 
 export const EventContentComponent = ({
   event,
@@ -14,7 +24,7 @@ export const EventContentComponent = ({
   hasPrev,
   hasNext,
   view,
-}: EventContentProps & { view?: 'day' | 'week' | 'month' }) => {
+}: Props) => {
   const { direction } = useStore();
   const NextArrow = direction === 'rtl' ? ArrowLeftRoundedIcon : ArrowRightRoundedIcon;
   const PrevArrow = direction === 'rtl' ? ArrowRightRoundedIcon : ArrowLeftRoundedIcon;

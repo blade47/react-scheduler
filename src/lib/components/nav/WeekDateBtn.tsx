@@ -7,13 +7,13 @@ import { dayjs } from '@/config/dayjs';
 import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
 import { WeekProps } from '@/lib/types.ts';
 
-interface WeekDateBtnProps {
+interface Props {
   selectedDate: Date;
   onChange(value: Date): void;
   weekProps: WeekProps;
 }
 
-const WeekDateBtn = ({ selectedDate, onChange, weekProps }: WeekDateBtnProps) => {
+const WeekDateBtn = ({ selectedDate, onChange, weekProps }: Props) => {
   const { navigationPickerProps, minDate, maxDate } = useStore();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { weekStartOn } = weekProps;

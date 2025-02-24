@@ -3,13 +3,18 @@ import { ProcessedEvent } from '@/lib';
 import { getHourFormat, isTimeZonedToday } from '../../helpers/generals';
 import useStore from '../../hooks/useStore';
 import { AgendaEventItem } from './AgendaEventItem';
-import { AgendaEventsListProps, EventDateFormat } from '@/lib/types.ts';
+import { EventDateFormat } from '@/lib/types.ts';
 import { dayjs } from '@/config/dayjs.ts';
 import EventItemPopover from '@/lib/components/events/EventItemPopover.tsx';
 import { MouseEvent } from 'react';
 import { AgendaList, AgendaListContainer } from '@/lib/theme/css.ts';
 
-export const AgendaEventsList = memo(({ day, events }: AgendaEventsListProps) => {
+export interface Props {
+  day: Date;
+  events: ProcessedEvent[];
+}
+
+export const AgendaEventsList = memo(({ day, events }: Props) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<ProcessedEvent>();
   const [deleteConfirm, setDeleteConfirm] = useState(false);

@@ -11,7 +11,7 @@ import { Day } from '@/lib/views/day/Day.tsx';
 import { Week } from '@/lib/views/week/Week.tsx';
 import { Month } from '@/lib/views/month/Month.tsx';
 
-export const ViewComponents = {
+const ViewComponents = {
   day: <Day />,
   week: <Week />,
   month: <Month />,

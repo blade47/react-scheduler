@@ -4,7 +4,7 @@ import { getTimeZonedDate } from '../../helpers/generals';
 import { TimeIndicatorBar } from '../../theme/css.ts';
 import { dayjs } from '@/config/dayjs';
 
-interface CurrentTimeBarProps {
+interface Props {
   startHour: number;
   step: number;
   minuteHeight: number;
@@ -12,7 +12,7 @@ interface CurrentTimeBarProps {
   zIndex?: number;
 }
 
-const calculateTop = ({ startHour, step, minuteHeight, timeZone }: CurrentTimeBarProps): number => {
+const calculateTop = ({ startHour, step, minuteHeight, timeZone }: Props): number => {
   const now = getTimeZonedDate(new Date(), timeZone);
   const nowDayjs = dayjs(now);
 
@@ -26,13 +26,7 @@ const calculateTop = ({ startHour, step, minuteHeight, timeZone }: CurrentTimeBa
   return topSpace + borderFactor;
 };
 
-const CurrentTimeBar = ({
-  startHour,
-  step,
-  minuteHeight,
-  timeZone,
-  zIndex,
-}: CurrentTimeBarProps) => {
+const CurrentTimeBar = ({ startHour, step, minuteHeight, timeZone, zIndex }: Props) => {
   const [top, setTop] = useState<number>(() =>
     calculateTop({ startHour, step, minuteHeight, timeZone })
   );

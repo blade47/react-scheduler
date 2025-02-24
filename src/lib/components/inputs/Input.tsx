@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { TextField, Typography } from '@mui/material';
 import useStore from '../../hooks/useStore';
 
-interface EditorInputProps {
+interface Props {
   variant?: 'standard' | 'filled' | 'outlined';
   label?: string;
   placeholder?: string;
@@ -36,7 +36,7 @@ const EditorInput = ({
   multiline,
   rows,
   touched,
-}: EditorInputProps) => {
+}: Props) => {
   const [state, setState] = useState({
     touched: false,
     valid: false,

@@ -2,13 +2,13 @@ import { memo } from 'react';
 import MonthTable from '@/lib/components/month/MonthTable.tsx';
 import { DefaultResource } from '@/lib';
 
-interface MonthGridProps {
+interface Props {
   daysList: Date[];
   eachWeekStart: Date[];
   resource?: DefaultResource;
 }
 
-export const MonthGrid = memo(({ daysList, eachWeekStart, resource }: MonthGridProps) => {
+export const MonthGrid = memo(({ daysList, eachWeekStart, resource }: Props) => {
   return <MonthTable daysList={daysList} eachWeekStart={eachWeekStart} resource={resource} />;
 });
 

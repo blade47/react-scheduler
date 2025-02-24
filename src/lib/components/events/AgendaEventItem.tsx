@@ -1,6 +1,6 @@
-import { memo } from 'react';
+import { memo, MouseEvent } from 'react';
 import { ListItemAvatar, useTheme } from '@mui/material';
-import { AgendaEventItemProps, ProcessedEvent } from '@/lib/types.ts';
+import { EventDateFormat, ProcessedEvent } from '@/lib/types.ts';
 import {
   AgendaEventContent,
   EventAvatar,
@@ -10,8 +10,16 @@ import {
 } from '@/lib/theme/css.ts';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
+export interface Props {
+  event: ProcessedEvent;
+  onEventClick: (event: ProcessedEvent) => (e: MouseEvent) => void;
+  startDate: EventDateFormat;
+  endDate: EventDateFormat;
+  disableViewer: boolean;
+}
+
 export const AgendaEventItem = memo(
-  ({ event, onEventClick, startDate, endDate, disableViewer }: AgendaEventItemProps) => {
+  ({ event, onEventClick, startDate, endDate, disableViewer }: Props) => {
     const theme = useTheme();
 
     const getEventTitleInitialAsString = (event: ProcessedEvent) =>

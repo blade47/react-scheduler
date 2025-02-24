@@ -1,4 +1,4 @@
-import { memo, Fragment } from 'react';
+import React, { memo, Fragment } from 'react';
 import { Typography } from '@mui/material';
 import TodayTypo from '../../../components/common/TodayTypo';
 import EventItem from '../../../components/events/EventItem';
@@ -18,15 +18,15 @@ import { dayjs } from '@/config/dayjs';
 import { TodayEvents } from '@/lib/components/events/TodayEvents';
 import { TableGrid } from '@/lib/theme/css.ts';
 
-interface DayGridProps {
+interface Props {
   resource?: DefaultResource;
   hours: Date[];
   selectedDate: Date;
   events: ProcessedEvent[];
   headerHeight: number;
-  cellRenderer?: (props: CellRenderedProps) => JSX.Element;
-  headRenderer?: (day: Date) => JSX.Element;
-  hourRenderer?: (hour: string) => JSX.Element;
+  cellRenderer?: (props: CellRenderedProps) => React.ReactNode;
+  headRenderer?: (day: Date) => React.ReactNode;
+  hourRenderer?: (hour: string) => React.ReactNode;
 }
 
 export const DayGrid = memo(
@@ -39,7 +39,7 @@ export const DayGrid = memo(
     cellRenderer,
     headRenderer,
     hourRenderer,
-  }: DayGridProps) => {
+  }: Props) => {
     const { height, day, direction, hourFormat, timeZone, resourceFields, stickyNavigation } =
       useStore();
 

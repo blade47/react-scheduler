@@ -1,12 +1,19 @@
 import { memo } from 'react';
-import { dayjs } from '@/config/dayjs';
+import { dayjs } from '@/config/dayjs.ts';
 import useStore from '@/lib/hooks/useStore.ts';
-import { AgendaDayProps } from '@/lib/types.ts';
+import { ProcessedEvent } from '@/lib/types.ts';
 import { AgendaRow, DayHeader } from '@/lib/theme/css.ts';
 import { AgendaEventsList } from '@/lib/components/events/AgendaEventsList.tsx';
 import { Typography } from '@mui/material';
 
-export const AgendaDay = memo(({ day, events, today, onDayClick }: AgendaDayProps) => {
+export interface Props {
+  day: Date;
+  events: ProcessedEvent[];
+  today: boolean;
+  onDayClick?: (day: Date) => void;
+}
+
+export const AgendaDay = memo(({ day, events, today, onDayClick }: Props) => {
   const { headRenderer } = useStore().day!;
   const dayJsDate = dayjs(day);
 

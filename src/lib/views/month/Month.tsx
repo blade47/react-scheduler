@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { DefaultResource } from '@/lib';
 import { WithResources } from '../../components/common/WithResources';
 import useStore from '../../hooks/useStore';
-import { AgendaView } from '../AgendaView';
+import { AgendaView } from '../agenda/AgendaView.tsx';
 import { useMonthEvents } from './hooks/useMonthEvents';
 import { MonthGrid } from './components/MonthGrid';
 import {

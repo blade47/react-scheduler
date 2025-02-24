@@ -1,6 +1,6 @@
 import { Avatar, Typography, useTheme } from '@mui/material';
 import useStore from '../../hooks/useStore';
-import { ResourceHeaderProps, ResourceViewMode } from '@/lib/types.ts';
+import { DefaultResource, ResourceViewMode } from '@/lib/types.ts';
 import { ResourceAvatar, ResourceContent, ResourceListItem } from '@/lib/theme/css.ts';
 
 export interface LocalResourceFields {
@@ -10,7 +10,11 @@ export interface LocalResourceFields {
   color?: string;
 }
 
-export const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
+export interface Props {
+  resource: DefaultResource;
+}
+
+export const ResourceHeader = ({ resource }: Props) => {
   const {
     resourceHeaderComponent,
     resourceFields,

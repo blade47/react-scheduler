@@ -1,11 +1,22 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { useCellAttributes } from '../../hooks/useCellAttributes';
 import dayjs from '@/config/dayjs';
-import { CellProps } from '@/lib/types.ts';
+import { CellRenderedProps } from '@/lib/types.ts';
 import { CellButton } from '@/lib/theme/css.ts';
 
+export interface Props {
+  day: Date;
+  start: Date;
+  height: number;
+  end: Date;
+  resourceKey: string;
+  resourceVal: string | number;
+  cellRenderer?(props: CellRenderedProps): React.ReactNode;
+  children?: React.ReactNode;
+}
+
 const Cell = memo(
-  ({ day, start, end, resourceKey, resourceVal, cellRenderer, height, children }: CellProps) => {
+  ({ day, start, end, resourceKey, resourceVal, cellRenderer, height, children }: Props) => {
     const formatDateRange = (start: Date, end: Date): string => {
       const startDayjs = dayjs(start);
       const endDayjs = dayjs(end);

@@ -1,10 +1,14 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import useStore from '../../hooks/useStore';
-import { ButtonTabProps, DefaultResource, WithResourcesProps } from '@/lib/types.ts';
+import { ButtonTabProps, DefaultResource } from '@/lib/types.ts';
 import { ResourceHeader } from './ResourceHeader';
 import { ButtonTabs } from '@/lib/components/common/Tabs.tsx';
 
-export const ResourcesTabTables = ({ renderChildren }: WithResourcesProps) => {
+export interface Props {
+  renderChildren(resource: DefaultResource): React.ReactNode;
+}
+
+export const ResourcesTabTables = ({ renderChildren }: Props) => {
   const { resources, resourceFields, selectedResource, handleState, onResourceChange } = useStore();
 
   const tabs: ButtonTabProps[] = useMemo(

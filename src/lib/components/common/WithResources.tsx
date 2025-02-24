@@ -1,7 +1,7 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import useStore from '../../hooks/useStore';
 import { ResourcesTabTables } from './ResourcesTabTables';
-import { WithResourcesProps } from '@/lib/types.ts';
+import { DefaultResource } from '@/lib/types.ts';
 import {
   DefaultResourceItem,
   ResourceContainer,
@@ -11,7 +11,11 @@ import {
 } from '@/lib/theme/css.ts';
 import { ResourceHeader } from '@/lib/components/common/ResourceHeader.tsx';
 
-export const WithResources = memo(({ renderChildren }: WithResourcesProps) => {
+export interface Props {
+  renderChildren(resource: DefaultResource): React.ReactNode;
+}
+
+export const WithResources = memo(({ renderChildren }: Props) => {
   const { resources, resourceFields, resourceViewMode } = useStore();
 
   if (resourceViewMode === 'tabs') {

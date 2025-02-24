@@ -19,7 +19,8 @@ export type SelectOption = {
   text: string;
   value: any;
 };
-interface EditorSelectProps {
+
+interface Props {
   options: Array<SelectOption>;
   value: string;
   name: string;
@@ -49,7 +50,7 @@ const EditorSelect = ({
   multiple,
   placeholder,
   errMsg,
-}: EditorSelectProps) => {
+}: Props) => {
   const theme = useTheme();
   const { translations } = useStore();
   const [state, setState] = useState({

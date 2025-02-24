@@ -6,12 +6,12 @@ import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
 import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
 
-interface MonthDateBtnProps {
+interface Props {
   selectedDate: Date;
   onChange(value: Date): void;
 }
 
-const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
+const MonthDateBtn = ({ selectedDate, onChange }: Props) => {
   const { navigationPickerProps, minDate, maxDate } = useStore();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 

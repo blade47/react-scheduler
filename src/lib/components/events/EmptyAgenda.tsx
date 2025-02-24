@@ -3,9 +3,12 @@ import { Typography } from '@mui/material';
 import useStore from '../../hooks/useStore';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import { EmptyContainer, EmptyContent } from '@/lib/theme/css.ts';
-import { EmptyAgendaProps } from '@/lib/types.ts';
 
-export const EmptyAgenda = memo(({ customMessage }: EmptyAgendaProps) => {
+export interface Props {
+  customMessage?: string;
+}
+
+export const EmptyAgenda = memo(({ customMessage }: Props) => {
   const { height, translations } = useStore();
 
   return (

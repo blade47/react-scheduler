@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { ProcessedEvent } from '@/lib';
 import EventItem from '@/lib/components/events/EventItem.tsx';
 
-interface TodayEventsWrapperProps {
+interface Props {
   event: ProcessedEvent;
   style: React.CSSProperties;
 }
@@ -15,7 +15,7 @@ const EventContainer = styled('div')({
   alignItems: 'stretch',
 });
 
-export const TodayEventsWrapper = memo(({ event, style }: TodayEventsWrapperProps) => {
+export const TodayEventsWrapper = memo(({ event, style }: Props) => {
   return (
     <EventContainer className="rs__event__item" style={style}>
       <EventItem event={event} />

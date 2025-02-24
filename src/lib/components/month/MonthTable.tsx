@@ -8,13 +8,13 @@ import { DefaultResource } from '@/lib/types';
 import { getResourcedEvents, sortEventsByTheEarliest } from '../../helpers/generals';
 import { MonthEvents } from '@/lib/components/events/MonthEvents.tsx';
 
-interface MonthTableProps {
+interface Props {
   daysList: Date[];
   resource?: DefaultResource;
   eachWeekStart: Date[];
 }
 
-const MonthTable = ({ daysList, resource, eachWeekStart }: MonthTableProps) => {
+const MonthTable = ({ daysList, resource, eachWeekStart }: Props) => {
   const {
     selectedDate,
     events,

@@ -5,18 +5,20 @@ import useStore from '../../hooks/useStore';
 import useDragAttributes from '../../hooks/useDragAttributes';
 import useEventPermissions from '../../hooks/useEventPermissions';
 import { EventContentComponent } from './EventContent';
-import { EventItemProps } from '@/lib/types.ts';
+import { ProcessedEvent } from '@/lib/types.ts';
 import { EventButton, EventWrapper } from '@/lib/theme/css.ts';
 import EventItemPopover from '@/lib/components/events/EventItemPopover.tsx';
 import { dayjs } from '@/config/dayjs.ts';
 
-export const EventItem = ({
-  event,
-  multiday,
-  hasPrev,
-  hasNext,
-  showdate = true,
-}: EventItemProps) => {
+export interface Props {
+  event: ProcessedEvent;
+  multiday?: boolean;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+  showdate?: boolean;
+}
+
+export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }: Props) => {
   const { hourFormat, eventRenderer, onEventClick, view, disableViewer } = useStore();
 
   const dragProps = useDragAttributes(event);

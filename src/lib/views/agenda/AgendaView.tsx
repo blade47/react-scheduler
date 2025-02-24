@@ -1,13 +1,19 @@
 import { memo, useMemo } from 'react';
-import { AgendaDay } from './AgendaDay';
-import { dayjs } from '@/config/dayjs';
-import { AgendaViewProps } from '@/lib/types.ts';
+import { AgendaDay } from './AgendaDay.tsx';
+import { dayjs } from '@/config/dayjs.ts';
+import { ProcessedEvent, View } from '@/lib/types.ts';
 import useStore from '@/lib/hooks/useStore.ts';
 import { filterTodayAgendaEvents, isTimeZonedToday } from '@/lib/helpers/generals.tsx';
 import EmptyAgenda from '@/lib/components/events/EmptyAgenda.tsx';
 import { AgendaContainer } from '@/lib/theme/css.ts';
 
-export const AgendaView = memo(({ events, view, daysList }: AgendaViewProps) => {
+export interface Props {
+  events: ProcessedEvent[];
+  view: View;
+  daysList?: Date[];
+}
+
+export const AgendaView = memo(({ events, view, daysList }: Props) => {
   const { selectedDate, timeZone, alwaysShowAgendaDays, handleGotoDay } = useStore();
 
   const selectedDayjs = dayjs(selectedDate);

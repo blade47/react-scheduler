@@ -1,7 +1,13 @@
-import { TabPanelProps } from '@/lib/types.ts';
 import { TabPanel as TabPanelStyle } from '@/lib/theme/css.ts';
+import { ReactNode } from 'react';
 
-export const TabPanel = ({ children, value, index }: TabPanelProps) => {
+export interface Props {
+  value: string | number;
+  index: string | number;
+  children: ReactNode;
+}
+
+export const TabPanel = ({ children, value, index }: Props) => {
   if (value !== index) return null;
 
   return (
