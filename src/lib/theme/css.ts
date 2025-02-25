@@ -663,7 +663,6 @@ export const EventWrapper = styled(Paper, {
       top: 0,
       bottom: 0,
       width: '3px',
-      backgroundColor: theme.palette.warning.main,
     },
     paddingLeft: '8px',
   }),

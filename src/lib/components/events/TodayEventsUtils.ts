@@ -2,7 +2,7 @@ import { dayjs } from '@/config/dayjs';
 import { BORDER_HEIGHT } from '../../helpers/constants';
 import { ProcessedEvent } from '@/lib/types.ts';
 
-export interface Props {
+export interface EventDimensionsProps {
   event: ProcessedEvent;
   startHour: number;
   minuteHeight: number;
@@ -16,7 +16,7 @@ export const calculateEventDimensions = ({
   minuteHeight,
   maxHeight,
   step,
-}: Props) => {
+}: EventDimensionsProps) => {
   const eventStart = dayjs(event.start);
   const eventEnd = dayjs(event.end);
   const calendarStartInMins = startHour * 60;

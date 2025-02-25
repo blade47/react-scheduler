@@ -21,12 +21,6 @@ export default defineConfig({
             exclude: ['src/demo', 'src/lib/**/*.test.tsx', 'src/lib/**/*.test.ts'],
             rollupTypes: true,
             insertTypesEntry: true,
-            compilerOptions: {
-                baseUrl: '.',
-                paths: {
-                    '@/*': ['src/*']
-                }
-            }
         }),
     ],
     build: {
@@ -68,7 +62,7 @@ export default defineConfig({
                 banner: '/*! @blade47/react-scheduler - MIT License */',
             },
         },
-        sourcemap: true,
+        sourcemap: false,
         emptyOutDir: true,
         minify: 'terser',
         terserOptions: {
