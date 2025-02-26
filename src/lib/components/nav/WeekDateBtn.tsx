@@ -4,7 +4,7 @@ import { LocaleArrow } from '../common/LocaleArrow';
 import { DateCalendar } from '@mui/x-date-pickers';
 import useStore from '../../hooks/useStore';
 import { dayjs } from '@/config/dayjs';
-import { getNewDate, isDateInRange } from '@/lib/helpers/generals.tsx';
+import { getNewDate, getWeekBoundaries, isDateInRange } from '@/lib/helpers/generals.tsx';
 import { WeekProps } from '@/lib/types.ts';
 
 interface Props {
@@ -16,11 +16,11 @@ interface Props {
 const WeekDateBtn = ({ selectedDate, onChange, weekProps }: Props) => {
   const { navigationPickerProps, minDate, maxDate } = useStore();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { weekStartOn } = weekProps;
+  const { weekDays } = weekProps;
 
-  const selectedDayjs = dayjs(selectedDate);
-  const weekStart = selectedDayjs.startOf('week').add(weekStartOn, 'day');
-  const weekEnd = selectedDayjs.endOf('week').add(weekStartOn, 'day');
+  const { weekStart, weekStartOn } = getWeekBoundaries(selectedDate, weekDays, minDate, maxDate);
+
+  const weekEnd = dayjs(weekStart).endOf('week').add(weekStartOn, 'day');
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -59,7 +59,7 @@ const WeekDateBtn = ({ selectedDate, onChange, weekProps }: Props) => {
         disabled={!canGo('prev')}
       />
       <Button style={{ padding: 4 }} onClick={handleOpen} aria-label="selected week">
-        {`${weekStart.format('DD')} - ${weekEnd.format('DD MMM YYYY')}`}
+        {`${dayjs(weekStart).format('DD')} - ${weekEnd.format('DD MMM YYYY')}`}
       </Button>
       <Popover
         open={Boolean(anchorEl)}
@@ -76,7 +76,7 @@ const WeekDateBtn = ({ selectedDate, onChange, weekProps }: Props) => {
           maxDate={maxDate ? dayjs(maxDate) : undefined}
           openTo="day"
           views={['month', 'day']}
-          value={selectedDayjs}
+          value={dayjs(weekStart)}
           onChange={handleChange}
         />
       </Popover>

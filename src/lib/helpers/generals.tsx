@@ -287,7 +287,8 @@ export const isDateInRange = (
   minDate?: Date | null,
   maxDate?: Date | null
 ): boolean => {
-  const dayjsDate = dayjs(date);
+  const dayjsDate = dayjs(date).startOf('day');
+
   if (minDate && dayjsDate.isBefore(dayjs(minDate))) return false;
   return !(maxDate && dayjsDate.isAfter(dayjs(maxDate)));
 };
@@ -302,14 +303,20 @@ export const getNewDate = (
 export const generateWeekDays = (
   selectedDate: Date,
   weekStartOn: WeekDays,
-  weekDays: WeekDays[]
+  weekDays: WeekDays[],
+  maxDate?: Date | null
 ): Date[] => {
-  const weekStart = dayjs(selectedDate).startOf('week').add(weekStartOn, 'day').toDate();
-  return generateDays(weekStart, weekDays);
+  const weekStart = dayjs(selectedDate).startOf('week').add(weekStartOn, 'day');
+
+  return generateDays(weekStart.toDate(), weekDays)
+    .filter(
+      (date) => !maxDate || dayjs(date).startOf('day').isSameOrBefore(dayjs(maxDate).startOf('day'))
+    )
+    .sort((a, b) => a.getTime() - b.getTime());
 };
 
 export const generateDays = (weekStart: Date, weekDays: WeekDays[]): Date[] => {
-  return weekDays.map((d) => dayjs(weekStart).add(d, 'day').clone().toDate());
+  return weekDays.map((d) => dayjs(weekStart).add(d, 'day').startOf('day').toDate());
 };
 
 export const generateHourSlots = (startHour: Date, endHour: Date, stepMinutes: number): Date[] => {
@@ -337,4 +344,36 @@ export const generateMonthWeeks = (
     current = current.add(1, 'week');
   }
   return weeks;
+};
+
+export const getWeekBoundaries = (
+  selectedDate: Date,
+  weekDays: WeekDays[],
+  minDate?: Date | null,
+  maxDate?: Date | null
+): { weekStart: Date; weekStartOn: WeekDays } => {
+  const selectedDayjs = dayjs(selectedDate);
+  const minDayjs = minDate ? dayjs(minDate).startOf('day') : null;
+  const maxDayjs = maxDate ? dayjs(maxDate).startOf('day') : null;
+
+  // If selected date is out of range or we don't have enough space forward,
+  // start from minDate
+  if (
+    !isDateInRange(selectedDate, minDate, maxDate) ||
+    (maxDayjs &&
+      dayjs(selectedDate)
+        .add(weekDays.length - 1, 'day')
+        .isAfter(maxDayjs))
+  ) {
+    return {
+      weekStart: minDayjs?.toDate() ?? selectedDate,
+      weekStartOn: (minDayjs?.day() as WeekDays) ?? weekDays[0],
+    };
+  }
+
+  // If we have enough space for all weekDays, start from selected date
+  return {
+    weekStart: selectedDate,
+    weekStartOn: selectedDayjs.day() as WeekDays,
+  };
 };

@@ -3,6 +3,8 @@ import { useCellAttributes } from '../../hooks/useCellAttributes';
 import dayjs from '@/config/dayjs';
 import { CellRenderedProps } from '@/lib/types.ts';
 import { CellButton } from '@/lib/theme/css.ts';
+import useStore from '@/lib/hooks/useStore.ts';
+import { isDateInRange } from '@/lib/helpers/generals.tsx';
 
 export interface Props {
   day: Date;
@@ -17,6 +19,11 @@ export interface Props {
 
 const Cell = memo(
   ({ day, start, end, resourceKey, resourceVal, cellRenderer, height, children }: Props) => {
+    const { minDate, maxDate } = useStore();
+
+    const isOutsideAvailableRange = () => !isDateInRange(day, minDate, maxDate);
+    const isDisabled = isOutsideAvailableRange();
+
     const formatDateRange = (start: Date, end: Date): string => {
       const startDayjs = dayjs(start);
       const endDayjs = dayjs(end);
@@ -35,6 +42,7 @@ const Cell = memo(
       end,
       resourceKey,
       resourceVal,
+      disabled: isDisabled,
     });
 
     const isCurrentTimeSlot = isCurrent(start, end);
@@ -52,6 +60,7 @@ const Cell = memo(
     return (
       <CellButton
         fullWidth
+        disabled={isDisabled}
         aria-label={formatDateRange(start, end)}
         className={isCurrentTimeSlot ? 'current' : ''}
         sx={{ height }}

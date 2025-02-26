@@ -21,6 +21,9 @@ import type {
   Scheduler as SchedulerProps,
   SchedulerRef,
   Translations,
+  View,
+  DayProps,
+  WeekProps,
 } from './types';
 import { SchedulerComponent } from '@/lib/components/scheduler/Scheduler.tsx';
 import DateProvider from '@/lib/components/providers/DateProvider.tsx';
@@ -45,13 +48,10 @@ import ThemeProvider from '@/lib/components/providers/ThemeProvider.tsx';
  * />
  * ```
  */
-export const Scheduler = forwardRef<SchedulerRef, SchedulerProps>(function Scheduler(
-  { locale = 'en', theme: customTheme, ...props },
-  ref
-) {
+export const Scheduler = forwardRef<SchedulerRef, SchedulerProps>(function Scheduler(props, ref) {
   return (
-    <ThemeProvider customTheme={customTheme}>
-      <DateProvider locale={locale}>
+    <ThemeProvider customTheme={props.theme}>
+      <DateProvider locale={props.locale ?? 'en'}>
         <StoreProvider initial={props}>
           <SchedulerComponent ref={ref} />
         </StoreProvider>
@@ -83,6 +83,9 @@ export type {
   // View related types
   DayHours,
   CellRenderedProps,
+  DayProps,
+  WeekProps,
+  View,
 
   // Configuration types
   SchedulerProps,

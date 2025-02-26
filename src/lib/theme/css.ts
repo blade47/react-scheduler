@@ -403,8 +403,8 @@ export const CellButton = styled(Button)(({ theme }) => ({
     backgroundColor: theme.palette.action.selected,
   },
 
-  '&.disabled': {
-    backgroundColor: theme.palette.action.disabledBackground,
+  '&.Mui-disabled': {
+    backgroundColor: theme.palette.grey[200],
     cursor: 'not-allowed',
   },
 

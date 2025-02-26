@@ -8,8 +8,15 @@ interface Props {
   end: Date;
   resourceKey: string;
   resourceVal?: string | number;
+  disabled?: boolean;
 }
-export const useCellAttributes = ({ start, end, resourceKey, resourceVal }: Props) => {
+export const useCellAttributes = ({
+  start,
+  end,
+  resourceKey,
+  resourceVal,
+  disabled = false,
+}: Props) => {
   const {
     triggerDialog,
     onCellClick,
@@ -22,10 +29,10 @@ export const useCellAttributes = ({ start, end, resourceKey, resourceVal }: Prop
   const theme = useTheme();
 
   return {
-    tabIndex: editable ? 0 : -1,
-    disableRipple: !editable,
+    tabIndex: !disabled && editable ? 0 : -1,
+    disableRipple: disabled || !editable,
     onClick: () => {
-      if (editable) {
+      if (!disabled && editable) {
         triggerDialog(true, {
           start,
           end,

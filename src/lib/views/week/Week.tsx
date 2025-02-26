@@ -5,23 +5,30 @@ import useStore from '../../hooks/useStore';
 import { AgendaView } from '../agenda/AgendaView.tsx';
 import { useWeekEvents } from './hooks/useWeekEvents';
 import { WeekGrid } from './components/WeekGrid';
-import { generateHourSlots, generateWeekDays, getResourcedEvents } from '../../helpers/generals';
+import {
+  generateHourSlots,
+  generateWeekDays,
+  getResourcedEvents,
+  getWeekBoundaries,
+} from '../../helpers/generals';
 import { dayjs } from '@/config/dayjs.ts';
 
 export const Week = () => {
-  const { selectedDate, resources, agenda, week, resourceFields, fields } = useStore();
+  const { selectedDate, resources, agenda, week, resourceFields, fields, minDate, maxDate } =
+    useStore();
 
-  const { weekStartOn, weekDays, startHour, endHour, step } = week!;
+  const { weekDays, startHour, endHour, step } = week!;
 
-  const selectedDayjs = dayjs(selectedDate);
+  const { weekStart, weekStartOn } = getWeekBoundaries(selectedDate, weekDays, minDate, maxDate);
 
-  const startTime = selectedDayjs.hour(startHour).minute(0).second(0).toDate();
-  const endTime = selectedDayjs.hour(endHour).minute(-step).second(0).toDate();
+  const days = generateWeekDays(weekStart, weekStartOn, weekDays, maxDate);
 
-  const days = generateWeekDays(selectedDate, weekStartOn, weekDays);
+  const startTime = dayjs(weekStart).hour(startHour).minute(0).second(0).toDate();
+  const endTime = dayjs(weekStart).hour(endHour).minute(-step).second(0).toDate();
+
   const hours = generateHourSlots(startTime, endTime, step);
 
-  const events = useWeekEvents(selectedDate, days);
+  const events = useWeekEvents(weekStart, days);
 
   const renderContent = useCallback(
     (resource?: DefaultResource) => {
