@@ -605,7 +605,7 @@ export const EventWrapper = styled(Paper, {
   isMultiday?: boolean;
 }>(({ theme, disabled, view, isShortDuration, isMultiday }) => ({
   display: 'flex',
-  width: isMultiday ? '99%' : '100%',
+  width: '99%',
   position: 'relative',
   overflow: 'hidden',
   backgroundColor: disabled ? '#d0d0d0' : theme.palette.primary.main,
@@ -646,7 +646,6 @@ export const EventWrapper = styled(Paper, {
 
   // Multi-day styles
   ...(isMultiday && {
-    minHeight: '24px',
     boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.1)}`,
     '&::before': {
       content: '""',
@@ -670,14 +669,13 @@ export const EventButton = styled(ButtonBase)(() => ({
 }));
 
 export const MultidayContent = styled('div')(({ theme }) => ({
-  padding: '4px',
+  padding: '2px 4px',
+  width: '100%',
+  height: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  width: '100%',
   gap: theme.spacing(1),
-  height: '100%',
-  minHeight: '24px',
 
   '& .multiday-arrow': {
     display: 'flex',
@@ -694,6 +692,7 @@ export const MultidayContent = styled('div')(({ theme }) => ({
   },
 
   '& .multiday-title': {
+    fontSize: '0.8rem',
     alignItems: 'center',
     gap: theme.spacing(1),
   },

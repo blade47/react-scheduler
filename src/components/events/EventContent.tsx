@@ -37,7 +37,7 @@ export const EventContentComponent = ({
       <MultidayContent>
         <div className="multiday-arrow">{hasPrev && <PrevArrow fontSize="small" />}</div>
         <div className="multiday-title">
-          <Typography className="event-title" noWrap>
+          <Typography className="multiday-title" noWrap>
             {event.title}
           </Typography>
         </div>
