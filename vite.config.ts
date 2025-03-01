@@ -17,15 +17,15 @@ export default defineConfig({
             }
         }),
         dts({
-            include: ['src/lib'],
-            exclude: ['src/demo', 'src/lib/**/*.test.tsx', 'src/lib/**/*.test.ts'],
+            include: ['src'],
+            exclude: ['src/demo', 'src/**/*.test.tsx', 'src/**/*.test.ts'],
             rollupTypes: true,
             insertTypesEntry: true,
         }),
     ],
     build: {
         lib: {
-            entry: resolve(__dirname, 'src/lib/index.tsx'),
+            entry: resolve(__dirname, 'src/index.tsx'),
             name: 'ReactScheduler',
             formats: ['es', 'cjs'],
             fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,

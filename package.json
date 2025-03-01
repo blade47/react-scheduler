@@ -1,7 +1,7 @@
 {
   "name": "@blade47/react-scheduler",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React scheduler component based on Material-UI & Dayjs",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,6 +20,8 @@
     "LICENSE"
   ],
   "scripts": {
+    "dev:demo": "cd src/demo && yarn run dev",
+    "build:demo": "cd src/demo && yarn run build",
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -71,8 +73,11 @@
   "dependencies": {
     "@fontsource/manrope": "^5.1.1",
     "@fontsource/open-sans": "^5.1.1",
+    "@hookform/resolvers": "^4.1.2",
+    "@mui/x-date-pickers": "^7.27.0",
     "lodash.merge": "^4.6.2",
-    "@mui/x-date-pickers": "^7.27.0"
+    "react-hook-form": "^7.54.2",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.26.3",
