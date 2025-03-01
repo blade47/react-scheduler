@@ -10,9 +10,9 @@ import {
   filterTodayEvents,
   getHourFormat,
   isDateToday,
-} from '../../../helpers/generals.tsx';
+} from '@/helpers/generals.tsx';
 import Cell from '../../../components/common/Cell.tsx';
-import { MULTI_DAY_EVENT_HEIGHT } from '../../../helpers/constants.ts';
+import { MULTI_DAY_EVENT_HEIGHT } from '@/helpers/constants.ts';
 import useStore from '../../../hooks/useStore.ts';
 import { dayjs } from '@/config/dayjs.ts';
 import { TodayEvents } from '@/components/events/TodayEvents.tsx';

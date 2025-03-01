@@ -1,5 +1,5 @@
 import { dayjs } from '@/config/dayjs.ts';
-import { BORDER_HEIGHT } from '../../helpers/constants.ts';
+import { BORDER_HEIGHT } from '@/helpers/constants.ts';
 import { ProcessedEvent } from '@/types.ts';
 
 export interface EventDimensionsProps {

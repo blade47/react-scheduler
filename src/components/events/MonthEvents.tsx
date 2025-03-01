@@ -1,11 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Typography } from '@mui/material';
-import {
-  MonthCell,
-  MonthDateHeader,
-  MonthEventsContainer,
-  MoreEventsButton,
-} from '../../theme/css.ts';
+import { MonthCell, MonthDateHeader, MonthEventsContainer, MoreEventsButton } from '@/theme/css.ts';
 import { ProcessedEvent } from '@/types.ts';
 import { dayjs } from '@/config/dayjs.ts';
 import EventItem from './EventItem.tsx';
