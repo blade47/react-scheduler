@@ -21,7 +21,8 @@ This enhanced React Scheduler component provides comprehensive event scheduling 
 - Added an `enableAgenda` option for toggling the agenda view.
 - Open-sans / Manrope default font.
 
-![Demo](/src/demo/demo.gif)
+
+https://github.com/user-attachments/assets/0b6676f6-18a5-4142-8870-3f2cd3f50356
 
 ---
 
