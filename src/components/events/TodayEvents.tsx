@@ -45,7 +45,6 @@ export const TodayEvents = memo(
             startHour,
             minuteHeight,
             maxHeight,
-            step,
           });
 
           const crossingEvents = traversCrossingEvents(todayEvents, event);

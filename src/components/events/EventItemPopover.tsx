@@ -87,11 +87,18 @@ export const EventItemPopover = memo(({ anchorEl, event, onTriggerViewer }: Prop
         vertical: 'center',
         horizontal: 'center',
       }}
-      // transformOrigin={{
-      //   vertical: 'top',
-      //   horizontal: 'center',
-      // }}
       onClick={(e) => e.stopPropagation()}
+      slotProps={{
+        paper: {
+          sx: {
+            height: 'auto',
+            maxHeight: '80vh',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        },
+      }}
     >
       {typeof customViewer === 'function' ? (
         customViewer(event, () => onTriggerViewer())

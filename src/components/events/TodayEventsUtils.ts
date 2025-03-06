@@ -7,7 +7,6 @@ export interface EventDimensionsProps {
   startHour: number;
   minuteHeight: number;
   maxHeight: number;
-  step: number;
 }
 
 export const calculateEventDimensions = ({
@@ -15,7 +14,6 @@ export const calculateEventDimensions = ({
   startHour,
   minuteHeight,
   maxHeight,
-  step,
 }: EventDimensionsProps) => {
   const eventStart = dayjs(event.start);
   const eventEnd = dayjs(event.end);
@@ -29,11 +27,9 @@ export const calculateEventDimensions = ({
   const minutesFromTop = Math.max(eventStartInMins - calendarStartInMins, 0);
 
   // Calculate positioning
-  const topSpace = minutesFromTop * minuteHeight;
+  const top = minutesFromTop * minuteHeight;
   const slots = height / 60;
   const heightBorderFactor = slots * BORDER_HEIGHT;
-  const slotsFromTop = minutesFromTop / step;
-  const top = topSpace + slotsFromTop;
 
   return {
     height: height + heightBorderFactor,
