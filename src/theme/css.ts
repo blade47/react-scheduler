@@ -355,6 +355,13 @@ export const StyledTab = styled(MuiTab)(({ theme }) => ({
   '&:last-child': {
     borderRight: 'none',
   },
+
+  '&:not(:last-of-type)': {
+    marginRight: 0,
+    [theme.breakpoints.up('sm')]: {
+      marginRight: 0,
+    },
+  },
 }));
 
 export const TabPanel = styled('div')(({ theme }) => ({
