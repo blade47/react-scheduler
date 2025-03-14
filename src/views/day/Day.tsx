@@ -1,29 +1,13 @@
-import { useCallback } from 'react';
-import { DefaultResource } from '@/index.tsx';
-import { WithResources } from '../../components/common/WithResources.tsx';
 import { AgendaView } from '../agenda/AgendaView.tsx';
-import { DayGrid } from './components/DayGrid.tsx';
-import {
-  filterMultiDaySlot,
-  generateHourSlots,
-  getResourcedEvents,
-} from '../../helpers/generals.tsx';
+import { filterMultiDaySlot, generateHourSlots } from '../../helpers/generals.tsx';
 import { dayjs } from '@/config/dayjs.ts';
 import useStore from '@/hooks/useStore.ts';
 import { MULTI_DAY_EVENT_HEADER_HEIGHT, MULTI_DAY_EVENT_HEIGHT } from '@/helpers/constants.ts';
 import { useDayEvents } from '@/views/day/hooks/useDayEvents.ts';
+import { DayGrid } from '@/views/day/components/DayGrid.tsx';
 
 export const Day = () => {
-  const {
-    selectedDate,
-    resources,
-    resourceViewMode,
-    agenda,
-    day,
-    resourceFields,
-    fields,
-    timeZone,
-  } = useStore();
+  const { selectedDate, resources, agenda, day, timeZone } = useStore();
 
   const selectedDayjs = dayjs(selectedDate);
 
@@ -34,54 +18,39 @@ export const Day = () => {
 
   const events = useDayEvents(startTime, endTime);
 
-  const hours: Date[] = generateHourSlots(startTime, endTime, step);
+  const hours = generateHourSlots(startTime, endTime, step);
 
-  const renderContent = useCallback(
-    (resource?: DefaultResource) => {
-      let resourcedEvents = events;
-      if (resource) {
-        resourcedEvents = getResourcedEvents(events, resource, resourceFields, fields);
-      }
+  // Calculate header height once for all resources
+  const allMulti = filterMultiDaySlot(events, selectedDate, timeZone);
+  const headerHeight = MULTI_DAY_EVENT_HEIGHT * allMulti.length + MULTI_DAY_EVENT_HEADER_HEIGHT;
 
-      const shouldEqualize = resources.length && resourceViewMode === 'default';
-      const allWeekMulti = filterMultiDaySlot(
-        shouldEqualize ? events : resourcedEvents,
-        selectedDate,
-        timeZone
-      );
-      const headerHeight =
-        MULTI_DAY_EVENT_HEIGHT * allWeekMulti.length + MULTI_DAY_EVENT_HEADER_HEIGHT;
+  // Handle the case where there are no resources
+  if (resources.length === 0) {
+    // Create a default resource to still show the day view
+    const defaultResource = [{ id: 'default', text: 'Default' }];
 
-      return agenda ? (
-        <AgendaView view="day" events={resourcedEvents} />
-      ) : (
-        <DayGrid
-          resource={resource}
-          events={resourcedEvents}
-          headerHeight={headerHeight}
-          selectedDate={selectedDate}
-          hours={hours}
-          cellRenderer={day?.cellRenderer}
-          headRenderer={day?.headRenderer}
-          hourRenderer={day?.hourRenderer}
-        />
-      );
-    },
-    [
-      events,
-      resources.length,
-      resourceViewMode,
-      selectedDate,
-      timeZone,
-      agenda,
-      hours,
-      day?.cellRenderer,
-      day?.headRenderer,
-      day?.hourRenderer,
-      resourceFields,
-      fields,
-    ]
+    return agenda ? (
+      <AgendaView view="day" events={events} />
+    ) : (
+      <DayGrid
+        resources={defaultResource}
+        events={events}
+        headerHeight={headerHeight}
+        selectedDate={selectedDate}
+        hours={hours}
+      />
+    );
+  }
+
+  return agenda ? (
+    <AgendaView view="day" events={events} />
+  ) : (
+    <DayGrid
+      resources={resources}
+      events={events}
+      headerHeight={headerHeight}
+      selectedDate={selectedDate}
+      hours={hours}
+    />
   );
-
-  return resources.length ? <WithResources renderChildren={renderContent} /> : renderContent();
 };

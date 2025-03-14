@@ -1,7 +1,7 @@
 {
   "name": "@blade47/react-scheduler",
   "private": false,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React scheduler component based on Material-UI & Dayjs",
   "type": "module",
   "main": "./dist/index.js",
