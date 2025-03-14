@@ -19,6 +19,7 @@ This enhanced React Scheduler component provides comprehensive event scheduling 
 - Redesigned and refactored component internals for improved performance.
 - Introduced `enableTodayButton` option (automatically activates if "today" is out of the provided date range).
 - Added an `enableAgenda` option for toggling the agenda view.
+- Added `selectedResource` as optional prop for selecting the default resource view.
 - Open-sans / Manrope default font.
 
 
@@ -76,6 +77,7 @@ All props are *optional*.
 | customTheme       | Material Theme. Custom theme object.                                               | `null`  |
 | customDialog      | Function(open: boolean, props: DialogProps): JSX.Element. Custom dialog component. | `null`  |
 | enableAgenda      | boolean. Show/Hide agenda view.                                                    | `true`  |
+| selectedResource  | string. Default resource view.                                                     | `null`  |
 
 ### Original Props
 

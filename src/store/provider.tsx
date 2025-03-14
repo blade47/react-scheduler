@@ -20,7 +20,6 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
       dialog: false,
       selectedRange: undefined,
       selectedEvent: undefined,
-      selectedResource: undefined,
       currentDragged: undefined,
     } as SchedulerStateBase;
   });

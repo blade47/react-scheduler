@@ -249,6 +249,7 @@ export interface OptionalSchedulerProps {
   month?: MonthProps | null;
   week?: WeekProps | null;
   day?: DayProps | null;
+  selectedResource?: DefaultResource['assignee'];
   minDate?: Date | null;
   maxDate?: Date | null;
   navigation?: boolean;
@@ -300,7 +301,6 @@ export interface SchedulerStateBase extends SchedulerProps {
   dialog: boolean;
   selectedRange?: SelectedRange;
   selectedEvent?: ProcessedEvent;
-  selectedResource?: DefaultResource['assignee'];
   currentDragged?: ProcessedEvent;
   enableAgenda?: boolean;
 }
@@ -327,6 +327,7 @@ export interface CustomDialogProps {
   open: boolean;
   state: FormState;
   selectedEvent?: ProcessedEvent;
+  selectedResource?: DefaultResource['assignee'];
   close(): void;
   onConfirm(event: ProcessedEvent | ProcessedEvent[], action: EventActions): void;
 }

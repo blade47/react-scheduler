@@ -47,6 +47,7 @@ const FormEditor: FC = () => {
     dialogMaxWidth,
     translations,
     timeZone,
+    selectedResource,
   } = useStore();
 
   const theme = useTheme();
@@ -419,6 +420,7 @@ const FormEditor: FC = () => {
       open: dialog,
       state: formState,
       selectedEvent,
+      selectedResource,
       close: handleClose,
       onConfirm: confirmEvent,
     };
