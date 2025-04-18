@@ -27,7 +27,6 @@ import type {
 } from './types.ts';
 import { SchedulerComponent } from '@/components/scheduler/Scheduler.tsx';
 import DateProvider from '@/components/providers/DateProvider.tsx';
-import ThemeProvider from '@/components/providers/ThemeProvider.tsx';
 
 /**
  * Scheduler Component
@@ -50,13 +49,11 @@ import ThemeProvider from '@/components/providers/ThemeProvider.tsx';
  */
 export const Scheduler = forwardRef<SchedulerRef, SchedulerProps>(function Scheduler(props, ref) {
   return (
-    <ThemeProvider customTheme={props.theme}>
-      <DateProvider locale={props.locale ?? 'en'}>
-        <StoreProvider initial={props}>
-          <SchedulerComponent ref={ref} />
-        </StoreProvider>
-      </DateProvider>
-    </ThemeProvider>
+    <DateProvider locale={props.locale ?? 'en'}>
+      <StoreProvider initial={props}>
+        <SchedulerComponent ref={ref} />
+      </StoreProvider>
+    </DateProvider>
   );
 });
 

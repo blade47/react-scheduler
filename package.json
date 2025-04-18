@@ -1,7 +1,7 @@
 {
   "name": "@blade47/react-scheduler",
   "private": false,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "React scheduler component based on Material-UI & Dayjs",
   "type": "module",
   "main": "./dist/index.js",
@@ -33,7 +33,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=20"
   },
   "author": {
     "name": "Alessandro Afloarei"
@@ -47,10 +47,10 @@
     "@emotion/react": "^11.x",
     "@emotion/styled": "^11.x",
     "@mui/icons-material": "^5.x",
-    "@mui/material": "^5.x",
-    "dayjs": "^1.11.0",
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0",
+    "@mui/material": "^7.x",
+    "dayjs": "^1.11.13",
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0",
     "rrule": "^2.8.1"
   },
   "peerDependenciesMeta": {
@@ -73,10 +73,10 @@
   "dependencies": {
     "@fontsource/manrope": "^5.1.1",
     "@fontsource/open-sans": "^5.1.1",
-    "@hookform/resolvers": "^4.1.2",
-    "@mui/x-date-pickers": "^7.27.0",
+    "@hookform/resolvers": "^4.1.3",
+    "@mui/x-date-pickers": "^7.28.2",
     "lodash.merge": "^4.6.2",
-    "react-hook-form": "^7.54.2",
+    "react-hook-form": "^7.55.0",
     "yup": "^1.6.1"
   },
   "devDependencies": {
@@ -85,26 +85,26 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@eslint/js": "^9.19.0",
-    "@mui/icons-material": "^5.16.14",
-    "@mui/material": "^5.13.7",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.1",
     "@types/lodash.merge": "^4.6.9",
-    "@types/node": "^22.13.4",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^22.13.14",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.1",
     "dayjs": "^1.11.13",
-    "eslint": "^9.19.0",
+    "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.18",
-    "globals": "^15.14.0",
-    "prettier": "3.5.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
     "rimraf": "^5.0.0",
     "rrule": "^2.8.1",
     "terser": "^5.x",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "^8.22.0",
-    "vite": "^6.1.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0",
+    "vite": "^6.2.4",
     "vite-plugin-dts": "^4.5.0"
   },
   "publishConfig": {

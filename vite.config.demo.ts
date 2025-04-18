@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 import { searchForWorkspaceRoot } from 'vite';
 
@@ -9,7 +9,10 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
-        }
+            'react': resolve(__dirname, 'src/demo/node_modules/react'),
+            'react-dom': resolve(__dirname, 'src/demo/node_modules/react-dom')
+        },
+        dedupe: ['react', 'react-dom']
     },
     build: {
         outDir: resolve(__dirname, 'dist/demo'),

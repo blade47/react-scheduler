@@ -157,10 +157,12 @@ const FormEditor: FC = () => {
                 value={value}
                 onChange={onChange}
                 type="number"
-                inputProps={{
-                  min: field.config?.min,
-                  max: field.config?.max,
-                  step: field.config?.decimal ? '0.01' : '1',
+                slotProps={{
+                  htmlInput: {
+                    min: field.config?.min,
+                    max: field.config?.max,
+                    step: field.config?.decimal ? '0.01' : '1',
+                  },
                 }}
               />
             )}
@@ -224,22 +226,24 @@ const FormEditor: FC = () => {
                 select
                 value={value}
                 onChange={onChange}
-                SelectProps={{
-                  multiple: field.config?.multiple !== undefined,
-                  renderValue:
-                    field.config?.multiple === 'chips'
-                      ? (selected: any) => (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selected.map((value: any) => (
-                              <Chip
-                                key={value}
-                                label={field.options?.find((opt) => opt.value === value)?.text}
-                                size="small"
-                              />
-                            ))}
-                          </Box>
-                        )
-                      : undefined,
+                slotProps={{
+                  select: {
+                    multiple: field.config?.multiple !== undefined,
+                    renderValue:
+                      field.config?.multiple === 'chips'
+                        ? (selected: any) => (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value: any) => (
+                                <Chip
+                                  key={value}
+                                  label={field.options?.find((opt) => opt.value === value)?.text}
+                                  size="small"
+                                />
+                              ))}
+                            </Box>
+                          )
+                        : undefined,
+                  },
                 }}
               >
                 {field.options?.map((option) => (
@@ -273,7 +277,7 @@ const FormEditor: FC = () => {
           <StyledSection>
             <Typography className="section-title">Basic Information</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Controller
                   name="title"
                   control={control}
@@ -295,7 +299,7 @@ const FormEditor: FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Controller
                   name="subtitle"
                   control={control}
@@ -319,7 +323,7 @@ const FormEditor: FC = () => {
           <StyledSection>
             <Typography className="section-title">Date and Time</Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
                   name="start"
                   control={control}
@@ -347,7 +351,7 @@ const FormEditor: FC = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Controller
                   name="end"
                   control={control}
@@ -385,11 +389,12 @@ const FormEditor: FC = () => {
               <Grid container spacing={2}>
                 {fields.map((field) => (
                   <Grid
-                    item
                     key={field.name}
-                    xs={field.config?.xs || 12}
-                    sm={field.config?.sm}
-                    md={field.config?.md}
+                    size={{
+                      xs: field.config?.xs || 12,
+                      sm: field.config?.sm,
+                      md: field.config?.md,
+                    }}
                   >
                     {renderField(field)}
                   </Grid>

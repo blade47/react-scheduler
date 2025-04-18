@@ -316,6 +316,7 @@ export const StyledTabs = styled(MuiTabs)(({ theme }) => ({
   '& .MuiTabs-flexContainer': {
     display: 'flex',
     flex: 1,
+    gap: 0,
   },
 
   '& .MuiTabs-indicator': {

@@ -1,4 +1,4 @@
-import { DialogProps, GridSize, Theme } from '@mui/material';
+import { DialogProps, GridSize } from '@mui/material';
 import { DateCalendarProps } from '@mui/x-date-pickers';
 import React, { DragEvent, ReactElement, ReactNode } from 'react';
 import { SelectedRange, Store } from './store/types.ts';
@@ -244,7 +244,6 @@ export interface OptionalSchedulerProps {
   agenda?: boolean;
   enableAgenda?: boolean;
   enableTodayButton?: boolean;
-  theme?: Partial<Theme>;
   alwaysShowAgendaDays?: boolean;
   month?: MonthProps | null;
   week?: WeekProps | null;

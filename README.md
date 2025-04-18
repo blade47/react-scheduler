@@ -14,7 +14,6 @@ This enhanced React Scheduler component provides comprehensive event scheduling 
 
 - Replaced `date-fns` with `dayjs`.
 - Enhanced `customDialog` option for better dialog state management.
-- Introduced `customTheme` support for tailored styling.
 - Added `minDate` and `maxDate` options for calendar range limitation.
 - Redesigned and refactored component internals for improved performance.
 - Introduced `enableTodayButton` option (automatically activates if "today" is out of the provided date range).
@@ -74,7 +73,6 @@ All props are *optional*.
 | minDate           | Date. Minimum date of the calendar.                                                | `null`  |
 | maxDate           | Date. Maximum date of the calendar.                                                | `null`  |
 | enableTodayButton | boolean. Show/Hide today button.                                                   | `true`  |
-| customTheme       | Material Theme. Custom theme object.                                               | `null`  |
 | customDialog      | Function(open: boolean, props: DialogProps): JSX.Element. Custom dialog component. | `null`  |
 | enableAgenda      | boolean. Show/Hide agenda view.                                                    | `true`  |
 | selectedResource  | string. Default resource view.                                                     | `null`  |

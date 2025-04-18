@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import * as packageJson from './package.json';
@@ -7,15 +7,7 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [
-        react({
-            jsxRuntime: 'automatic',
-            babel: {
-                plugins: ['@emotion/babel-plugin'],
-                presets: [
-                    ['@babel/preset-react', { runtime: 'automatic' }],
-                ],
-            }
-        }),
+        react(),
         dts({
             include: ['src'],
             exclude: ['src/demo', 'src/**/*.test.tsx', 'src/**/*.test.ts'],
@@ -91,5 +83,5 @@ export default defineConfig({
     },
     optimizeDeps: {
         include: ['@emotion/react', '@emotion/styled', '@mui/material']
-    }
+    },
 });
