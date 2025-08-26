@@ -311,7 +311,7 @@ export const generateWeekDays = (
   weekDays: WeekDays[],
   maxDate?: Date | null
 ): Date[] => {
-  const weekStart = dayjs(selectedDate).startOf('week').add(weekStartOn, 'day');
+  const weekStart = dayjs(selectedDate).startOf('week').add(weekStartOn, 'day').subtract(1, 'day');
 
   return generateDays(weekStart.toDate(), weekDays)
     .filter(

@@ -139,8 +139,9 @@ const WeekTable = ({
               )}
             </span>
             {daysList.map((date, ii) => {
+              const shiftedDate = dayjs(date).add(1, 'day').toDate();
               const start = dayjs(
-                `${dayjs(date).format('YYYY/MM/DD')} ${dayjs(h).format(hFormat)}`
+                `${dayjs(shiftedDate).format('YYYY/MM/DD')} ${dayjs(h).format(hFormat)}`
               );
               const end = start.add(step, 'minute');
               const field = resourceFields.idField;
@@ -149,8 +150,8 @@ const WeekTable = ({
                 <span key={ii} className={`rs__cell ${isDateToday(date) ? 'rs__today_cell' : ''}`}>
                   {i === 0 && (
                     <TodayEvents
-                      todayEvents={filterTodayEvents(resourcedEvents, date, timeZone)}
-                      today={date}
+                      todayEvents={filterTodayEvents(resourcedEvents, shiftedDate, timeZone)}
+                      today={shiftedDate}
                       minuteHeight={minutesHeight}
                       startHour={startHour}
                       endHour={endHour}
@@ -162,7 +163,7 @@ const WeekTable = ({
                   <Cell
                     start={start.toDate()}
                     end={end.toDate()}
-                    day={date}
+                    day={shiftedDate}
                     height={cellHeight}
                     resourceKey={field}
                     resourceVal={resource ? resource[field] : null}

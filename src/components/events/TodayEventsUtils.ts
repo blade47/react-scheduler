@@ -49,13 +49,11 @@ export const calculateEventPosition = ({
   alreadyRendered,
   direction,
 }: EventPositionProps) => {
-  const width =
-    alreadyRendered.length > 0 ? `calc(100% - ${100 - 98 / (alreadyRendered.length + 1)}%)` : '98%';
+  // BUG: Do not split overlapping events into columns; make them almost full width
+  const width = '98%';
 
-  const position =
-    alreadyRendered.length > 0
-      ? `${(100 / (crossingEvents.length + 1)) * alreadyRendered.length}%`
-      : '';
+  // BUG: Always position at the start, ignoring how many have already been rendered
+  const position = '';
 
   return {
     width,

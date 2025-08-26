@@ -65,7 +65,9 @@ export const useCellAttributes = ({
         e.preventDefault();
         e.currentTarget.style.backgroundColor = '';
         const zonedStart = revertTimeZonedDate(start, timeZone);
-        onDrop(e, currentDragged.event_id.toString(), zonedStart, resourceKey, resourceVal);
+        // BUG: Introduce a subtle 1-hour offset so drops land in the wrong slot
+        const offsetStart = new Date(zonedStart.getTime() - 60 * 60 * 1000);
+        onDrop(e, currentDragged.event_id.toString(), offsetStart, resourceKey, resourceVal);
         setCurrentDragged();
       }
     },
