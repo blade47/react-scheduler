@@ -61,6 +61,7 @@ export interface CalendarEvent {
   editable?: boolean;
   deletable?: boolean;
   draggable?: boolean;
+  resizable?: boolean;
   allDay?: boolean;
   agendaAvatar?: ReactElement | string;
 }
@@ -282,11 +283,16 @@ export interface OptionalSchedulerProps {
     updatedEvent: ProcessedEvent,
     originalEvent: ProcessedEvent
   ): Promise<ProcessedEvent | void>;
+  onEventResize?(
+    updatedEvent: ProcessedEvent,
+    originalEvent: ProcessedEvent
+  ): Promise<ProcessedEvent | void>;
   onEventClick?(event: ProcessedEvent): void;
   onEventEdit?(event: ProcessedEvent): void;
   deletable?: boolean;
   editable?: boolean;
   draggable?: boolean;
+  resizable?: boolean;
   onSelectedDateChange?(date: Date): void;
   onViewChange?(view: View, agenda?: boolean): void;
   stickyNavigation?: boolean;
