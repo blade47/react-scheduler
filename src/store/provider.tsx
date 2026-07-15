@@ -25,13 +25,29 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
   });
 
   useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      onEventDrop: initial.onEventDrop,
-      customDialog: initial.customDialog,
+    setState((previous) => ({
+      ...previous,
       events: initial.events ?? [],
+      resources: initial.resources ?? [],
+      onEventDrop: initial.onEventDrop,
+      onEventResize: initial.onEventResize,
+      onCellClick: initial.onCellClick,
+      editable: initial.editable ?? previous.editable,
+      draggable: initial.draggable ?? previous.draggable,
+      resizable: initial.resizable ?? previous.resizable,
+      customDialog: initial.customDialog,
     }));
-  }, [initial.onEventDrop, initial.customDialog, initial.events]);
+  }, [
+    initial.customDialog,
+    initial.editable,
+    initial.events,
+    initial.draggable,
+    initial.onCellClick,
+    initial.onEventDrop,
+    initial.onEventResize,
+    initial.resizable,
+    initial.resources,
+  ]);
 
   const handleState = (
     value: SchedulerStateBase[keyof SchedulerStateBase],
@@ -58,12 +74,27 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
 
   const triggerDialog = useCallback(
     (status: boolean, selected?: SelectedRange | ProcessedEvent): void => {
-      const isEvent = (val: any): val is ProcessedEvent =>
-        val && typeof val === 'object' && 'event_id' in val;
+      const isEvent = (value: unknown): value is ProcessedEvent =>
+        typeof value === 'object' && value !== null && 'event_id' in value;
+
+      const isRecord = (value: unknown): value is Record<string, unknown> =>
+        typeof value === 'object' && value !== null;
 
       setState((prev) => {
         const processedEvent = isEvent(selected) ? selected : undefined;
         const resourceField = state.resourceFields?.idField;
+
+        const selectedValue: unknown = selected;
+        const selectedRecord = isRecord(selectedValue) ? selectedValue : undefined;
+        const selectedRangeResource = resourceField ? selectedRecord?.[resourceField] : undefined;
+        const rangeResource =
+          typeof selectedRangeResource === 'string' || typeof selectedRangeResource === 'number'
+            ? selectedRangeResource
+            : undefined;
+        const eventResource =
+          processedEvent && resourceField
+            ? (processedEvent[resourceField] as DefaultResource['assignee'])
+            : undefined;
 
         return {
           ...prev,
@@ -75,11 +106,7 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
               }
             : undefined,
           selectedEvent: processedEvent,
-          selectedResource:
-            prev.selectedResource ||
-            (processedEvent && resourceField
-              ? (processedEvent[resourceField] as DefaultResource['assignee'])
-              : undefined),
+          selectedResource: rangeResource ?? eventResource ?? prev.selectedResource,
         };
       });
     },

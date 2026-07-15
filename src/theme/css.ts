@@ -676,6 +676,23 @@ export const EventButton = styled(ButtonBase)(() => ({
   padding: 0,
 }));
 
+export const EventResizeHandle = styled('span')(({ theme }) => ({
+  position: 'absolute',
+  right: 2,
+  bottom: 1,
+  left: 2,
+  zIndex: 2,
+  height: 8,
+  cursor: 'ns-resize',
+  touchAction: 'none',
+  borderBottom: `2px solid ${alpha(theme.palette.common.white, 0.75)}`,
+  borderRadius: 2,
+  '&:focus-visible': {
+    outline: `2px solid ${theme.palette.common.white}`,
+    outlineOffset: -1,
+  },
+}));
+
 export const MultidayContent = styled('div')(({ theme }) => ({
   padding: '2px 4px',
   width: '100%',

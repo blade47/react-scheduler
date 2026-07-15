@@ -4,9 +4,10 @@ import { getHourFormat } from '../../helpers/generals.tsx';
 import useStore from '../../hooks/useStore.ts';
 import useDragAttributes from '../../hooks/useDragAttributes.ts';
 import useEventPermissions from '../../hooks/useEventPermissions.ts';
+import useEventResize from '../../hooks/useEventResize.ts';
 import { EventContentComponent } from './EventContent.tsx';
 import { ProcessedEvent } from '@/types.ts';
-import { EventButton, EventWrapper } from '@/theme/css.ts';
+import { EventButton, EventResizeHandle, EventWrapper } from '@/theme/css.ts';
 import EventItemPopover from '@/components/events/EventItemPopover.tsx';
 import { dayjs } from '@/config/dayjs.ts';
 
@@ -26,7 +27,9 @@ export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const theme = useTheme();
   const hFormat = getHourFormat(hourFormat);
-  const { canDrag } = useEventPermissions(event);
+  const { canDrag, canResize } = useEventPermissions(event);
+  const resizeEnabled = Boolean(canResize && !multiday && view !== 'month');
+  const { resizeHandleProps } = useEventResize(event, resizeEnabled);
 
   const triggerViewer = useCallback(
     (el?: MouseEvent) => {
@@ -68,7 +71,7 @@ export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }
         draggable={canDrag && !event.disabled}
       >
         <EventButton
-          onClick={(e: any) => {
+          onClick={(e: MouseEvent<HTMLElement>) => {
             e.preventDefault();
             e.stopPropagation();
             if (!disableViewer) {
@@ -95,6 +98,7 @@ export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }
             />
           </div>
         </EventButton>
+        {resizeHandleProps ? <EventResizeHandle {...resizeHandleProps} /> : null}
       </EventWrapper>
     );
   }, [
@@ -113,6 +117,7 @@ export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }
     hasNext,
     triggerViewer,
     onEventClick,
+    resizeHandleProps,
   ]);
 
   return (
