@@ -1,9 +1,14 @@
-import React, { DragEvent, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { DragEvent, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { DefaultResource, EventActions, ProcessedEvent } from '@/index.tsx';
 import { defaultProps } from './default.ts';
 import { StoreContext } from './context.ts';
 import { Store, SelectedRange } from './types.ts';
-import { arraytizeFieldVal, getAvailableViews } from '../helpers/generals.tsx';
+import {
+  hasControlledDateChanged,
+  resolveControlledDate,
+  resolveControlledWeekStartOn,
+} from './controlledPropsSync.ts';
+import { arraytizeFieldVal, getAvailableViews, getTimeZonedDate } from '../helpers/generals.tsx';
 import { dayjs } from '@/config/dayjs.ts';
 import { Scheduler, SchedulerStateBase, View } from '@/types.ts';
 
@@ -36,18 +41,48 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
       draggable: initial.draggable ?? previous.draggable,
       resizable: initial.resizable ?? previous.resizable,
       customDialog: initial.customDialog,
+      minDate: resolveControlledDate(initial.minDate, previous.minDate),
+      maxDate: resolveControlledDate(initial.maxDate, previous.maxDate),
+      week: resolveControlledWeekStartOn(initial.week?.weekStartOn, previous.week),
     }));
   }, [
     initial.customDialog,
     initial.editable,
     initial.events,
     initial.draggable,
+    initial.maxDate,
+    initial.minDate,
     initial.onCellClick,
     initial.onEventDrop,
     initial.onEventResize,
     initial.resizable,
     initial.resources,
+    initial.week,
   ]);
+
+  // selectedDate is also mutated internally (handleGotoDay, view navigation), so — unlike the
+  // fields above — the store's current value cannot be used to detect whether the *prop* changed.
+  // Track the last prop value we synced in a ref and only push updates when it genuinely moves,
+  // so this effect never fights in-progress navigation on unrelated renders (e.g. a consumer
+  // re-rendering with a new-but-equal `Date` instance).
+  const lastSyncedSelectedDateRef = useRef<number | undefined>(initial.selectedDate?.getTime());
+
+  useEffect(() => {
+    const nextSelectedDate = initial.selectedDate;
+
+    if (!hasControlledDateChanged(nextSelectedDate, lastSyncedSelectedDateRef.current)) {
+      return;
+    }
+
+    lastSyncedSelectedDateRef.current = nextSelectedDate?.getTime();
+
+    if (nextSelectedDate === undefined) return;
+
+    setState((previous) => ({
+      ...previous,
+      selectedDate: getTimeZonedDate(nextSelectedDate, initial.timeZone),
+    }));
+  }, [initial.selectedDate, initial.timeZone]);
 
   const handleState = (
     value: SchedulerStateBase[keyof SchedulerStateBase],
