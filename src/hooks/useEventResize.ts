@@ -35,8 +35,9 @@ export interface ResizeHandleProps {
 const eventContainer = (target: HTMLElement): HTMLElement | null =>
   target.closest<HTMLElement>('.rs__event__item');
 
-/** Minutes-of-day integer for a Date, e.g. 09:30 -> 570. Used for the ARIA `aria-value*` triad. */
-const minutesOfDay = (date: Date): number => dayjs(date).hour() * 60 + dayjs(date).minute();
+/** Minutes elapsed from `start` to `date` (duration semantics for the ARIA `aria-value*` triad).
+ *  Using minutes-of-day collapses `valuemax` below `valuemin` at the midnight/24h boundary. */
+const minutesFromStart = (start: Date, date: Date): number => dayjs(date).diff(start, 'minute');
 
 const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
   const { view, day, week, onEventResize, confirmEvent, triggerLoading } = useStore();
@@ -80,11 +81,11 @@ const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
       if (!active || active.pointerId !== pointerId) return;
       if (target.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId);
       active.container.style.height = `${active.originalHeight}px`;
-      target.setAttribute('aria-valuenow', String(minutesOfDay(event.end)));
+      target.setAttribute('aria-valuenow', String(minutesFromStart(event.start, event.end)));
       session.current = null;
       void commit(active.nextEnd);
     },
-    [commit, event.end]
+    [commit, event.start, event.end]
   );
 
   const onPointerDown = useCallback(
@@ -123,7 +124,10 @@ const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
       const nextMinutes = dayjs(active.nextEnd).diff(event.start, 'minute');
       active.container.style.height = `${active.originalHeight * (nextMinutes / originalMinutes)}px`;
       // Keep the separator's live value in sync during the drag without forcing a re-render.
-      pointerEvent.currentTarget.setAttribute('aria-valuenow', String(minutesOfDay(active.nextEnd)));
+      pointerEvent.currentTarget.setAttribute(
+        'aria-valuenow',
+        String(minutesFromStart(event.start, active.nextEnd))
+      );
     },
     [event.start, event.end, maxEnd, stepMinutes]
   );
@@ -142,11 +146,14 @@ const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
       const active = session.current;
       if (active) {
         active.container.style.height = `${active.originalHeight}px`;
-        pointerEvent.currentTarget.setAttribute('aria-valuenow', String(minutesOfDay(event.end)));
+        pointerEvent.currentTarget.setAttribute(
+          'aria-valuenow',
+          String(minutesFromStart(event.start, event.end))
+        );
       }
       session.current = null;
     },
-    [event.end]
+    [event.start, event.end]
   );
 
   const onKeyDown = useCallback(
@@ -172,9 +179,9 @@ const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
       role: 'separator',
       'aria-label': `Resize ${String(event.title)}`,
       'aria-orientation': 'horizontal',
-      'aria-valuemin': minutesOfDay(minEnd),
-      'aria-valuemax': minutesOfDay(maxEnd),
-      'aria-valuenow': minutesOfDay(event.end),
+      'aria-valuemin': minutesFromStart(event.start, minEnd),
+      'aria-valuemax': minutesFromStart(event.start, maxEnd),
+      'aria-valuenow': minutesFromStart(event.start, event.end),
       tabIndex: 0,
       onPointerDown,
       onPointerMove,
@@ -185,6 +192,7 @@ const useEventResize = (event: ProcessedEvent, enabled: boolean) => {
   }, [
     enabled,
     event.title,
+    event.start,
     event.end,
     minEnd,
     maxEnd,

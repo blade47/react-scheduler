@@ -115,6 +115,8 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
       const isRecord = (value: unknown): value is Record<string, unknown> =>
         typeof value === 'object' && value !== null;
 
+      const preferRange = state.preferRangeResourceInDialog ?? false;
+
       setState((prev) => {
         const processedEvent = isEvent(selected) ? selected : undefined;
         const resourceField = state.resourceFields?.idField;
@@ -141,11 +143,13 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
               }
             : undefined,
           selectedEvent: processedEvent,
-          selectedResource: rangeResource ?? eventResource ?? prev.selectedResource,
+          selectedResource: preferRange
+            ? (rangeResource ?? eventResource ?? prev.selectedResource)
+            : (prev.selectedResource || eventResource),
         };
       });
     },
-    [state.resourceFields?.idField]
+    [state.resourceFields?.idField, state.preferRangeResourceInDialog]
   );
 
   const triggerLoading = useCallback(

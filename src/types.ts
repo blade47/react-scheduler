@@ -250,6 +250,13 @@ export interface OptionalSchedulerProps {
   week?: WeekProps | null;
   day?: DayProps | null;
   selectedResource?: DefaultResource['assignee'];
+  /**
+   * When true, a cell click's resource (the clicked column/room) takes priority over the
+   * selected event's resource when opening the create/edit dialog:
+   * `rangeResource ?? eventResource ?? prev.selectedResource`. Defaults to false, which keeps
+   * the legacy priority (`prev.selectedResource || eventResource`) for existing consumers.
+   */
+  preferRangeResourceInDialog?: boolean;
   minDate?: Date | null;
   maxDate?: Date | null;
   navigation?: boolean;

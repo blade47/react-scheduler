@@ -162,6 +162,7 @@ export const defaultProps = (props: Scheduler): SchedulerProps => {
     editable: true,
     draggable: true,
     resizable: false,
+    preferRangeResourceInDialog: false,
     enableAgenda: true,
     enableTodayButton: true,
     maxDate: undefined,

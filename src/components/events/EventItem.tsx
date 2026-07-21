@@ -98,7 +98,16 @@ export const EventItem = ({ event, multiday, hasPrev, hasNext, showdate = true }
             />
           </div>
         </EventButton>
-        {resizeHandleProps ? <EventResizeHandle {...resizeHandleProps} /> : null}
+        {resizeHandleProps ? (
+          <EventResizeHandle
+            {...resizeHandleProps}
+            draggable={false}
+            onDragStart={(dragEvent) => {
+              dragEvent.preventDefault();
+              dragEvent.stopPropagation();
+            }}
+          />
+        ) : null}
       </EventWrapper>
     );
   }, [
