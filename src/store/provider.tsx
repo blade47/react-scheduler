@@ -1,9 +1,14 @@
-import React, { DragEvent, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { DragEvent, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { DefaultResource, EventActions, ProcessedEvent } from '@/index.tsx';
 import { defaultProps } from './default.ts';
 import { StoreContext } from './context.ts';
 import { Store, SelectedRange } from './types.ts';
-import { arraytizeFieldVal, getAvailableViews } from '../helpers/generals.tsx';
+import {
+  hasControlledDateChanged,
+  resolveControlledDate,
+  resolveControlledWeekStartOn,
+} from './controlledPropsSync.ts';
+import { arraytizeFieldVal, getAvailableViews, getTimeZonedDate } from '../helpers/generals.tsx';
 import { dayjs } from '@/config/dayjs.ts';
 import { Scheduler, SchedulerStateBase, View } from '@/types.ts';
 
@@ -25,13 +30,59 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
   });
 
   useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      onEventDrop: initial.onEventDrop,
-      customDialog: initial.customDialog,
+    setState((previous) => ({
+      ...previous,
       events: initial.events ?? [],
+      resources: initial.resources ?? [],
+      onEventDrop: initial.onEventDrop,
+      onEventResize: initial.onEventResize,
+      onCellClick: initial.onCellClick,
+      editable: initial.editable ?? previous.editable,
+      draggable: initial.draggable ?? previous.draggable,
+      resizable: initial.resizable ?? previous.resizable,
+      customDialog: initial.customDialog,
+      minDate: resolveControlledDate(initial.minDate, previous.minDate),
+      maxDate: resolveControlledDate(initial.maxDate, previous.maxDate),
+      week: resolveControlledWeekStartOn(initial.week?.weekStartOn, previous.week),
     }));
-  }, [initial.onEventDrop, initial.customDialog, initial.events]);
+  }, [
+    initial.customDialog,
+    initial.editable,
+    initial.events,
+    initial.draggable,
+    initial.maxDate,
+    initial.minDate,
+    initial.onCellClick,
+    initial.onEventDrop,
+    initial.onEventResize,
+    initial.resizable,
+    initial.resources,
+    initial.week,
+  ]);
+
+  // selectedDate is also mutated internally (handleGotoDay, view navigation), so — unlike the
+  // fields above — the store's current value cannot be used to detect whether the *prop* changed.
+  // Track the last prop value we synced in a ref and only push updates when it genuinely moves,
+  // so this effect never fights in-progress navigation on unrelated renders (e.g. a consumer
+  // re-rendering with a new-but-equal `Date` instance).
+  const lastSyncedSelectedDateRef = useRef<number | undefined>(initial.selectedDate?.getTime());
+
+  useEffect(() => {
+    const nextSelectedDate = initial.selectedDate;
+
+    if (!hasControlledDateChanged(nextSelectedDate, lastSyncedSelectedDateRef.current)) {
+      return;
+    }
+
+    lastSyncedSelectedDateRef.current = nextSelectedDate?.getTime();
+
+    if (nextSelectedDate === undefined) return;
+
+    setState((previous) => ({
+      ...previous,
+      selectedDate: getTimeZonedDate(nextSelectedDate, initial.timeZone),
+    }));
+  }, [initial.selectedDate, initial.timeZone]);
 
   const handleState = (
     value: SchedulerStateBase[keyof SchedulerStateBase],
@@ -58,12 +109,29 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
 
   const triggerDialog = useCallback(
     (status: boolean, selected?: SelectedRange | ProcessedEvent): void => {
-      const isEvent = (val: any): val is ProcessedEvent =>
-        val && typeof val === 'object' && 'event_id' in val;
+      const isEvent = (value: unknown): value is ProcessedEvent =>
+        typeof value === 'object' && value !== null && 'event_id' in value;
+
+      const isRecord = (value: unknown): value is Record<string, unknown> =>
+        typeof value === 'object' && value !== null;
+
+      const preferRange = state.preferRangeResourceInDialog ?? false;
 
       setState((prev) => {
         const processedEvent = isEvent(selected) ? selected : undefined;
         const resourceField = state.resourceFields?.idField;
+
+        const selectedValue: unknown = selected;
+        const selectedRecord = isRecord(selectedValue) ? selectedValue : undefined;
+        const selectedRangeResource = resourceField ? selectedRecord?.[resourceField] : undefined;
+        const rangeResource =
+          typeof selectedRangeResource === 'string' || typeof selectedRangeResource === 'number'
+            ? selectedRangeResource
+            : undefined;
+        const eventResource =
+          processedEvent && resourceField
+            ? (processedEvent[resourceField] as DefaultResource['assignee'])
+            : undefined;
 
         return {
           ...prev,
@@ -75,15 +143,13 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
               }
             : undefined,
           selectedEvent: processedEvent,
-          selectedResource:
-            prev.selectedResource ||
-            (processedEvent && resourceField
-              ? (processedEvent[resourceField] as DefaultResource['assignee'])
-              : undefined),
+          selectedResource: preferRange
+            ? (rangeResource ?? eventResource ?? prev.selectedResource)
+            : (prev.selectedResource || eventResource),
         };
       });
     },
-    [state.resourceFields?.idField]
+    [state.resourceFields?.idField, state.preferRangeResourceInDialog]
   );
 
   const triggerLoading = useCallback(

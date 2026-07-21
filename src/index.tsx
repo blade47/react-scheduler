@@ -2,6 +2,7 @@ import '@fontsource/open-sans';
 import '@fontsource/manrope';
 import '@/config/dayjs.ts';
 import { forwardRef } from 'react';
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { StoreProvider } from './store/provider.tsx';
 
 import type {
@@ -18,7 +19,7 @@ import type {
   RemoteQuery,
   ResourceFields,
   CustomDialogProps,
-  Scheduler as SchedulerProps,
+  Scheduler as SchedulerConfig,
   SchedulerRef,
   Translations,
   View,
@@ -47,15 +48,16 @@ import DateProvider from '@/components/providers/DateProvider.tsx';
  * />
  * ```
  */
-export const Scheduler = forwardRef<SchedulerRef, SchedulerProps>(function Scheduler(props, ref) {
-  return (
-    <DateProvider locale={props.locale ?? 'en'}>
-      <StoreProvider initial={props}>
-        <SchedulerComponent ref={ref} />
-      </StoreProvider>
-    </DateProvider>
-  );
-});
+export const Scheduler: ForwardRefExoticComponent<SchedulerConfig & RefAttributes<SchedulerRef>> =
+  forwardRef<SchedulerRef, SchedulerConfig>(function Scheduler(props, ref) {
+    return (
+      <DateProvider locale={props.locale ?? 'en'}>
+        <StoreProvider initial={props}>
+          <SchedulerComponent ref={ref} />
+        </StoreProvider>
+      </DateProvider>
+    );
+  });
 
 export type {
   // Event related types
@@ -85,7 +87,7 @@ export type {
   View,
 
   // Configuration types
-  SchedulerProps,
+  SchedulerConfig as SchedulerProps,
   Translations,
   RemoteQuery,
 };

@@ -61,6 +61,7 @@ export interface CalendarEvent {
   editable?: boolean;
   deletable?: boolean;
   draggable?: boolean;
+  resizable?: boolean;
   allDay?: boolean;
   agendaAvatar?: ReactElement | string;
 }
@@ -249,6 +250,13 @@ export interface OptionalSchedulerProps {
   week?: WeekProps | null;
   day?: DayProps | null;
   selectedResource?: DefaultResource['assignee'];
+  /**
+   * When true, a cell click's resource (the clicked column/room) takes priority over the
+   * selected event's resource when opening the create/edit dialog:
+   * `rangeResource ?? eventResource ?? prev.selectedResource`. Defaults to false, which keeps
+   * the legacy priority (`prev.selectedResource || eventResource`) for existing consumers.
+   */
+  preferRangeResourceInDialog?: boolean;
   minDate?: Date | null;
   maxDate?: Date | null;
   navigation?: boolean;
@@ -282,11 +290,16 @@ export interface OptionalSchedulerProps {
     updatedEvent: ProcessedEvent,
     originalEvent: ProcessedEvent
   ): Promise<ProcessedEvent | void>;
+  onEventResize?(
+    updatedEvent: ProcessedEvent,
+    originalEvent: ProcessedEvent
+  ): Promise<ProcessedEvent | void>;
   onEventClick?(event: ProcessedEvent): void;
   onEventEdit?(event: ProcessedEvent): void;
   deletable?: boolean;
   editable?: boolean;
   draggable?: boolean;
+  resizable?: boolean;
   onSelectedDateChange?(date: Date): void;
   onViewChange?(view: View, agenda?: boolean): void;
   stickyNavigation?: boolean;
