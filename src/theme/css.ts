@@ -82,24 +82,27 @@ export const SchedulerContent = styled('div', {
                   top: 48,
                 },
               }
-            : {
-                // Default (side-by-side) mode: first child is the resource-header row —
-                // natural height + sticky keeps columns labeled while hours scroll; second
-                // child is the hour table, which must win its natural height back from the
-                // flex squeeze + overflow:hidden it carries for the unbounded layout.
-                '& > div:first-of-type': {
-                  flex: '0 0 auto',
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: theme.zIndex.appBar - 1,
-                  backgroundColor: theme.palette.background.paper,
-                },
-                '& > div:nth-of-type(2)': {
-                  overflow: 'visible',
-                  flex: '0 0 auto',
-                  height: 'auto',
-                },
-              }),
+            : resourceCount <= 1
+              ? {
+                  // Single-column stacking (day's combined table, or one resource): first child
+                  // is the header row — natural height + sticky keeps columns labeled while
+                  // hours scroll; second child is the hour table, which must win its natural
+                  // height back from the flex squeeze + overflow:hidden it carries for the
+                  // unbounded layout.
+                  '& > div:first-of-type': {
+                    flex: '0 0 auto',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: theme.zIndex.appBar - 1,
+                    backgroundColor: theme.palette.background.paper,
+                  },
+                  '& > div:nth-of-type(2)': {
+                    overflow: 'visible',
+                    flex: '0 0 auto',
+                    height: 'auto',
+                  },
+                }
+              : {}),
         }
       : {}),
   })

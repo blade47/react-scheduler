@@ -22,7 +22,7 @@ export const SchedulerComponent = forwardRef<SchedulerRef>((_, ref) => {
   const {
     view,
     dialog,
-    height,
+    boundedHeight,
     loading,
     loadingComponent,
     resourceViewMode,
@@ -65,11 +65,20 @@ export const SchedulerComponent = forwardRef<SchedulerRef>((_, ref) => {
       <Navigation />
 
       <SchedulerContent
-        resourceCount={resourceViewMode === 'default' ? resources.length : 1}
-        bounded={Boolean(height)}
+        // Day always renders ONE combined table (every resource is a grid column inside it —
+        // see DayTable), so it must never trigger the side-by-side row layout that week/month's
+        // per-resource cards use. Counting day as >1 flipped the container to flex-row and broke
+        // the header/body stacking.
+        resourceCount={
+          view !== 'day' && resourceViewMode === 'default' ? resources.length : 1
+        }
+        bounded={Boolean(boundedHeight)}
         tabMode={resourceViewMode === 'tabs'}
         sx={{
-          overflowX: resourceViewMode === 'default' && resources.length > 1 ? 'auto' : undefined,
+          overflowX:
+            view !== 'day' && resourceViewMode === 'default' && resources.length > 1
+              ? 'auto'
+              : undefined,
           flexDirection: resourceViewMode === 'vertical' ? 'column' : undefined,
         }}
         data-testid="scheduler-grid"
