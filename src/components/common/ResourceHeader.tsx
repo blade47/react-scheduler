@@ -36,7 +36,10 @@ export const ResourceHeader = ({ resource }: Props) => {
   }
 
   const { text, subtext, avatar, color } = getResourceFields();
-  const shouldWrapText = resourceViewMode !== 'vertical';
+  // Horizontal modes (tabs / side-by-side columns) render compact: real deployments carry many
+  // resources with venue-length names, and uneven multi-line headers broke tab alignment. The
+  // full name stays reachable via the native title tooltip below.
+  const compact = resourceViewMode !== 'vertical';
 
   const renderAvatar = () => {
     if (avatar) {
@@ -44,8 +47,8 @@ export const ResourceHeader = ({ resource }: Props) => {
         <Avatar
           sx={{
             bgcolor: color || theme.palette.primary.main,
-            width: 36,
-            height: 36,
+            width: compact ? 24 : 36,
+            height: compact ? 24 : 36,
           }}
           alt={text}
           src={avatar}
@@ -53,22 +56,40 @@ export const ResourceHeader = ({ resource }: Props) => {
       );
     }
 
-    return <ResourceAvatar color={color}>{text.charAt(0).toUpperCase()}</ResourceAvatar>;
+    return (
+      <ResourceAvatar color={color} compact={compact}>
+        {text.charAt(0).toUpperCase()}
+      </ResourceAvatar>
+    );
   };
 
   return (
     <ResourceListItem
       viewMode={resourceViewMode as ResourceViewMode}
       direction={direction as 'ltr' | 'rtl'}
+      title={subtext ? `${text} — ${subtext}` : text}
     >
       {renderAvatar()}
       <ResourceContent viewMode={resourceViewMode as ResourceViewMode}>
         <Typography
-          variant="body2"
-          noWrap={shouldWrapText}
+          variant={compact ? 'caption' : 'body2'}
           sx={{
             fontWeight: theme.typography.fontWeightMedium,
             color: theme.palette.text.primary,
+            // Two-line clamp instead of free wrap: uniform header heights at any name length.
+            ...(compact
+              ? {
+                  display: '-webkit-box',
+                  overflow: 'hidden',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 2,
+                  lineHeight: 1.25,
+                  // Direct declaration: TableGrid's `.rs__header > :first-of-type` nowrap wins
+                  // the specificity fight on the list item, but the clamp needs wrapping — a
+                  // direct value here beats the inherited one unconditionally.
+                  whiteSpace: 'normal',
+                }
+              : {}),
           }}
         >
           {text}
@@ -76,7 +97,7 @@ export const ResourceHeader = ({ resource }: Props) => {
         {subtext && (
           <Typography
             variant="caption"
-            noWrap={shouldWrapText}
+            noWrap={compact}
             sx={{
               color: theme.palette.text.secondary,
               display: 'block',

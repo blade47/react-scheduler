@@ -37,6 +37,25 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
       onEventDrop: initial.onEventDrop,
       onEventResize: initial.onEventResize,
       onCellClick: initial.onCellClick,
+      // Callback/config props below were historically captured at MOUNT only (via defaultProps),
+      // so a handler that first appears on a later render never reached the store — e.g. a
+      // consumer enabling a selection mode on an already-mounted calendar found onEventClick
+      // silently dead. Every prop here is pure config the store never mutates internally
+      // (the internally-mutated set — events/selectedDate/selectedResource/view — either has
+      // dedicated controlled-sync handling or is deliberately uncontrolled).
+      height: initial.height ?? previous.height,
+      boundedHeight: initial.height !== undefined ? true : previous.boundedHeight,
+      onEventClick: initial.onEventClick,
+      onEventEdit: initial.onEventEdit,
+      onDelete: initial.onDelete,
+      onConfirm: initial.onConfirm,
+      onResourceChange: initial.onResourceChange,
+      customViewer: initial.customViewer,
+      eventRenderer: initial.eventRenderer,
+      resourceHeaderComponent: initial.resourceHeaderComponent,
+      resourceViewMode: initial.resourceViewMode ?? previous.resourceViewMode,
+      disableViewer: initial.disableViewer ?? previous.disableViewer,
+      deletable: initial.deletable ?? previous.deletable,
       editable: initial.editable ?? previous.editable,
       draggable: initial.draggable ?? previous.draggable,
       resizable: initial.resizable ?? previous.resizable,
@@ -47,16 +66,28 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
     }));
   }, [
     initial.customDialog,
+    initial.customViewer,
+    initial.deletable,
+    initial.disableViewer,
     initial.editable,
     initial.events,
+    initial.eventRenderer,
+    initial.height,
     initial.draggable,
     initial.maxDate,
     initial.minDate,
     initial.onCellClick,
+    initial.onConfirm,
+    initial.onDelete,
+    initial.onEventClick,
     initial.onEventDrop,
+    initial.onEventEdit,
     initial.onEventResize,
+    initial.onResourceChange,
     initial.resizable,
+    initial.resourceHeaderComponent,
     initial.resources,
+    initial.resourceViewMode,
     initial.week,
   ]);
 

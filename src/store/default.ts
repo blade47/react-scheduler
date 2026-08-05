@@ -135,6 +135,7 @@ export const defaultProps = (props: Scheduler): SchedulerProps => {
 
   const baseProps: RequiredSchedulerProps = {
     height: 600,
+    boundedHeight: props.height !== undefined,
     view: initialView,
     selectedDate: getTimeZonedDate(selectedDate || new Date(), props.timeZone),
     events: [],

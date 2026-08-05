@@ -34,8 +34,10 @@ export const SchedulerWrapper = styled('div', {
   backgroundColor: theme.palette.background.default,
 }));
 
-export const SchedulerContent = styled('div')<{ resourceCount: number }>(
-  ({ theme, resourceCount }) => ({
+export const SchedulerContent = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'resourceCount' && prop !== 'bounded' && prop !== 'tabMode',
+})<{ resourceCount: number; bounded?: boolean; tabMode?: boolean }>(
+  ({ theme, resourceCount, bounded, tabMode }) => ({
     position: 'relative',
     display: 'flex',
     flexDirection: resourceCount > 1 ? 'row' : 'column',
@@ -50,6 +52,56 @@ export const SchedulerContent = styled('div')<{ resourceCount: number }>(
     '&:hover': {
       boxShadow: theme.shadows[2],
     },
+
+    // Bounded mode (consumer passed `height`): this container is THE scroll box, so every
+    // descendant that ships overflow:hidden / flex-bound sizing for the unbounded page-grow
+    // layout must fall back to natural height here — otherwise tall content is silently
+    // clipped with no scroller anywhere (measured in production: a day view showing 263px of
+    // a 1080px hour table, a week grid whose scrollHeight equalled its clientHeight).
+    ...(bounded
+      ? {
+          minHeight: 0,
+          overscrollBehavior: 'contain',
+          ...(tabMode
+            ? {
+                // Tabs mode: the tab card wraps all content with overflow:hidden — natural
+                // height lets this container scroll it, and the tab strip stays visible.
+                '& > div:first-of-type': {
+                  overflow: 'visible',
+                  flex: '0 0 auto',
+                  height: 'auto',
+                  minHeight: '100%',
+                },
+                '& .MuiTabs-root': {
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: theme.zIndex.appBar - 1,
+                  backgroundColor: theme.palette.background.paper,
+                },
+                '& [role="tabpanel"] > div:first-of-type': {
+                  top: 48,
+                },
+              }
+            : {
+                // Default (side-by-side) mode: first child is the resource-header row —
+                // natural height + sticky keeps columns labeled while hours scroll; second
+                // child is the hour table, which must win its natural height back from the
+                // flex squeeze + overflow:hidden it carries for the unbounded layout.
+                '& > div:first-of-type': {
+                  flex: '0 0 auto',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: theme.zIndex.appBar - 1,
+                  backgroundColor: theme.palette.background.paper,
+                },
+                '& > div:nth-of-type(2)': {
+                  overflow: 'visible',
+                  flex: '0 0 auto',
+                  height: 'auto',
+                },
+              }),
+        }
+      : {}),
   })
 );
 
@@ -234,14 +286,22 @@ export const ResourceListItem = styled('div')<{
   viewMode: ResourceViewMode;
   direction: 'ltr' | 'rtl';
 }>(({ theme, viewMode, direction }) => ({
-  padding: theme.spacing(1, 1.5),
+  // Compact by default in the horizontal modes: real deployments carry many resources with
+  // venue-length names, and the old airy padding + free wrap gave every tab/column header a
+  // different height (up to four wrapped lines measured in production).
+  padding: viewMode === 'vertical' ? theme.spacing(1.5) : theme.spacing(0.5, 1),
+  // TableGrid's `.rs__header > :first-of-type` ships whiteSpace:nowrap for the legacy layout —
+  // it would defeat the compact header's two-line clamp, which needs wrapping enabled.
+  whiteSpace: 'normal',
   textAlign: direction === 'rtl' ? 'right' : 'left',
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(1.5),
+  gap: theme.spacing(1),
+  minWidth: 0,
   transition: theme.transitions.create(['background-color', 'box-shadow']),
 
   ...(viewMode === 'tabs' && {
+    maxWidth: 176,
     borderRadius: theme.shape.borderRadius,
     '&:hover': {
       backgroundColor: theme.palette.action.hover,
@@ -253,7 +313,6 @@ export const ResourceListItem = styled('div')<{
     textAlign: 'center',
     position: 'sticky',
     top: theme.spacing(0.5),
-    padding: theme.spacing(1.5),
   }),
 
   ...(viewMode === 'default' && {
@@ -267,16 +326,19 @@ export const ResourceListItem = styled('div')<{
   }),
 }));
 
-export const ResourceAvatar = styled('div')<{ color?: string }>(({ theme, color }) => ({
-  width: 36,
-  height: 36,
+export const ResourceAvatar = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'color' && prop !== 'compact',
+})<{ color?: string; compact?: boolean }>(({ theme, color, compact }) => ({
+  width: compact ? 24 : 36,
+  height: compact ? 24 : 36,
+  flexShrink: 0,
   borderRadius: '50%',
   backgroundColor: color || theme.palette.primary.main,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.common.white,
-  fontSize: theme.typography.body2.fontSize,
+  fontSize: compact ? theme.typography.caption.fontSize : theme.typography.body2.fontSize,
   fontWeight: theme.typography.fontWeightMedium,
 }));
 

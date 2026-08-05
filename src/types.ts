@@ -193,6 +193,10 @@ export type LocaleDirection = 'rtl' | 'ltr';
 
 export interface RequiredSchedulerProps {
   height: number;
+  /** True only when the consumer explicitly passed `height` — `height` itself always resolves
+   * to a default (600), so it cannot signal "the consumer wants a bounded, self-scrolling
+   * calendar" on its own. Drives the bounded layout in SchedulerContent. */
+  boundedHeight: boolean;
   view: View;
   selectedDate: Date;
   events: ProcessedEvent[];

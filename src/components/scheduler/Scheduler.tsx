@@ -19,8 +19,16 @@ const ViewComponents = {
 
 export const SchedulerComponent = forwardRef<SchedulerRef>((_, ref) => {
   const store = useStore();
-  const { view, dialog, loading, loadingComponent, resourceViewMode, resources, translations } =
-    store;
+  const {
+    view,
+    dialog,
+    height,
+    loading,
+    loadingComponent,
+    resourceViewMode,
+    resources,
+    translations,
+  } = store;
 
   const currentView = useMemo(() => ViewComponents[view as View], [view]);
 
@@ -58,6 +66,8 @@ export const SchedulerComponent = forwardRef<SchedulerRef>((_, ref) => {
 
       <SchedulerContent
         resourceCount={resourceViewMode === 'default' ? resources.length : 1}
+        bounded={Boolean(height)}
+        tabMode={resourceViewMode === 'tabs'}
         sx={{
           overflowX: resourceViewMode === 'default' && resources.length > 1 ? 'auto' : undefined,
           flexDirection: resourceViewMode === 'vertical' ? 'column' : undefined,
