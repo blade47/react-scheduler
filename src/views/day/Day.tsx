@@ -7,7 +7,7 @@ import { useDayEvents } from '@/views/day/hooks/useDayEvents.ts';
 import { DayGrid } from '@/views/day/components/DayGrid.tsx';
 
 export const Day = () => {
-  const { selectedDate, resources, agenda, day, timeZone } = useStore();
+  const { selectedDate, resources, agenda, day, timeZone, resourceFields } = useStore();
 
   const selectedDayjs = dayjs(selectedDate);
 
@@ -26,8 +26,15 @@ export const Day = () => {
 
   // Handle the case where there are no resources
   if (resources.length === 0) {
-    // Create a default resource to still show the day view
-    const defaultResource = [{ id: 'default', text: 'Default' }];
+    // Create a default resource to still show the day view, keyed by the CONSUMER's resourceFields
+    // rather than literal id/text. Every reader of a resource looks its fields up through
+    // resourceFields, so a placeholder with hardcoded keys is invisible to all of them as soon as a
+    // consumer remaps the fields — ResourceHeader then read `resource[textField]` as undefined and
+    // threw on `.charAt(0)`, which React escalates out of the library into the consumer's error
+    // boundary. Reported downstream as "no rooms configured makes the day view reload the page".
+    const defaultResource = [
+      { [resourceFields.idField]: 'default', [resourceFields.textField]: 'Default' },
+    ];
 
     return agenda ? (
       <AgendaView view="day" events={events} />

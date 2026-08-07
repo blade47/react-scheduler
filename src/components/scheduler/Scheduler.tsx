@@ -69,11 +69,15 @@ export const SchedulerComponent = forwardRef<SchedulerRef>((_, ref) => {
         // see DayTable), so it must never trigger the side-by-side row layout that week/month's
         // per-resource cards use. Counting day as >1 flipped the container to flex-row and broke
         // the header/body stacking.
-        resourceCount={
-          view !== 'day' && resourceViewMode === 'default' ? resources.length : 1
-        }
+        resourceCount={view !== 'day' && resourceViewMode === 'default' ? resources.length : 1}
         bounded={Boolean(boundedHeight)}
-        tabMode={resourceViewMode === 'tabs'}
+        // Only when tabs are actually RENDERED, not merely requested: Week short-circuits
+        // WithResources when there are no resources, so with `resourceViewMode: 'tabs'` and an
+        // empty list the tab card never exists — and the bounded+tabMode rule, which targets
+        // `& > div:first-of-type` believing it to be that card, hit the sticky header grid instead
+        // and stretched it to minHeight 100%, pushing the hour rows a full viewport out of sight.
+        // Falling through to the resourceCount<=1 branch is exactly right for an empty calendar.
+        tabMode={resourceViewMode === 'tabs' && resources.length > 0}
         sx={{
           overflowX:
             view !== 'day' && resourceViewMode === 'default' && resources.length > 1
