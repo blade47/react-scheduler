@@ -24,8 +24,13 @@ export const ResourceHeader = ({ resource }: Props) => {
 
   const theme = useTheme();
 
+  // `?? ''` because the declared `text: string` is a claim about the CONSUMER's data, not something
+  // this type can enforce: a resource missing the configured textField yields undefined here, and
+  // `text` is dereferenced unguarded below (`.charAt(0)`). A render-phase throw does not degrade —
+  // React unmounts the tree and the consumer's error boundary takes over, so one misconfigured
+  // resource took down the whole page. An empty header is the correct failure mode for a library.
   const getResourceFields = (): LocalResourceFields => ({
-    text: resource[resourceFields.textField],
+    text: resource[resourceFields.textField] ?? '',
     subtext: resource[resourceFields.subTextField || ''],
     avatar: resource[resourceFields.avatarField || ''],
     color: resource[resourceFields.colorField || ''],
