@@ -89,11 +89,29 @@ export const SchedulerContent = styled('div', {
                   // hours scroll; second child is the hour table, which must win its natural
                   // height back from the flex squeeze + overflow:hidden it carries for the
                   // unbounded layout.
+                  //
+                  // HORIZONTAL panning belongs to this container too (2026-08-12 desync fix):
+                  // the hour table's overflow:visible release already made the wrapper the
+                  // horizontal scroller for events, but the header grid still carried its own
+                  // internal overflowX:auto — two unrelated scroll mechanisms that
+                  // useSyncScroll (which only pairs the two grids' INTERNAL scrollers) cannot
+                  // reconcile. Release the header grid the same way so one wrapper scroll pans
+                  // both. Both grids stay at container width so their minmax(120px, 1fr)
+                  // tracks resolve IDENTICALLY (a max-content width would size columns from
+                  // each grid's own content and misalign them); the overflowing header cells
+                  // paint their own background because the sticky box itself stays
+                  // viewport-wide. NOTE: must override the `overflow` SHORTHAND — per spec,
+                  // overflow-x:visible next to the grid's own overflow-y:hidden would compute
+                  // back to auto and resurrect the second scrollbar.
                   '& > div:first-of-type': {
                     flex: '0 0 auto',
                     position: 'sticky',
                     top: 0,
                     zIndex: theme.zIndex.appBar - 1,
+                    backgroundColor: theme.palette.background.paper,
+                    overflow: 'visible',
+                  },
+                  '& > div:first-of-type .rs__cell': {
                     backgroundColor: theme.palette.background.paper,
                   },
                   '& > div:nth-of-type(2)': {
