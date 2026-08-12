@@ -55,7 +55,17 @@ const primeHandle = () => {
   const item = screen.getByTestId('item');
   const handle = screen.getByTestId('handle');
   item.getBoundingClientRect = () =>
-    ({ height: 60, top: 0, bottom: 60, left: 0, right: 100, width: 100, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    ({
+      height: 60,
+      top: 0,
+      bottom: 60,
+      left: 0,
+      right: 100,
+      width: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }) as DOMRect;
   handle.setPointerCapture = vi.fn();
   handle.hasPointerCapture = vi.fn(() => true);
   handle.releasePointerCapture = vi.fn();
@@ -100,8 +110,12 @@ describe('useEventResize', () => {
     expect(handle.getAttribute('aria-valuenow')).toBe('120'); // duration 09:00 -> 11:00
     fireEvent.pointerUp(handle, { pointerId: 1, clientY: 160 });
     await waitFor(() => expect(onEventResize).toHaveBeenCalledTimes(1));
-    expect((onEventResize.mock.calls[0][0] as ProcessedEvent).end).toEqual(new Date('2026-07-15T11:00:00'));
-    await waitFor(() => expect(confirmEvent).toHaveBeenCalledWith(expect.objectContaining({ event_id: 'e1' }), 'edit'));
+    expect((onEventResize.mock.calls[0][0] as ProcessedEvent).end).toEqual(
+      new Date('2026-07-15T11:00:00')
+    );
+    await waitFor(() =>
+      expect(confirmEvent).toHaveBeenCalledWith(expect.objectContaining({ event_id: 'e1' }), 'edit')
+    );
     expect(triggerLoading).toHaveBeenNthCalledWith(1, true);
     expect(triggerLoading).toHaveBeenLastCalledWith(false);
   });
@@ -124,6 +138,8 @@ describe('useEventResize', () => {
     const { handle } = primeHandle();
     fireEvent.keyDown(handle, { key: 'ArrowDown' });
     await waitFor(() => expect(onEventResize).toHaveBeenCalledTimes(1));
-    expect((onEventResize.mock.calls[0][0] as ProcessedEvent).end).toEqual(new Date('2026-07-15T11:00:00'));
+    expect((onEventResize.mock.calls[0][0] as ProcessedEvent).end).toEqual(
+      new Date('2026-07-15T11:00:00')
+    );
   });
 });

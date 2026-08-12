@@ -176,7 +176,7 @@ export const StoreProvider: React.FC<Props> = ({ children, initial }) => {
           selectedEvent: processedEvent,
           selectedResource: preferRange
             ? (rangeResource ?? eventResource ?? prev.selectedResource)
-            : (prev.selectedResource || eventResource),
+            : prev.selectedResource || eventResource,
         };
       });
     },
