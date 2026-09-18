@@ -9,6 +9,8 @@ export default defineConfig({
     },
   },
   test: {
+    // vitest defaults to one worker per core; parallel runs (agents, turbo) overload the machine
+    maxWorkers: '50%',
     globals: true,
     environment: 'node',
   },
